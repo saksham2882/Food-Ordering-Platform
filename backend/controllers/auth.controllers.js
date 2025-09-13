@@ -1,5 +1,5 @@
 import User from "../models/user.model.js";
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import genToken from "../utils/token.js";
 
 // Sign Up:
@@ -7,7 +7,7 @@ export const signUp = async (req, res) => {
     try {
         const { fullName, email, password, mobile, role } = req.body;
 
-        const user = await User.findOne({ email });
+        let user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({ message: "User already exist." })
         }
@@ -38,7 +38,7 @@ export const signUp = async (req, res) => {
             httpOnly: true
         })
 
-        return res.status(201).json({ message: "User Registered Successfully" }, user);
+        return res.status(201).json({ message: "User Registered Successfully",  user });
 
     } catch (error) {
         return res.status(500).json(`Sign up error: ${error}`)
@@ -68,7 +68,7 @@ export const signIn = async (req, res) => {
             httpOnly: true
         })
 
-        return res.status(200).json({ message: "User Registered Successfully" }, user);
+        return res.status(200).json({ message: "User Login Successfully", user });
 
     } catch (error) {
         return res.status(500).json(`Sign In error: ${error}`)
