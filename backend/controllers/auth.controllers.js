@@ -12,10 +12,16 @@ export const signUp = async (req, res) => {
         if (user) {
             return res.status(400).json({ message: "User already exist." })
         }
+        if (!fullName) {
+            return res.status(400).json({ message: "Please enter full name" })
+        }
+        if(!email){
+            return res.status(400).json({ message: "Please enter your email" })
+        }
         if (password.length < 8) {
             return res.status(400).json({ message: "Password must be at least 8 characters." })
         }
-        if (mobile.length < 10) {
+        if (mobile.length < 10 || mobile.length > 10) {
             return res.status(400).json({ message: "Mobile no. must be 10 digits." })
         }
 
@@ -50,6 +56,9 @@ export const signUp = async (req, res) => {
 export const signIn = async (req, res) => {
     try {
         const { email, password } = req.body;
+        if(!email || !password){
+            return res.status(400).json({ message: "Please provide all fields" })
+        }
 
         const user = await User.findOne({ email });
         if (!user) {
@@ -158,5 +167,34 @@ export const resetPassword = async (req, res) => {
         return res.status(200).json({ message: "Password Reset Successfully" })
     } catch (error) {
         return res.status(500).json(`Reset password error: ${error}`)
+    }
+}
+
+
+// google Authentication
+export const googleAuth = async (req, res) => {
+    try {
+        const { fullName, email, mobile, role } = req.body;
+        let user = await User.findOne({ email })
+
+        // if user not in DB then create 
+        if (!user) {
+            user = await User.create({
+                fullName, email, mobile, role
+            })
+        }
+
+        // generate token
+        const token = await genToken(user._id)
+        res.cookie("token", token, {
+            secure: false,      // true in production (https)
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            httpOnly: true
+        })
+
+        return res.status(200).json(user)
+    } catch (error) {
+        return res.status(500).json(`Google auth error: ${error}`)
     }
 }

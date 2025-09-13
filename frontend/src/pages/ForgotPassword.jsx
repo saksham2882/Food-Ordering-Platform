@@ -4,6 +4,7 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { URL } from "../App";
 import { toast } from "sonner";
+import { ClipLoader } from "react-spinners";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1); // forgot password in three step - email type, opt send, enter opt and match
@@ -11,54 +12,80 @@ const ForgotPassword = () => {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
 
   const handleSendOTP = async () => {
+    if(!email){
+       toast.info("Please enter your email");
+       return; 
+    }
+    setLoading(true)
     try {
       const res = await axios.post(
         `${URL}/api/auth/send-otp`,
         { email },
         { withCredentials: true }
       );
+      setError("")
       toast.success(res.data.message || "OTP Send Successfully");
       setStep(2);
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message || error.message || "Something went wrong");
+      setError(error?.response?.data?.message || error?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally{
+      setLoading(false)
     }
   };
 
   const handleVerifyOTP = async () => {
+    if(!otp){
+        toast.info("Please enter a 6-digits OTP")
+        return;
+    }
+    setLoading(true)
     try {
       const res = await axios.post(
         `${URL}/api/auth/verify-otp`,
         { email, otp },
         { withCredentials: true }
       );
+      setError("")
       toast.success(res.data.message || "OTP Verify Successfully");
       setStep(3);
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message || error.message || "Something went wrong");
+      setError(error?.response?.data?.message || error?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally{
+      setLoading(false)
     }
   };
 
   const handleResetPassword = async () => {
+    if(!newPassword || !confirmPassword){
+        toast.info("Please provide all fields")
+        return;
+    }
     if (newPassword != confirmPassword) {
-        toast.info("Confirm Password not matched")
+      toast.info("Confirm Password not matched")
       return null;
     }
+    setLoading(true);
     try {
       const res = await axios.post(
         `${URL}/api/auth/reset-password`,
         { email, newPassword },
         { withCredentials: true }
       );
+      setError("")
       toast.success(res.data.message || "Password Reset Successfully");
       navigate("/signin");
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message || error.message || "Something went wrong");
+      setError(error?.response?.data?.message || error?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally{
+      setLoading(false)
     }
   };
 
@@ -96,11 +123,17 @@ const ForgotPassword = () => {
             </div>
 
             <button
+              type="submit"
               className="w-full font-medium py-2 rounded-lg transition duration-200 cursor-pointer bg-primary text-white hover:bg-hover"
               onClick={handleSendOTP}
+              disabled={loading}
             >
-              Send OTP
+              {loading ? <ClipLoader size={20} color="white" /> : "Send OTP"}
             </button>
+
+            {error && (
+              <p className="text-primary text-center my-[10px]">*{error}</p>
+            )}
           </div>
         )}
 
@@ -114,20 +147,26 @@ const ForgotPassword = () => {
                 One Time Password
               </label>
               <input
-                type="email"
+                type="text"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none"
                 placeholder="Enter OTP here"
                 onChange={(e) => setOtp(e.target.value)}
                 value={otp}
+                required
               />
             </div>
 
             <button
               className="w-full font-medium py-2 rounded-lg transition duration-200 cursor-pointer bg-primary text-white hover:bg-hover"
               onClick={handleVerifyOTP}
+              disabled={loading}
             >
-              Verify
+              {loading ? <ClipLoader size={20} color="white" /> : "Verify"}
             </button>
+
+            {error && (
+              <p className="text-primary text-center my-[10px]">*{error}</p>
+            )}
           </div>
         )}
 
@@ -146,6 +185,7 @@ const ForgotPassword = () => {
                 placeholder="Enter new password"
                 onChange={(e) => setNewPassword(e.target.value)}
                 value={newPassword}
+                required
               />
             </div>
             <div className="mb-6">
@@ -161,15 +201,25 @@ const ForgotPassword = () => {
                 placeholder="Confirm your password"
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 value={confirmPassword}
+                required
               />
             </div>
 
             <button
               className="w-full font-medium py-2 rounded-lg transition duration-200 cursor-pointer bg-primary text-white hover:bg-hover"
               onClick={handleResetPassword}
+              disabled={loading}
             >
-              Reset Password
+              {loading ? (
+                <ClipLoader size={20} color="white" />
+              ) : (
+                "Reset Password"
+              )}
             </button>
+
+            {error && (
+              <p className="text-primary text-center my-[10px]">*{error}</p>
+            )}
           </div>
         )}
       </div>

@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { URL } from "../App";
 import { toast } from "sonner";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../../firebase";
+import { ClipLoader } from "react-spinners"
 
 const SignUp = () => {
   const [fullName, setFullName] = useState("");
@@ -13,19 +16,56 @@ const SignUp = () => {
   const [mobile, setMobile] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("user");
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
 
   const handleSignUp = async () => {
+    setLoading(true)
     try {
       const res = await axios.post(
         `${URL}/api/auth/signup`,
         { fullName, email, password, mobile, role },
         { withCredentials: true }
       );
+      setError("")
       toast.success(res.data.message || "User Registered Successfully");
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message || error.message || "Something went wrong");
+      setError(error?.response?.data?.message || error?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally{
+      setLoading(false)
+    }
+  };
+
+  const handleGoogleAuth = async () => {
+    if (!mobile) {
+      toast.info("Please enter your mobile number before proceeding");
+      return null;
+    }
+
+    const provider = new GoogleAuthProvider();
+    const res = await signInWithPopup(auth, provider);
+    console.log(res)
+
+    // send data to backend
+    try {
+      const { data } = await axios.post(
+        `${URL}/api/auth/google-auth`,
+        {
+          fullName: res.user.displayName,
+          email: res.user.email,
+          role,
+          mobile,
+        },
+        { withCredentials: true }
+      );
+      setError("");
+      toast.success("User Registered Successfully");
+      console.log(data)
+    } catch (error) {
+        setError(error?.response?.data?.message || error?.message || "Something went wrong");
+        toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
     }
   };
 
@@ -149,15 +189,23 @@ const SignUp = () => {
         <button
           className="w-full font-medium py-2 rounded-lg transition duration-200 cursor-pointer bg-primary text-white hover:bg-hover"
           onClick={handleSignUp}
+          disabled={loading}
         >
-          Sign Up
+          {loading ? <ClipLoader size={20} color="white" /> : "Sign Up"}
         </button>
+
+        {error && (
+          <p className="text-primary text-center my-[10px]">*{error}</p>
+        )}
 
         <p className="w-full mt-4 text-center font-semibold text-gray-500">
           -------------- OR --------------
         </p>
 
-        <button className="w-full mt-4 flex items-center justify-center gap-2 border rounded-lg px-4 py-2 transition duration-200 border-gray-400 hover:bg-gray-100 cursor-pointer">
+        <button
+          className="w-full mt-4 flex items-center justify-center gap-2 border rounded-lg px-4 py-2 transition duration-200 border-gray-400 hover:bg-gray-100 cursor-pointer"
+          onClick={handleGoogleAuth}
+        >
           <FcGoogle size={20} />
           <span>Sign up with Google</span>
         </button>
@@ -168,7 +216,7 @@ const SignUp = () => {
             className="text-primary cursor-pointer hover:underline"
             onClick={() => navigate("/signin")}
           >
-            Sign In
+            Sign in
           </span>
         </p>
       </div>
