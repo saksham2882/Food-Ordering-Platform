@@ -4,6 +4,7 @@ import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { URL } from "../App";
+import { toast } from "sonner";
 
 const SignUp = () => {
   const [fullName, setFullName] = useState("");
@@ -21,9 +22,10 @@ const SignUp = () => {
         { fullName, email, password, mobile, role },
         { withCredentials: true }
       );
-      console.log(res);
+      toast.success(res.data.message || "User Registered Successfully");
     } catch (error) {
       console.log(error);
+      toast.error(error.response.data.message || error.message || "Something went wrong");
     }
   };
 
@@ -53,6 +55,7 @@ const SignUp = () => {
             placeholder="Enter your name"
             onChange={(e) => setFullName(e.target.value)}
             value={fullName}
+            required
           />
         </div>
 
@@ -70,6 +73,7 @@ const SignUp = () => {
             placeholder="Enter your email"
             onChange={(e) => setEmail(e.target.value)}
             value={email}
+            required
           />
         </div>
 
@@ -87,6 +91,7 @@ const SignUp = () => {
             placeholder="Enter your mobile number"
             onChange={(e) => setMobile(e.target.value)}
             value={mobile}
+            required
           />
         </div>
 
@@ -105,6 +110,7 @@ const SignUp = () => {
               placeholder="Enter your password"
               onChange={(e) => setPassword(e.target.value)}
               value={password}
+              required
             />
             <button
               className="absolute right-3 top-3 text-gray-500 cursor-pointer"

@@ -4,6 +4,7 @@ import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { URL } from "../App";
+import { toast } from "sonner";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -18,9 +19,10 @@ const SignIn = () => {
         { email, password },
         { withCredentials: true }
       );
-      console.log(res);
+      toast.success(res.data.message || "Sign In Successfully");
     } catch (error) {
-      console.log(error);
+        console.log(error);
+      toast.error(error.response.data.message || error.message || "Something went wrong");
     }
   };
 
