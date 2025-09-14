@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase";
 import { ClipLoader } from "react-spinners";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -16,6 +18,7 @@ const SignIn = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
+  const dispatch = useDispatch()
 
   const handleSignIn = async () => {
     setLoading(true)
@@ -25,6 +28,7 @@ const SignIn = () => {
         { email, password },
         { withCredentials: true }
       );
+      dispatch(setUserData(res.data))
       setError("")
       toast.success(res.data.message || "Sign In Successfully");
     } catch (error) {
@@ -50,9 +54,9 @@ const SignIn = () => {
         },
         { withCredentials: true }
       );
+      dispatch(setUserData(data))
       setError("")
       toast.success("Sign in Successfully");
-      console.log(data);
     } catch (error) {
       setError(error?.response?.data?.message || error?.message || "Something went wrong");
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
