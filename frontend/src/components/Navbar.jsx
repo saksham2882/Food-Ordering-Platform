@@ -6,7 +6,7 @@ import { RxCross2 } from "react-icons/rx"
 import { useState } from "react";
 
 const Navbar = () => {
-  const { userData } = useSelector((state) => state.user);
+  const { userData, city } = useSelector((state) => state.user);
   const [showPopup, setShowPopup] = useState(false);
   const [showSearch, setShowSearch] = useState(false)
 
@@ -39,7 +39,7 @@ const Navbar = () => {
         {/* ----------- Location ------------ */}
         <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-[10px] border-r-[2px] border-gray-400">
           <FaLocationDot size={25} className="text-primary" />
-          <div className="w-[80%] truncate text-gray-600">Greater Noida</div>
+          <div className="w-[80%] truncate text-gray-600">{city}</div>
         </div>
 
         {/* ----------- Search ------------- */}
