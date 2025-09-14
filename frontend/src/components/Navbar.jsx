@@ -1,24 +1,41 @@
 import { FaLocationDot } from "react-icons/fa6";
 import { IoIosSearch } from "react-icons/io";
 import { FiShoppingCart } from "react-icons/fi";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RxCross2 } from "react-icons/rx"
 import { useState } from "react";
+import axios from "axios";
+import { URL } from "../App";
+import { setUserData } from "../redux/userSlice";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const { userData, city } = useSelector((state) => state.user);
+  const dispatch = useDispatch()
   const [showPopup, setShowPopup] = useState(false);
-  const [showSearch, setShowSearch] = useState(false)
+  const [showSearch, setShowSearch] = useState(false);
+
+  const handleLogOut = async () => {
+    try {
+      const res = await axios.get(`${URL}/api/auth/signout`, {
+        withCredentials: true,
+      });
+      dispatch(setUserData(null))
+      toast.success(res.data.message || "Log Out Successfully");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    }
+  };
 
   return (
     <div className="w-full h-[80px] flex items-center justify-between md:justify-center gap-[30px] px-[20px] fixed top-0 z-[9999] bg-bg overflow-visible">
       {/* ---------- Show search in small devices ----------- */}
       {showSearch && (
-        <div className="w-[90%] h-[70px] bg-white shadow-xl rounded-lg items-center gap-[20px] flex fixed top-[80px] left-[5%]">
+        <div className="w-[90%] h-[70px] bg-white shadow-xl rounded-lg items-center gap-[20px] flex fixed top-[80px] left-[5%] md:hidden">
           {/* ----------- Location ------------ */}
           <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-[10px] border-r-[2px] border-gray-400">
             <FaLocationDot size={25} className="text-primary" />
-            <div className="w-[80%] truncate text-gray-600">Greater Noida</div>
+            <div className="w-[80%] truncate text-gray-600">{city}</div>
           </div>
 
           {/* ----------- Search ------------- */}
@@ -93,13 +110,21 @@ const Navbar = () => {
         {/* ------------ Profile Popup ----------- */}
         {showPopup && (
           <div className="fixed top-[80px] right-[10px] md:right-[10%] lg:right-[20%] w-[180px] bg-white shadow-xl rounded-xl p-[20px] flex flex-col gap-[10px] z-[9999]">
+            {/* -------- full Name -------- */}
             <div className="text-[17px] font-semibold text-gray-700">
               {userData.fullName}
             </div>
+
+            {/* -------- my orders --------- */}
             <div className="md:hidden text-primary font-semibold cursor-pointer">
               My Orders
             </div>
-            <div className="text-primary font-semibold cursor-pointer">
+
+            {/* -------- Logout ----------- */}
+            <div 
+              className="text-primary font-semibold cursor-pointer" 
+              onClick={handleLogOut}
+            >
               Logout
             </div>
           </div>
