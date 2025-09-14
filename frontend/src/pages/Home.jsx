@@ -7,7 +7,7 @@ const Home = () => {
   const { userData } = useSelector((state) => state.user);
   
   return (
-    <div className="w-[100vw] min-h-[100vh] pt-[100px] flex flex-col items-center bg-bg">
+    <div className="w-[100vw] min-h-[100vh] pt-[100px] flex items-center bg-bg">
       {userData.role == "user" && <UserDashboard />}
       {userData.role == "owner" && <OwnerDashboard />}
       {userData.role == "deliveryBoy" && <DeliveryBoy />}

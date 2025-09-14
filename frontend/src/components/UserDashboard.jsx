@@ -1,6 +1,11 @@
+import Navbar from "./Navbar"
+
 const UserDashboard = () => {
   return (
-    <div>userDashboard</div>
+    <div>
+        <Navbar />
+    </div>
   )
 }
+
 export default UserDashboard
