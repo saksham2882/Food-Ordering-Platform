@@ -3,10 +3,12 @@ import SignUp from "./pages/SignUp"
 import SignIn from "./pages/SignIn"
 import ForgotPassword from "./pages/ForgotPassword"
 import { Toaster } from "sonner"
+import useGetCurrentUser from "./hooks/useGetCurrentUser"
 
 export const URL = "http://localhost:8000"
 
 const App = () => {
+  useGetCurrentUser()
   return (
     <>
       <Toaster position="top-center" />
