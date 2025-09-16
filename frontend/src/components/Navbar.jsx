@@ -1,6 +1,7 @@
-import { FaLocationDot } from "react-icons/fa6";
+import { FaLocationDot, FaPlus } from "react-icons/fa6";
 import { IoIosSearch } from "react-icons/io";
 import { FiShoppingCart } from "react-icons/fi";
+import { TbReceipt } from "react-icons/tb"
 import { useDispatch, useSelector } from "react-redux";
 import { RxCross2 } from "react-icons/rx"
 import { useState } from "react";
@@ -11,6 +12,7 @@ import { toast } from "sonner";
 
 const Navbar = () => {
   const { userData, city } = useSelector((state) => state.user);
+  const { myShopData } = useSelector((state) => state.owner)
   const dispatch = useDispatch()
   const [showPopup, setShowPopup] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -30,7 +32,7 @@ const Navbar = () => {
   return (
     <div className="w-full h-[80px] flex items-center justify-between md:justify-center gap-[30px] px-[20px] fixed top-0 z-[9999] bg-bg overflow-visible">
       {/* ---------- Show search in small devices ----------- */}
-      {showSearch && (
+      {showSearch && userData.role == "user" && (
         <div className="w-[90%] h-[70px] bg-white shadow-xl rounded-lg items-center gap-[20px] flex fixed top-[80px] left-[5%] md:hidden">
           {/* ----------- Location ------------ */}
           <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-[10px] border-r-[2px] border-gray-400">
@@ -52,52 +54,89 @@ const Navbar = () => {
 
       <h1 className="text-3xl font-bold mb-2 text-primary">Yummigo</h1>
 
-      <div className="md:w-[60%] lg:w-[40%] h-[70px] bg-white shadow-md rounded-lg items-center gap-[20px] md:flex hidden">
-        {/* ----------- Location ------------ */}
-        <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-[10px] border-r-[2px] border-gray-400">
-          <FaLocationDot size={25} className="text-primary" />
-          <div className="w-[80%] truncate text-gray-600">{city}</div>
-        </div>
+      {userData.role == "user" && (
+        <div className="md:w-[60%] lg:w-[40%] h-[70px] bg-white shadow-md rounded-lg items-center gap-[20px] md:flex hidden">
+          {/* ----------- Location ------------ */}
+          <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-[10px] border-r-[2px] border-gray-400">
+            <FaLocationDot size={25} className="text-primary" />
+            <div className="w-[80%] truncate text-gray-600">{city}</div>
+          </div>
 
-        {/* ----------- Search ------------- */}
-        <div className="w-[80%] flex items-center gap-[10px]">
-          <IoIosSearch size={25} className="text-primary" />
-          <input
-            type="text"
-            placeholder="search delicious food...."
-            className="px-[10px] text-gray-700 outline-0 w-full"
-          />
+          {/* ----------- Search ------------- */}
+          <div className="w-[80%] flex items-center gap-[10px]">
+            <IoIosSearch size={25} className="text-primary" />
+            <input
+              type="text"
+              placeholder="search delicious food...."
+              className="px-[10px] text-gray-700 outline-0 w-full"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="flex items-center gap-4">
         {/* ----------- Search in small devices -------- */}
-        {showSearch ? (
-          <RxCross2
-            size={25}
-            className="text-primary cursor-pointer md:hidden"
-            onClick={() => setShowSearch(false)}
-          />
+        {userData.role == "user" &&
+          (showSearch ? (
+            <RxCross2
+              size={25}
+              className="text-primary cursor-pointer md:hidden"
+              onClick={() => setShowSearch(false)}
+            />
+          ) : (
+            <IoIosSearch
+              size={25}
+              className="text-primary cursor-pointer md:hidden"
+              onClick={() => setShowSearch(true)}
+            />
+          ))}
+
+        {userData.role == "owner" ? (
+          <>
+            {myShopData && (
+              <>
+                {/* ----------- Add Food Button for Owner ----------  */}
+                <button className="hidden md:flex items-center gap-2 p-1 px-3 cursor-pointer rounded-full bg-primary/10 text-primary">
+                  <FaPlus size={20} />
+                  <span>Add Food Item</span>
+                </button>
+                <button className="md:hidden flex items-center gap-1 p-2 cursor-pointer rounded-full bg-primary/10 text-primary">
+                  <FaPlus size={20} />
+                </button>
+              </>
+            )}
+
+            {/* ------------ Pending Orders Button for Owner ----------- */}
+            <div className="hidden md:flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-primary/10 text-primary font-medium">
+              <TbReceipt size={20} />
+              <span>Orders</span>
+              <span className="absolute -right-2 -top-2 text-xs font-bold text-white bg-primary rounded-full px-[6px] py-[1px]">
+                0
+              </span>
+            </div>
+            <div className="md:hidden flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-primary/10 text-primary font-medium">
+              <TbReceipt size={20} />
+              <span className="absolute -right-2 -top-2 text-xs font-bold text-white bg-primary rounded-full px-[6px] py-[1px]">
+                0
+              </span>
+            </div>
+          </>
         ) : (
-          <IoIosSearch
-            size={25}
-            className="text-primary cursor-pointer md:hidden"
-            onClick={() => setShowSearch(true)}
-          />
+          <>
+            {/* ------------ cart ----------- */}
+            <div className="relative cursor-pointer">
+              <FiShoppingCart size={25} className="text-primary" />
+              <span className="absolute right-[-9px] top-[-12px] text-primary">
+                0
+              </span>
+            </div>
+
+            {/* ------------ my orders ---------- */}
+            <button className="hidden md:block px-3 py-1 rounded-lg bg-primary/10 text-primary text-sm font-medium cursor-pointer">
+              My Orders
+            </button>
+          </>
         )}
-
-        {/* ------------ cart ----------- */}
-        <div className="relative cursor-pointer">
-          <FiShoppingCart size={25} className="text-primary" />
-          <span className="absolute right-[-9px] top-[-12px] text-primary">
-            0
-          </span>
-        </div>
-
-        {/* ------------ my orders ---------- */}
-        <button className="hidden md:block px-3 py-1 rounded-lg bg-primary/10 text-primary text-sm font-medium cursor-pointer">
-          My Orders
-        </button>
 
         {/* ------------ user profile ----------  */}
         <div
@@ -121,8 +160,8 @@ const Navbar = () => {
             </div>
 
             {/* -------- Logout ----------- */}
-            <div 
-              className="text-primary font-semibold cursor-pointer" 
+            <div
+              className="text-primary font-semibold cursor-pointer"
               onClick={handleLogOut}
             >
               Logout
