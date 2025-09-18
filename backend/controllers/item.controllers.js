@@ -29,7 +29,10 @@ export const addItem = async (req, res) => {
         // Add the created item to the shop, save the shop, and then populate its items
         shop.items.push(item._id)
         await shop.save()
-        await shop.populate("items owner")
+        (await shop.populate("owner")).populate({
+            path: "items",
+            options: { sort: { updatedAt: -1 } }
+        })
 
         // Sending the shop is useful because when we update myShopData on the frontend, the food items will also update automatically along with it.
         return res.status(201).json(shop)
@@ -60,7 +63,10 @@ export const editItem = async (req, res) => {
             return res.status(400).json({ message: "Item not found" })
         }
 
-        const shop = await Shop.findOne({ owner: req.userId }).populate("items")
+        const shop = await Shop.findOne({ owner: req.userId }).populate({
+            path: "items",
+            options: { sort: { updatedAt: -1 } }
+        })
         return res.status(200).json(shop)
 
     } catch (error) {
