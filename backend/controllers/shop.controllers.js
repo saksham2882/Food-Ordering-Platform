@@ -30,7 +30,7 @@ export const createOrEditShop = async (req, res) => {
             }, { new: true })
         }
 
-        await shop.populate("owner")
+        await shop.populate("owner items")
         return res.status(201).json(shop)
 
     } catch (error) {

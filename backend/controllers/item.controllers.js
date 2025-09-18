@@ -26,7 +26,13 @@ export const addItem = async (req, res) => {
             name, category, foodType, price, image, shop: shop._id
         })
 
-        return res.status(201).json(item)
+        // Add the created item to the shop, save the shop, and then populate its items
+        shop.items.push(item._id)
+        await shop.save()
+        await shop.populate("items owner")
+
+        // Sending the shop is useful because when we update myShopData on the frontend, the food items will also update automatically along with it.
+        return res.status(201).json(shop)
 
     } catch (error) {
         return res.status(500).json({ message: `Add item error: ${error}` })
