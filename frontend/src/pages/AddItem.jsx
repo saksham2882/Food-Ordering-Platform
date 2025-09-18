@@ -82,6 +82,7 @@ const AddItem = () => {
       dispatch(setMyShopData(res.data));
       toast.success("Food Item Added");
       console.log(res)
+      navigate("/")
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong. Please try again.");
     } finally {

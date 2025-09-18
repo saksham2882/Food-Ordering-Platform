@@ -1,9 +1,35 @@
 import { FaPen } from "react-icons/fa6";
 import { FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import axios from "axios";
+import { SERVER_URL } from "../App";
+import { setMyShopData } from "../redux/ownerSlice";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const OwnerItemCard = ({ data }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false)
+
+  const handleDelete = async () => {
+    const isConfirmed = confirm(`Are you sure you want to delete "${data.name}" from your menu?`);
+    if(!isConfirmed) return;
+    
+    setLoading(true)
+    try {
+      const res = axios.get(`${SERVER_URL}/api/item/delete/${data._id}`, {
+        withCredentials: true,
+      });
+      dispatch(setMyShopData(res.data));
+      toast.success("Item Deleted");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error?.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false)
+    }
+  };
 
   return (
     <div className="flex bg-white rounded-lg shadow-md overflow-hidden border border-primary w-full max-w-2xl">
@@ -41,8 +67,11 @@ const OwnerItemCard = ({ data }) => {
             >
               <FaPen size={16} />
             </div>
-            <div className="p-2 cursor-pointer rounded-full hover:bg-primary/10 text-primary">
-              <FaTrashAlt size={16} />
+            <div
+              className="p-2 cursor-pointer rounded-full hover:bg-primary/10 text-primary"
+              onClick={handleDelete}
+            >
+              {loading ? <Clipboard size={15} /> : <FaTrashAlt size={16} />}
             </div>
           </div>
         </div>
