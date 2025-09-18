@@ -3,7 +3,7 @@ import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { URL } from "../App";
+import { SERVER_URL } from "../App";
 import { toast } from "sonner";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase";
@@ -27,7 +27,7 @@ const SignUp = () => {
     setLoading(true)
     try {
       const res = await axios.post(
-        `${URL}/api/auth/signup`,
+        `${SERVER_URL}/api/auth/signup`,
         { fullName, email, password, mobile, role },
         { withCredentials: true }
       );
@@ -55,7 +55,7 @@ const SignUp = () => {
     // send data to backend
     try {
       const { data } = await axios.post(
-        `${URL}/api/auth/google-auth`,
+        `${SERVER_URL}/api/auth/google-auth`,
         {
           fullName: res.user.displayName,
           email: res.user.email,

@@ -6,12 +6,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { RxCross2 } from "react-icons/rx"
 import { useState } from "react";
 import axios from "axios";
-import { URL } from "../App";
+import { SERVER_URL } from "../App";
 import { setUserData } from "../redux/userSlice";
 import { toast } from "sonner";
 
 const Navbar = () => {
-  const { userData, city } = useSelector((state) => state.user);
+  const { userData, currentCity } = useSelector((state) => state.user);
   const { myShopData } = useSelector((state) => state.owner)
   const dispatch = useDispatch()
   const [showPopup, setShowPopup] = useState(false);
@@ -19,7 +19,7 @@ const Navbar = () => {
 
   const handleLogOut = async () => {
     try {
-      const res = await axios.get(`${URL}/api/auth/signout`, {
+      const res = await axios.get(`${SERVER_URL}/api/auth/signout`, {
         withCredentials: true,
       });
       dispatch(setUserData(null))
@@ -37,7 +37,7 @@ const Navbar = () => {
           {/* ----------- Location ------------ */}
           <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-[10px] border-r-[2px] border-gray-400">
             <FaLocationDot size={25} className="text-primary" />
-            <div className="w-[80%] truncate text-gray-600">{city}</div>
+            <div className="w-[80%] truncate text-gray-600">{currentCity}</div>
           </div>
 
           {/* ----------- Search ------------- */}
@@ -59,7 +59,7 @@ const Navbar = () => {
           {/* ----------- Location ------------ */}
           <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-[10px] border-r-[2px] border-gray-400">
             <FaLocationDot size={25} className="text-primary" />
-            <div className="w-[80%] truncate text-gray-600">{city}</div>
+            <div className="w-[80%] truncate text-gray-600">{currentCity}</div>
           </div>
 
           {/* ----------- Search ------------- */}

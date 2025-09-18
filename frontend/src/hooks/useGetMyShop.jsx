@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect } from "react";
-import { URL } from "../App";
+import { SERVER_URL } from "../App";
 import { useDispatch } from "react-redux";
 import { setMyShopData } from "../redux/ownerSlice";
 
@@ -10,7 +10,7 @@ const useGetMyShop = () => {
   useEffect(() => {
     const fetchShop = async () => {
       try {
-        const res = await axios.get(`${URL}/api/shop/get-my`, {
+        const res = await axios.get(`${SERVER_URL}/api/shop/get-my`, {
           withCredentials: true,
         });
         dispatch(setMyShopData(res.data))
