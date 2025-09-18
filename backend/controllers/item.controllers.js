@@ -56,9 +56,29 @@ export const editItem = async (req, res) => {
             name, category, foodType, price, image
         }, { new: true })
 
-        if(!item){
+        if (!item) {
             return res.status(400).json({ message: "Item not found" })
         }
+
+        const shop = await Shop.findOne({ owner: req.userId }).populate("items")
+        return res.status(200).json(shop)
+
+    } catch (error) {
+        return res.status(500).json({ message: `Edit item error: ${error}` })
+    }
+}
+
+
+// Get Item by Id
+export const getItemById = async (req, res) => {
+    try {
+        const itemId = req.params.itemId
+        const item = await Item.findById(itemId)
+        if (!item) {
+            return res.status(400).json({ message: "Item not found" })
+        }
+
+        return res.status(200).json(item)
 
     } catch (error) {
         return res.status(500).json({ message: `Edit item error: ${error}` })

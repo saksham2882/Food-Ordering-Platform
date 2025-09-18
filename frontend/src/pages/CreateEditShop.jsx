@@ -48,7 +48,7 @@ const CreateEditShop = () => {
 
       dispatch(setMyShopData(res.data))
       toast.success(!myShopData ? "Shop Created Successfully" : "Shop Updated Successfully")
-
+      navigate("/")
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong. Please try again.")
     } finally {

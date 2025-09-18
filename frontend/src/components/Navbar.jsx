@@ -1,31 +1,37 @@
 import { FaLocationDot, FaPlus } from "react-icons/fa6";
 import { IoIosSearch } from "react-icons/io";
 import { FiShoppingCart } from "react-icons/fi";
-import { TbReceipt } from "react-icons/tb"
+import { TbReceipt } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
-import { RxCross2 } from "react-icons/rx"
+import { RxCross2 } from "react-icons/rx";
 import { useState } from "react";
 import axios from "axios";
 import { SERVER_URL } from "../App";
 import { setUserData } from "../redux/userSlice";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const { userData, currentCity } = useSelector((state) => state.user);
-  const { myShopData } = useSelector((state) => state.owner)
-  const dispatch = useDispatch()
+  const { myShopData } = useSelector((state) => state.owner);
+  const dispatch = useDispatch();
   const [showPopup, setShowPopup] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogOut = async () => {
     try {
       const res = await axios.get(`${SERVER_URL}/api/auth/signout`, {
         withCredentials: true,
       });
-      dispatch(setUserData(null))
+      dispatch(setUserData(null));
       toast.success(res.data.message || "Log Out Successfully");
     } catch (error) {
-      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong"
+      );
     }
   };
 
@@ -96,11 +102,17 @@ const Navbar = () => {
             {myShopData && (
               <>
                 {/* ----------- Add Food Button for Owner ----------  */}
-                <button className="hidden md:flex items-center gap-2 p-1 px-3 cursor-pointer rounded-full bg-primary/10 text-primary">
+                <button
+                  className="hidden md:flex items-center gap-2 p-1 px-3 cursor-pointer rounded-full bg-primary/10 text-primary"
+                  onClick={() => navigate("/add-item")}
+                >
                   <FaPlus size={20} />
                   <span>Add Food Item</span>
                 </button>
-                <button className="md:hidden flex items-center gap-1 p-2 cursor-pointer rounded-full bg-primary/10 text-primary">
+                <button
+                  className="md:hidden flex items-center gap-1 p-2 cursor-pointer rounded-full bg-primary/10 text-primary"
+                  onClick={() => navigate("/add-item")}
+                >
                   <FaPlus size={20} />
                 </button>
               </>
@@ -155,9 +167,11 @@ const Navbar = () => {
             </div>
 
             {/* -------- my orders --------- */}
-            <div className="md:hidden text-primary font-semibold cursor-pointer">
-              My Orders
-            </div>
+            {userData.role == "user" && (
+              <div className="md:hidden text-primary font-semibold cursor-pointer">
+                My Orders
+              </div>
+            )}
 
             {/* -------- Logout ----------- */}
             <div
