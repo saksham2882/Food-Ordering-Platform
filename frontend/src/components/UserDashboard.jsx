@@ -6,10 +6,13 @@ import { FaCircleChevronLeft, FaCircleChevronRight } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 
 const UserDashboard = () => {
-  const { currentCity } = useSelector((state) => state.user);
+  const { currentCity, shopsInMyCity } = useSelector((state) => state.user);
   const cateScrollRef = useRef();
+  const shopScrollRef = useRef();
   const [showLeftCategoryBtn, setShowLeftCategoryBtn] = useState(false);
   const [showRightCategoryBtn, setShowRightCategoryBtn] = useState(false);
+  const [showLeftShopBtn, setShowLeftShopBtn] = useState(false);
+  const [showRightShopBtn, setShowRightShopBtn] = useState(false);
 
   const updateButton = (ref, setLeftBtn, setRightBtn) => {
     const element = ref.current;
@@ -35,29 +38,28 @@ const UserDashboard = () => {
 
   useEffect(() => {
     if (cateScrollRef.current) {
-      updateButton(
-        cateScrollRef,
-        setShowLeftCategoryBtn,
-        setShowRightCategoryBtn
-      );
+      updateButton(cateScrollRef, setShowLeftCategoryBtn, setShowRightCategoryBtn);
+      updateButton(shopScrollRef, setShowLeftShopBtn, setShowRightShopBtn);
+
       cateScrollRef.current.addEventListener("scroll", () => {
-        updateButton(
-          cateScrollRef,
-          setShowLeftCategoryBtn,
-          setShowRightCategoryBtn
-        );
+        updateButton(cateScrollRef, setShowLeftCategoryBtn, setShowRightCategoryBtn);
+      });
+
+      shopScrollRef.current.addEventListener("scroll", () => {
+        updateButton(shopScrollRef, setShowLeftShopBtn, setShowRightShopBtn);
       });
     }
 
-    return () =>
+    return () => (
       cateScrollRef.current.removeEventListener("scroll", () => {
-        updateButton(
-          cateScrollRef,
-          setShowLeftCategoryBtn,
-          setShowRightCategoryBtn
-        );
-      });
-  }, [categories]);
+        updateButton(cateScrollRef, setShowLeftCategoryBtn, setShowRightCategoryBtn);
+      }),
+      shopScrollRef.current.removeEventListener("scroll", () => {
+        updateButton(shopScrollRef, setShowLeftShopBtn, setShowRightShopBtn);
+      })
+    );
+
+  }, [categories, shopsInMyCity]);
 
   return (
     <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-bg overflow-y-auto">
@@ -87,7 +89,11 @@ const UserDashboard = () => {
             ref={cateScrollRef}
           >
             {categories.map((cate, index) => (
-              <CategoryCard data={cate} key={index} />
+              <CategoryCard
+                name={cate.category}
+                image={cate.image}
+                key={index}
+              />
             ))}
           </div>
 
@@ -108,6 +114,39 @@ const UserDashboard = () => {
         <h1 className="text-gray-700 text-xl sm:text-2xl">
           Best Shop in {currentCity}
         </h1>
+
+        {/* -------------- Shops Slider ------------- */}
+        <div className="w-full relative">
+          {/* -------------- Left Button ------------- */}
+          {showLeftShopBtn && (
+            <button
+              className="absolute left-1 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-hover z-10 cursor-pointer"
+              onClick={() => scrollHandler(shopScrollRef, "left")}
+            >
+              <FaCircleChevronLeft size={25} />
+            </button>
+          )}
+
+          {/* -------------- Categories --------------- */}
+          <div
+            className="w-full flex overflow-x-auto gap-4 pb-2"
+            ref={shopScrollRef}
+          >
+            {shopsInMyCity?.map((shop, index) => (
+              <CategoryCard name={shop.name} image={shop.image} key={index} />
+            ))}
+          </div>
+
+          {/* -------------- Right Button ------------- */}
+          {showRightShopBtn && (
+            <button
+              className="absolute right-1 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-hover z-10 cursor-pointer"
+              onClick={() => scrollHandler(shopScrollRef, "right")}
+            >
+              <FaCircleChevronRight size={25} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
