@@ -1,7 +1,42 @@
-import { FaLeaf } from "react-icons/fa6";
-import { FaDrumstickBite } from "react-icons/fa";
+import { FaLeaf, FaRegStar } from "react-icons/fa6";
+import {
+  FaDrumstickBite,
+  FaStar,
+  FaMinus,
+  FaPlus,
+  FaShoppingCart,
+} from "react-icons/fa";
+import { useState } from "react";
 
 const FoodCard = ({ data }) => {
+  const [quantity, setQuantity] = useState(0);
+
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        i <= rating ? (
+          <FaStar className="text-yellow-500 text-lg" />
+        ) : (
+          <FaRegStar className="text-yellow-500 text-lg" />
+        )
+      );
+    }
+    return stars;
+  };
+
+  const handleIncrease = () => {
+    const newQty = quantity + 1;
+    setQuantity(newQty);
+  };
+
+  const handleDecrease = () => {
+    if (quantity > 0) {
+      const newQty = quantity - 1;
+      setQuantity(newQty);
+    }
+  };
+
   return (
     <div className="w-[250px] rounded-2xl border-2 border-primary bg-white shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col">
       {/* -------- Food Image --------- */}
@@ -21,7 +56,50 @@ const FoodCard = ({ data }) => {
       </div>
 
       <div className="flex-1 flex flex-col p-4">
-        <h1 className="font-semibold text-gray-800 text-base truncate">{data.name}</h1>
+        <h1 className="font-semibold text-gray-800 text-base truncate">
+          {data.name}
+        </h1>
+
+        {/* ------------- rating ------------ */}
+        <div className="flex items-center gap-1 mt-1">
+          {renderStars(data.rating?.average || 0)}
+          <span className="text-xs text-gray-500">
+            ({data.rating?.count || 0})
+          </span>
+        </div>
+
+        {/* ------------ price & Add to Cart-------------- */}
+        <div className="flex items-center justify-between mt-auto pt-5">
+          <span className="font-bold text-red-700 text-lg">
+            ₹{data.price}.00
+          </span>
+
+          <div className="flex items-center border rounded-full overflow-hidden shadow-md gap-1">
+            {/* ----------- Decrease Button --------- */}
+            <button
+              className="px-2 py-1 hover:bg-gray-100 transition cursor-pointer rounded-4xl"
+              onClick={handleDecrease}
+            >
+              <FaMinus size={12} />
+            </button>
+
+            {/* ----------- Quantity --------- */}
+            <span>{quantity}</span>
+
+            {/* ----------- Increase Button --------- */}
+            <button
+              className="px-2 py-1 hover:bg-gray-100 transition cursor-pointer rounded-4xl"
+              onClick={handleIncrease}
+            >
+              <FaPlus size={12} />
+            </button>
+
+            {/* ---------- Cart ----------- */}
+            <button className="bg-primary text-white px-3 py-2 transition-colors cursor-pointer">
+              <FaShoppingCart size={16}/>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
