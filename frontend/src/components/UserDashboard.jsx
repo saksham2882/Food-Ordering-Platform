@@ -148,6 +148,13 @@ const UserDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* ------------- Food Items By My City -------------  */}
+      <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-[10px]">
+        <h1 className="text-gray-700 text-xl sm:text-2xl">
+          Suggested Food Items
+        </h1>
+      </div>
     </div>
   );
 };
