@@ -38,29 +38,33 @@ const UserDashboard = () => {
   };
 
   useEffect(() => {
-    if (cateScrollRef.current) {
+    const cateElement = cateScrollRef.current;
+    const shopElement = shopScrollRef.current;
+
+    const handleCateScroll = () =>
       updateButton(cateScrollRef, setShowLeftCategoryBtn, setShowRightCategoryBtn);
+
+    const handleShopScroll = () =>
       updateButton(shopScrollRef, setShowLeftShopBtn, setShowRightShopBtn);
 
-      cateScrollRef.current.addEventListener("scroll", () => {
-        updateButton(cateScrollRef, setShowLeftCategoryBtn, setShowRightCategoryBtn);
-      });
-
-      shopScrollRef.current.addEventListener("scroll", () => {
-        updateButton(shopScrollRef, setShowLeftShopBtn, setShowRightShopBtn);
-      });
+    if (cateElement) {
+      updateButton(cateScrollRef, setShowLeftCategoryBtn, setShowRightCategoryBtn);
+      cateElement.addEventListener("scroll", handleCateScroll);
     }
 
-    return () => (
-      cateScrollRef.current.removeEventListener("scroll", () => {
-        updateButton(cateScrollRef, setShowLeftCategoryBtn, setShowRightCategoryBtn);
-      }),
-      shopScrollRef.current.removeEventListener("scroll", () => {
-        updateButton(shopScrollRef, setShowLeftShopBtn, setShowRightShopBtn);
-      })
-    );
+    if (shopElement) {
+      updateButton(shopScrollRef, setShowLeftShopBtn, setShowRightShopBtn);
+      shopElement.addEventListener("scroll", handleShopScroll);
+    }
 
-  }, [categories, shopsInMyCity]);
+    return () => {
+      if (cateElement)
+        cateElement.removeEventListener("scroll", handleCateScroll);
+      if (shopElement)
+        shopElement.removeEventListener("scroll", handleShopScroll);
+    };
+
+  }, [shopsInMyCity]);
 
   return (
     <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-bg overflow-y-auto">
