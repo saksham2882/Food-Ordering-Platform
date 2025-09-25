@@ -12,7 +12,9 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const { userData, currentCity } = useSelector((state) => state.user);
+  const { userData, currentCity, cartItems } = useSelector(
+    (state) => state.user
+  );
   const { myShopData } = useSelector((state) => state.owner);
   const dispatch = useDispatch();
   const [showPopup, setShowPopup] = useState(false);
@@ -136,10 +138,13 @@ const Navbar = () => {
         ) : (
           <>
             {/* ------------ cart ----------- */}
-            <div className="relative cursor-pointer">
+            <div
+              className="relative cursor-pointer"
+              onClick={() => navigate("/cart")}
+            >
               <FiShoppingCart size={25} className="text-primary" />
               <span className="absolute right-[-9px] top-[-12px] text-primary">
-                0
+                {cartItems.length}
               </span>
             </div>
 
