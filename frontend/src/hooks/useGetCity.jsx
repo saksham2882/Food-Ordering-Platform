@@ -28,10 +28,10 @@ const useGetCity = () => {
       // console.log(res)
       dispatch(setCurrentCity(res?.data?.results[0]?.city));
       dispatch(setCurrentState(res?.data?.results[0]?.state));
-      dispatch(setCurrentAddress(res?.data?.results[0]?.address_line2 || res?.data?.results[0]?.address_line1));
+      dispatch(setCurrentAddress(res?.data?.results[0]?.formatted || res?.data?.results[0]?.address_line2));
 
       // set current Address for delivery
-      dispatch(setAddress(res?.data?.results[0]?.address_line2 || res?.data?.results[0]?.address_line1));
+      dispatch(setAddress(res?.data?.results[0]?.formatted || res?.data?.results[0]?.address_line2));
     });
   }, [userData]);
 };
