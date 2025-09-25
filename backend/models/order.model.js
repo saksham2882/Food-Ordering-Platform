@@ -1,6 +1,35 @@
 import mongoose from "mongoose"
 
 
+// --------------- Shop Order Items Schema ---------------
+const shopOrderItemSchema = new mongoose.Schema({
+    item: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Item"
+    },
+    name: String,
+    price: Number,
+    quantity: Number
+
+}, { timestamps: true })
+
+
+//  ---------------- Shop Order Schema --------------
+const shopOrderSchema = new mongoose.Schema({
+    shop: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Shop"
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
+    subtotal: Number,
+    shopOrderItems: [shopOrderItemSchema]
+
+}, { timestamps: true })
+
+
 // ---------------- Order Schema -----------------
 const orderSchema = new mongoose.Schema({
     user: {
@@ -20,35 +49,7 @@ const orderSchema = new mongoose.Schema({
     totalAmount: {
         type: Number
     },
-    shopOrder: [shopOrderSchema]
-
-}, { timestamps: true })
-
-
-//  ---------------- Shop Order Schema --------------
-const shopOrderSchema = new mongoose.Schema({
-    shop: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Shop"
-    },
-    owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
-    subTotal: Number,
-    shopOrderItems: [shopOrderItemSchema]
-
-}, { timestamps: true })
-
-
-// --------------- Shop Order Items Schema ---------------
-const shopOrderItemSchema = new mongoose.Schema({
-    item: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Item"
-    },
-    price: Number,
-    quantity: Number
+    shopOrders: [shopOrderSchema]
 
 }, { timestamps: true })
 

@@ -1,6 +1,6 @@
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { IoLocationSharp, IoSearchOutline } from "react-icons/io5";
-import { MdDeliveryDining } from "react-icons/md"
+import { MdDeliveryDining } from "react-icons/md";
 import { TbCurrentLocation } from "react-icons/tb";
 import { FaMobileScreenButton, FaCreditCard } from "react-icons/fa6";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
@@ -10,6 +10,9 @@ import "leaflet/dist/leaflet.css";
 import { setAddress, setLocation } from "../redux/mapSlice";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { SERVER_URL } from "../App";
+import { toast } from "sonner";
+import { ClipLoader } from "react-spinners";
 
 // move Map
 const RecenterMap = ({ location }) => {
@@ -26,11 +29,12 @@ const CheckOut = () => {
   const dispatch = useDispatch();
   const apiKey = import.meta.env.VITE_GEOAPIKEY;
   const { location, address } = useSelector((state) => state.map);
-  const { cartItems, totalAmount } = useSelector(state => state.user)
+  const { cartItems, totalAmount } = useSelector((state) => state.user);
   const [addressInput, setAddressInput] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const deliveryFee = totalAmount >= 499 ? 0 : totalAmount * 0.08;
-  const AmountWithDeliveryFee = totalAmount + deliveryFee
+  const AmountWithDeliveryFee = totalAmount + deliveryFee;
+  const [loading, setLoading] = useState(false)
 
   // Update location
   const onDragEnd = (e) => {
@@ -76,6 +80,33 @@ const CheckOut = () => {
       dispatch(setLocation({ lat, lon }));
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  // handle place order
+  const handlePlaceOrder = async () => {
+    setLoading(true)
+    try {
+      const res = await axios.post(
+        `${SERVER_URL}/api/order/place-order`,
+        {
+          paymentMethod,
+          deliveryAddress: {
+            text: addressInput,
+            latitude: location.lat,
+            longitude: location.lon,
+          },
+          totalAmount: AmountWithDeliveryFee,
+          cartItems,
+        },
+        { withCredentials: true }
+      );
+      toast.success(res?.data?.message || "Order Placed Successfully")
+      navigate("/order-placed")
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally{
+      setLoading(false)
     }
   };
 
@@ -247,8 +278,16 @@ const CheckOut = () => {
         </section>
 
         {/* ---------------- Place Order Button ---------------- */}
-        <button className="w-full bg-primary hover:bg-primary/80 text-white py-3 rounded-xl font-semibold transition-colors cursor-pointer">
-            {paymentMethod == "COD" ? "Place Order" : "Pay & Place Order"}
+        <button
+          className="w-full bg-primary hover:bg-primary/80 text-white py-3 rounded-xl font-semibold transition-colors cursor-pointer"
+          onClick={handlePlaceOrder}
+          disabled={loading}
+        >
+          {loading ? (
+            <ClipLoader size={20} color="white" />
+          ) : (
+            `${paymentMethod == "COD" ? "Place Order" : "Pay & Place Order"}`
+          )}
         </button>
       </div>
     </div>
