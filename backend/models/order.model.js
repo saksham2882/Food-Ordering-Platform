@@ -5,7 +5,8 @@ import mongoose from "mongoose"
 const shopOrderItemSchema = new mongoose.Schema({
     item: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Item"
+        ref: "Item",
+        required: true
     },
     name: String,
     price: Number,
@@ -25,7 +26,12 @@ const shopOrderSchema = new mongoose.Schema({
         ref: "User"
     },
     subtotal: Number,
-    shopOrderItems: [shopOrderItemSchema]
+    shopOrderItems: [shopOrderItemSchema],
+    status: {
+        type: String,
+        enum: ["Pending", "Preparing", "Out for Delivery", "Delivered"],
+        default: "Pending"
+    }
 
 }, { timestamps: true })
 

@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { SERVER_URL } from "../App";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
+import { addMyOrder } from "../redux/userSlice";
 
 // move Map
 const RecenterMap = ({ location }) => {
@@ -101,6 +102,7 @@ const CheckOut = () => {
         },
         { withCredentials: true }
       );
+      dispatch(addMyOrder(res.data.newOrder))
       toast.success(res?.data?.message || "Order Placed Successfully")
       navigate("/order-placed")
     } catch (error) {

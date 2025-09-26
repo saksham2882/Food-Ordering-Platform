@@ -121,14 +121,20 @@ const Navbar = () => {
             )}
 
             {/* ------------ Pending Orders Button for Owner ----------- */}
-            <div className="hidden md:flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-primary/10 text-primary font-medium">
+            <div
+              className="hidden md:flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-primary/10 text-primary font-medium"
+              onClick={() => navigate("/my-orders")}
+            >
               <TbReceipt size={20} />
               <span>Orders</span>
               <span className="absolute -right-2 -top-2 text-xs font-bold text-white bg-primary rounded-full px-[6px] py-[1px]">
                 0
               </span>
             </div>
-            <div className="md:hidden flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-primary/10 text-primary font-medium">
+            <div
+              className="md:hidden flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-primary/10 text-primary font-medium"
+              onClick={() => navigate("/my-orders")}
+            >
               <TbReceipt size={20} />
               <span className="absolute -right-2 -top-2 text-xs font-bold text-white bg-primary rounded-full px-[6px] py-[1px]">
                 0
@@ -149,7 +155,10 @@ const Navbar = () => {
             </div>
 
             {/* ------------ my orders ---------- */}
-            <button className="hidden md:block px-3 py-1 rounded-lg bg-primary/10 text-primary text-sm font-medium cursor-pointer">
+            <button
+              className="hidden md:block px-3 py-1 rounded-lg bg-primary/10 text-primary text-sm font-medium cursor-pointer"
+              onClick={() => navigate("/my-orders")}
+            >
               My Orders
             </button>
           </>
@@ -173,7 +182,10 @@ const Navbar = () => {
 
             {/* -------- my orders --------- */}
             {userData.role == "user" && (
-              <div className="md:hidden text-primary font-semibold cursor-pointer">
+              <div
+                className="md:hidden text-primary font-semibold cursor-pointer"
+                onClick={() => navigate("/my-orders")}
+              >
                 My Orders
               </div>
             )}

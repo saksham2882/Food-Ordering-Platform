@@ -1,6 +1,9 @@
 import Order from "../models/order.model.js"
 import Shop from "../models/shop.model.js"
+import User from "../models/user.model.js"
 
+
+// Place Order
 export const placeOrder = async (req, res) => {
     try {
         const { cartItems, paymentMethod, deliveryAddress, totalAmount } = req.body
@@ -44,7 +47,7 @@ export const placeOrder = async (req, res) => {
                 owner: shop.owner._id,
                 subtotal,
                 shopOrderItems: items.map((i) => ({
-                    item: i._id,
+                    item: i.id,
                     price: i.price,
                     quantity: i.quantity,
                     name: i.name
@@ -60,10 +63,55 @@ export const placeOrder = async (req, res) => {
             totalAmount,
             shopOrders
         })
+        await newOrder.populate("shopOrders.shopOrderItems.item", "name image price")
+        await newOrder.populate("shopOrders.shop", "name")
 
         return res.status(201).json({ message: "Order Placed Successfully", newOrder })
 
     } catch (error) {
-        res.status(500).json({ message: `Something went wrong while placing order: ${error}` });
+        return res.status(500).json({ message: `Something went wrong while placing order: ${error}` });
+    }
+}
+
+
+// Get My Orders (for both user and owner)
+export const getMyOrders = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId)
+
+        // If logged-in user is a normal user -> fetch all his own orders
+        if(user.role == "user"){
+            const orders = await Order.find({ user: req.userId })
+                .sort({ createdAt: -1 })
+                .populate("shopOrders.shop", "name")
+                .populate("shopOrders.owner", "name email mobile")
+                .populate("shopOrders.shopOrderItems.item", "name image price")
+
+            return res.status(200).json(orders)
+        }
+
+        // If logged-in user is an owner -> fetch all orders that belong to his shops
+        else if (user.role == "owner"){
+            const orders = await Order.find({ "shopOrders.owner": req.userId })
+                .sort({ createdAt: -1 })
+                .populate("shopOrders.shop", "name")
+                .populate("user")
+                .populate("shopOrders.shopOrderItems.item", "name image price")
+
+            // Keep only that part of the order which belongs to this owner’s shop(s)
+            const filteredOrders = orders.map((order => ({
+                _id: order._id,
+                paymentMethod: order.paymentMethod,
+                user: order.user,
+                shopOrders: order.shopOrders.find(o => o.owner._id == req.userId),
+                createdAt: order.createdAt,
+                deliveryAddress: order.deliveryAddress
+            })))
+
+            return res.status(200).json(filteredOrders)
+        }
+        
+    } catch (error) {
+        return res.status(500).json({ message: `Get My Order Error: ${error}` })
     }
 }
