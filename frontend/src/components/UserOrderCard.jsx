@@ -14,7 +14,7 @@ const UserOrderCard = ({ data }) => {
       <div className="flex justify-between border-b pb-2">
         <div>
           {/* ----------Order Id --------- */}
-          <p className="font-semibold">order #{data._id?.slice(-9)}</p>
+          <p className="font-semibold">Order ID: #{data._id?.slice(-9)}</p>
 
           {/* ----------- Date ---------- */}
           <p className="text-sm text-gray-500">

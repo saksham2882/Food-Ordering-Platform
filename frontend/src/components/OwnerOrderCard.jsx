@@ -1,6 +1,35 @@
+import axios from "axios";
 import { MdPhone } from "react-icons/md";
+import { SERVER_URL } from "../App";
+import { useDispatch } from "react-redux";
+import { updateOrderStatus } from "../redux/userSlice";
+import { toast } from "sonner";
 
 const OwnerOrderCard = ({ data }) => {
+  const dispatch = useDispatch();
+
+  const handleUpdateStatus = async (orderId, shopId, status) => {
+    try {
+      const res = await axios.post(
+        `${SERVER_URL}/api/order/update-status/${orderId}/${shopId}`,
+        { status },
+        { withCredentials: true }
+      );
+      dispatch(updateOrderStatus({ orderId, shopId, status }));
+      toast.success(`Order status updated to: ${status}`)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString("en-GB", {
+      dateStyle: "medium",
+      timeStyle: "medium"
+    });
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-4 space-y-4">
       {/* ---------- User personal info ------------ */}
@@ -20,6 +49,18 @@ const OwnerOrderCard = ({ data }) => {
         <p className="text-xs text-gray-500">
           Lat: {data?.deliveryAddress.latitude}, Lon:{" "}
           {data?.deliveryAddress.longitude}
+        </p>
+      </div>
+
+      <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-100">
+        {/* ----------Order Id --------- */}
+        <p className="font-semibold">
+          Order ID: <span className="text-gray-600">#{data._id?.slice(-9)}</span>
+        </p>
+
+        {/* ----------- Date ---------- */}
+        <p className="text-sm text-gray-500">
+          Date: {formatDate(data.createdAt)}
         </p>
       </div>
 
@@ -58,9 +99,16 @@ const OwnerOrderCard = ({ data }) => {
 
         {/* ---------- Update status --------- */}
         <select
-          value={data.shopOrders.status}
           className="rounded-md border px-3 py-1 text-sm focus:outline-none focus:ring-2 border-primary text-primary"
+          onChange={(e) =>
+            handleUpdateStatus(
+              data._id,
+              data.shopOrders.shop._id,
+              e.target.value
+            )
+          }
         >
+          <option value="">Change</option>
           <option value="Pending">Pending</option>
           <option value="Preparing">Preparing</option>
           <option value="Out for Delivery">Out for Delivery</option>

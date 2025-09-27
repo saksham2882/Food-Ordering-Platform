@@ -80,7 +80,7 @@ export const getMyOrders = async (req, res) => {
         const user = await User.findById(req.userId)
 
         // If logged-in user is a normal user -> fetch all his own orders
-        if(user.role == "user"){
+        if (user.role == "user") {
             const orders = await Order.find({ user: req.userId })
                 .sort({ createdAt: -1 })
                 .populate("shopOrders.shop", "name")
@@ -91,7 +91,7 @@ export const getMyOrders = async (req, res) => {
         }
 
         // If logged-in user is an owner -> fetch all orders that belong to his shops
-        else if (user.role == "owner"){
+        else if (user.role == "owner") {
             const orders = await Order.find({ "shopOrders.owner": req.userId })
                 .sort({ createdAt: -1 })
                 .populate("shopOrders.shop", "name")
@@ -110,8 +110,32 @@ export const getMyOrders = async (req, res) => {
 
             return res.status(200).json(filteredOrders)
         }
-        
+
     } catch (error) {
         return res.status(500).json({ message: `Get My Order Error: ${error}` })
+    }
+}
+
+
+// Update order status
+export const updateOrderStatus = async (req, res) => {
+    try {
+        const { orderId, shopId } = req.params
+        const { status } = req.body
+
+        const order = await Order.findById(orderId)
+
+        const shopOrder = order.shopOrders.find(o => o.shop == shopId)
+        if (!shopOrder) {
+            return res.status(400).json({ message: "Shop order not found" })
+        }
+
+        shopOrder.status = status
+        await shopOrder.save()
+        await order.save()
+        return res.status(200).json(shopOrder.status)
+
+    } catch (error) {
+        return res.status(500).json({ message: `Order status error: ${error}` })
     }
 }
