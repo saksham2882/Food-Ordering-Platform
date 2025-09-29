@@ -4,9 +4,11 @@ import { SERVER_URL } from "../App";
 import { useDispatch } from "react-redux";
 import { updateOrderStatus } from "../redux/userSlice";
 import { toast } from "sonner";
+import { useState } from "react";
 
 const OwnerOrderCard = ({ data }) => {
   const dispatch = useDispatch();
+  const [availableBoys, setAvailableBoys] = useState([]);
 
   const handleUpdateStatus = async (orderId, shopId, status) => {
     try {
@@ -16,7 +18,9 @@ const OwnerOrderCard = ({ data }) => {
         { withCredentials: true }
       );
       dispatch(updateOrderStatus({ orderId, shopId, status }));
-      toast.success(`Order status updated to: ${status}`)
+      setAvailableBoys(res.data.availableBoys);
+      toast.success(`Order status updated to: ${status}`);
+      console.log(res.data);
     } catch (error) {
       console.log(error);
     }
@@ -26,7 +30,7 @@ const OwnerOrderCard = ({ data }) => {
     const date = new Date(dateString);
     return date.toLocaleString("en-GB", {
       dateStyle: "medium",
-      timeStyle: "medium"
+      timeStyle: "medium",
     });
   };
 
@@ -55,7 +59,8 @@ const OwnerOrderCard = ({ data }) => {
       <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-100">
         {/* ----------Order Id --------- */}
         <p className="font-semibold">
-          Order ID: <span className="text-gray-600">#{data._id?.slice(-9)}</span>
+          Order ID:{" "}
+          <span className="text-gray-600">#{data._id?.slice(-9)}</span>
         </p>
 
         {/* ----------- Date ---------- */}
@@ -114,6 +119,22 @@ const OwnerOrderCard = ({ data }) => {
           <option value="Out for Delivery">Out for Delivery</option>
         </select>
       </div>
+
+      {/* ----------- Available delivery Boys ------------ */}
+      {data.shopOrders.status == "Out for Delivery" && (
+        <div className="mt-3 p-2 border rounded-lg text-sm bg-orange-50 gap-4">
+          <p>Available Delivery Boys:</p>
+          {availableBoys?.length > 0 ? (
+            availableBoys.map((b, index) => (
+              <li className="text-gray-600 ml-6 mt-1">
+                {b.fullName} - {b.mobile}
+              </li>
+            ))
+          ) : (
+            <div>Waiting for delivery boys</div>
+          )}
+        </div>
+      )}
 
       {/* ----------- Total ------------- */}
       <div className="text-right font-bold text-gray-800 text-sm">

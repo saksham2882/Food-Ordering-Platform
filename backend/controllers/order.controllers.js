@@ -1,6 +1,7 @@
 import Order from "../models/order.model.js"
 import Shop from "../models/shop.model.js"
 import User from "../models/user.model.js"
+import DeliveryAssignment from "../models/deliveryAssignment.model.js"
 
 
 // Place Order
@@ -125,15 +126,96 @@ export const updateOrderStatus = async (req, res) => {
 
         const order = await Order.findById(orderId)
 
+        // Find the specific shop order inside the order
         const shopOrder = order.shopOrders.find(o => o.shop == shopId)
         if (!shopOrder) {
             return res.status(400).json({ message: "Shop order not found" })
         }
 
+        // Update shop order status
         shopOrder.status = status
+        let deliveryBoysPayload = []
+
+        // If No delivery boy is assigned yet OR Status is updated to "Out for Delivery" Then -> Create a new delivery assignment and broadcast it to all free delivery boys within 5km radius
+        if (status == "Out for Delivery" || !shopOrder.assignment) {
+            const { latitude, longitude } = order.deliveryAddress
+
+            // Find nearby delivery boys within 5km using geolocation
+            const nearByDeliveryBoys = await User.find({
+                role: "deliveryBoy",
+                location: {
+                    $near: {
+                        $geometry: {
+                            type: "Point",
+                            coordinates: [Number(longitude), Number(latitude)],
+                            $maxDistance: 5000    // 5km radius
+                        }
+                    }
+                }
+            })
+
+            // Get IDs of nearby delivery boys
+            const nearByIds = nearByDeliveryBoys.map(b => b._id)
+
+            // Find IDs of busy delivery boys (who already have assignments not completed/broadcasted)
+            const busyIds = await DeliveryAssignment.find({
+                assignedTo: { $in: nearByIds },
+                status: { $nin: ["BroadCasted", "Completed"] }
+            }).distinct("assignedTo")
+
+            const busyIdSet = new Set(busyIds.map(id => String(id)))
+
+            // Filter out only available delivery boys
+            const availableBoys = nearByDeliveryBoys.filter(b => !busyIdSet.has(String(b._id)))
+            const candidates = availableBoys.map(b => b._id)
+
+            // If no delivery boys are available
+            if(candidates.length == 0){
+                await order.save()
+                return res.json({
+                    message: "Order status updated but no available delivery boys found."
+                })
+            }
+
+            // Create a new delivery assignment for this shop order
+            const deliveryAssignment = await DeliveryAssignment.create({
+                order: order._id,
+                shop: shopOrder.shop,
+                shopOrderId: shopOrder._id,
+                broadcastedTo: candidates,
+                status: "BroadCasted"
+            })
+
+            // Save assignment reference in shopOrder
+            shopOrder.assignedDeliveryBoy = deliveryAssignment.assignedTo
+            shopOrder.assignment = deliveryAssignment._id
+
+            // Prepare payload of available delivery boys for response
+            deliveryBoysPayload = availableBoys.map(b => ({
+                id: b._id,
+                fullName: b.fullName,
+                longitude: b.location.coordinates?.[0],
+                latitude: b.location.coordinates?.[1],
+                mobile: b.mobile
+            }))
+        }
+
+        // Save updated shopOrder and order
         await shopOrder.save()
         await order.save()
-        return res.status(200).json(shopOrder.status)
+
+        // Get updated shop order after saving
+        const updatedShopOrder = order.shopOrders.find(o => o.shop == shopId)
+
+        await order.populate("shopOrders.shop", "name")
+        await order.populate("shopOrders.assignedDeliveryBoy", "fullName email mobile")
+
+        return res.status(200).json({
+            shopOrder: updatedShopOrder,
+            assignedDeliveryBoy: updatedShopOrder?.assignedDeliveryBoy,
+            availableBoys: deliveryBoysPayload,
+            assignment: updatedShopOrder?.assignment._id
+        })
 
     } catch (error) {
         return res.status(500).json({ message: `Order status error: ${error}` })
