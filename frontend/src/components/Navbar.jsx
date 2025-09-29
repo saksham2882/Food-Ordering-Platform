@@ -144,15 +144,17 @@ const Navbar = () => {
         ) : (
           <>
             {/* ------------ cart ----------- */}
-            <div
-              className="relative cursor-pointer"
-              onClick={() => navigate("/cart")}
-            >
-              <FiShoppingCart size={25} className="text-primary" />
-              <span className="absolute right-[-9px] top-[-12px] text-primary">
-                {cartItems.length}
-              </span>
-            </div>
+            {userData.role == "user" && (
+              <div
+                className="relative cursor-pointer"
+                onClick={() => navigate("/cart")}
+              >
+                <FiShoppingCart size={25} className="text-primary" />
+                <span className="absolute right-[-9px] top-[-12px] text-primary">
+                  {cartItems.length}
+                </span>
+              </div>
+            )}
 
             {/* ------------ my orders ---------- */}
             <button
@@ -174,7 +176,13 @@ const Navbar = () => {
 
         {/* ------------ Profile Popup ----------- */}
         {showPopup && (
-          <div className="fixed top-[80px] right-[10px] md:right-[10%] lg:right-[20%] w-[180px] bg-white shadow-xl rounded-xl p-[20px] flex flex-col gap-[10px] z-[9999]">
+          <div
+            className={`fixed top-[80px] right-[10px] ${
+              userData.role == "deliveryBoy"
+                ? "md:right-[20%] lg:right-[40%]"
+                : "md:right-[19%] lg:right-[35%]"
+            }  w-[180px] bg-white shadow-xl rounded-xl p-[20px] flex flex-col gap-[10px] z-[9999]`}
+          >
             {/* -------- full Name -------- */}
             <div className="text-[17px] font-semibold text-gray-700">
               {userData.fullName}
