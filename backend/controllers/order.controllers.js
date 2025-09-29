@@ -137,7 +137,7 @@ export const updateOrderStatus = async (req, res) => {
         let deliveryBoysPayload = []
 
         // If No delivery boy is assigned yet OR Status is updated to "Out for Delivery" Then -> Create a new delivery assignment and broadcast it to all free delivery boys within 5km radius
-        if (status == "Out for Delivery" || !shopOrder.assignment) {
+        if (status == "Out for Delivery" && !shopOrder.assignment) {
             const { latitude, longitude } = order.deliveryAddress
 
             // Find nearby delivery boys within 5km using geolocation
@@ -219,5 +219,41 @@ export const updateOrderStatus = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({ message: `Order status error: ${error}` })
+    }
+}
+
+
+// get delivery assignment for a delivery boy
+export const getDeliveryBoyAssignment = async (req, res) => {
+
+    try {
+        // Get current logged-in delivery boy Id
+        const deliveryBoyId = req.userId
+
+        // Step 1: Find all delivery assignments where this delivery boy is in broadcastedTo and status is still "broadcasted" (means open assignments for him)
+        const assignments = await DeliveryAssignment.find({
+            broadcastedTo: deliveryBoyId,
+            status: "BroadCasted"
+        })
+        .sort({ createdAt: -1})
+        .populate("order")
+        .populate("shop")
+
+        // Format the data so delivery boy gets only the required info
+        const formattedData = assignments.map(a => ({
+            assignmentId: a._id,
+            orderId: a.order._id,
+            shopName: a.shop.name,
+            deliveryAddress: a.order.deliveryAddress,
+
+            // find shopOrder that belongs to this assignment & return items
+            items: a.order.shopOrders.find(so => so._id.equals(a.shopOrderId)).shopOrderItems || [],
+            subtotal: a.order.shopOrders.find(so => so._id.equals(a.shopOrderId))?.subtotal
+        }))
+
+        return res.status(200).json(formattedData)
+
+    } catch (error) {
+        return res.status(500).json({ message: `Get Delivery Assignment error: ${error}` })
     }
 }
