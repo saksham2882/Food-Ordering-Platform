@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
-import { getResetPasswordTemplate } from "./emailTemplate.js"
+import { getDeliveryConfirmationOTP, getResetPasswordTemplate } from "./emailTemplate.js"
 dotenv.config()
 
 const transporter = nodemailer.createTransport({
@@ -20,6 +20,21 @@ export const sendOtpMail = async (to, otp, name) => {
             to,
             subject: "Password Reset Request",
             html: getResetPasswordTemplate(name, otp)
+        }
+        const res = await transporter.sendMail(mail);
+        return res;
+    } catch (error) {
+        throw new Error(`Failed to send email: ${err.message || 'Unknown error'}`);
+    }
+}
+
+export const sendDeliveryOTPMail = async (user, otp) => {
+    try {
+        const mail = {
+            from: process.env.EMAIL,
+            to: user.email,
+            subject: "Delivery Confirmation OTP",
+            html: getDeliveryConfirmationOTP(user.fullName, otp)
         }
         const res = await transporter.sendMail(mail);
         return res;

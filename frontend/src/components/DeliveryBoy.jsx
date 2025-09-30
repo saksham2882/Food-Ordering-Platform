@@ -11,6 +11,7 @@ const DeliveryBoy = () => {
   const [availableAssignments, setAvailableAssignments] = useState(null);
   const [currentOrder, setCurrentOrder] = useState();
   const [showOtpBox, setShowOtpBox] = useState(false);
+  const [otp, setOtp] = useState("");
 
   const getAssignments = async () => {
     try {
@@ -53,14 +54,49 @@ const DeliveryBoy = () => {
     }
   };
 
+  const sendOTP = async () => {
+    try {
+      const res = await axios.post(
+        `${SERVER_URL}/api/order/send-delivery-otp`,
+        { orderId: currentOrder._id, shopOrderId: currentOrder.shopOrder._id },
+        { withCredentials: true }
+      );
+      console.log(res.data);
+      toast.success(res.data.message || "OTP Send Successfully");
+      setShowOtpBox(true);
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong"
+      );
+    }
+  };
+
+  const verifyOTP = async () => {
+    try {
+      const res = await axios.post(
+        `${SERVER_URL}/api/order/verify-delivery-otp`,
+        { orderId: currentOrder._id, shopOrderId: currentOrder.shopOrder._id, otp },
+        { withCredentials: true }
+      );
+      console.log(res.data);
+      toast.success(res.data.message || "Order Delivered Successfully");
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong"
+      );
+    }
+  };
+
   useEffect(() => {
     getAssignments();
     getCurrentOrder();
   }, [userData]);
-
-  const handleSendOtp = (e) => {
-    setShowOtpBox(true);
-  };
 
   return (
     <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-bg overflow-y-auto">
@@ -151,7 +187,7 @@ const DeliveryBoy = () => {
             {!showOtpBox ? (
               <button
                 className="mt-4 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-green-600 active:scale-95 transition-all duration-200 cursor-pointer"
-                onClick={handleSendOtp}
+                onClick={sendOTP}
               >
                 Mark As Delivered
               </button>
@@ -167,10 +203,15 @@ const DeliveryBoy = () => {
                 <input
                   type="text"
                   placeholder="Enter OTP"
+                  onChange={(e) => setOtp(e.target.value)}
+                  value={otp}
                   className="w-full border px-3 py-2 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-orange-300"
                 />
 
-                <button className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all cursor-pointer">
+                <button
+                  className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all cursor-pointer"
+                  onClick={verifyOTP}
+                >
                   Submit OTP
                 </button>
               </div>

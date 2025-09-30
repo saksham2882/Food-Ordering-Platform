@@ -94,3 +94,92 @@ export const getResetPasswordTemplate = (fullName, otp) => {
 </html>
   `;
 };
+
+
+export const getDeliveryConfirmationOTP = (fullName, otp) => {
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .header h1 {
+      color: #28a745;
+      font-size: 24px;
+      margin: 0;
+    }
+    .content {
+      padding: 20px;
+      text-align: center;
+    }
+    .content p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 10px 0;
+    }
+    .otp-code {
+      display: inline-block;
+      font-size: 28px;
+      font-weight: bold;
+      color: #28a745;
+      background: #f1fdf4;
+      padding: 12px 25px;
+      border-radius: 6px;
+      margin: 20px 0;
+      border: 1px dashed #28a745;
+    }
+    .footer {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      font-size: 14px;
+      color: #666;
+    }
+    .footer a {
+      color: #28a745;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Yummigo Delivery Confirmation</h1>
+    </div>
+    <div class="content">
+      <p>Dear ${fullName},</p>
+      <p>Your order has arrived! Please share the following OTP with your delivery partner to confirm and complete your delivery:</p>
+      <div class="otp-code">${otp}</div>
+      <p>This OTP is valid only for the next 5 minutes. Please do not share it with anyone except your Yummigo delivery partner.</p>
+      <p>Thank you for choosing Yummigo. Enjoy your meal!</p>
+    </div>
+    <div class="footer">
+      <p>Best regards,<br>Yummigo Support Team</p>
+      <p><a href="">Contact Support</a> | <a href="">Visit Yummigo</a></p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+}
