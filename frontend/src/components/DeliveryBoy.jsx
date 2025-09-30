@@ -4,11 +4,13 @@ import axios from "axios";
 import { SERVER_URL } from "../App";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import DeliveryBoyTracking from "./DeliveryBoyTracking";
 
 const DeliveryBoy = () => {
   const { userData } = useSelector((state) => state.user);
   const [availableAssignments, setAvailableAssignments] = useState(null);
   const [currentOrder, setCurrentOrder] = useState();
+  const [showOtpBox, setShowOtpBox] = useState(false);
 
   const getAssignments = async () => {
     try {
@@ -55,6 +57,10 @@ const DeliveryBoy = () => {
     getAssignments();
     getCurrentOrder();
   }, [userData]);
+
+  const handleSendOtp = (e) => {
+    setShowOtpBox(true);
+  };
 
   return (
     <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-bg overflow-y-auto">
@@ -124,13 +130,51 @@ const DeliveryBoy = () => {
           <div className="bg-white rounded-2xl p-5 shadow-md w-[90%] border border-orange-100">
             <h2 className="text-lg font-bold mb-3">📦Current Order</h2>
 
+            {/* ------------ delivery info ------------ */}
             <div className="border rounded-lg p-4 mb-3">
-              <p className="font-semibold text-sm">{currentOrder?.shopOrder.shop.name}</p>
-              <p className="text-sm text-gray-500">{currentOrder.deliveryAddress.text}</p>
+              <p className="font-semibold text-sm">
+                {currentOrder?.shopOrder.shop.name}
+              </p>
+              <p className="text-sm text-gray-500">
+                {currentOrder.deliveryAddress.text}
+              </p>
               <p className="text-xs text-gray-400">
-                {currentOrder.shopOrder.shopOrderItems.length} items | ₹{currentOrder.shopOrder.subtotal}
+                {currentOrder.shopOrder.shopOrderItems.length} items | ₹
+                {currentOrder.shopOrder.subtotal}
               </p>
             </div>
+
+            {/* ------------ Delivery Boy Tracking ------------ */}
+            <DeliveryBoyTracking data={currentOrder} />
+
+            {/* ------------ Order Delivered Confirmation button -------------- */}
+            {!showOtpBox ? (
+              <button
+                className="mt-4 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-green-600 active:scale-95 transition-all duration-200 cursor-pointer"
+                onClick={handleSendOtp}
+              >
+                Mark As Delivered
+              </button>
+            ) : (
+              <div className="mt-4 p-4 border rounded-xl bg-gray-50">
+                <p className="text-sm font-semibold mb-2">
+                  Enter OTP send to{" "}
+                  <span className="text-orange-500">
+                    {currentOrder.user.fullName}
+                  </span>
+                </p>
+
+                <input
+                  type="text"
+                  placeholder="Enter OTP"
+                  className="w-full border px-3 py-2 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                />
+
+                <button className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all cursor-pointer">
+                  Submit OTP
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
