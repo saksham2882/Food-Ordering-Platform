@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 const UserOrderCard = ({ data }) => {
+  const navigate = useNavigate();
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString("en-GB", {
@@ -76,7 +80,12 @@ const UserOrderCard = ({ data }) => {
       {/* -------------- Total Amount --------------- */}
       <div className="flex justify-between items-center border-t pt-2">
         <p>Total: ₹{data.totalAmount}</p>
-        <button className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-lg text-sm cursor-pointer">
+
+        {/* -------------- Track order ------------ */}
+        <button
+          className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-lg text-sm cursor-pointer"
+          onClick={() => navigate(`/track-order/${data._id}`)}
+        >
           Track Order
         </button>
       </div>
