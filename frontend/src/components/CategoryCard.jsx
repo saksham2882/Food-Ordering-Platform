@@ -1,6 +1,9 @@
-const CategoryCard = ({ name, image }) => {
+const CategoryCard = ({ name, image, onClick }) => {
   return (
-    <div className="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-2xl border-2 border-primary shrink-0 overflow-hidden bg-white shadow-xl shadow-gray-200 hover:shadow-lg transition-shadow relative">
+    <div
+      className="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-2xl border-2 border-primary shrink-0 overflow-hidden bg-white shadow-xl shadow-gray-200 hover:shadow-lg transition-shadow relative cursor-pointer"
+      onClick={onClick}
+    >
       <img
         src={image}
         alt={name}

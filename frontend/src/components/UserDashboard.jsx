@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { categories } from "../assets/category";
 import CategoryCard from "./CategoryCard";
 import Navbar from "./Navbar";
@@ -7,13 +7,16 @@ import { useSelector } from "react-redux";
 import FoodCard from "./FoodCard";
 
 const UserDashboard = () => {
-  const { currentCity, shopsInMyCity, itemsInMyCity } = useSelector((state) => state.user);
+  const { currentCity, shopsInMyCity, itemsInMyCity } = useSelector(
+    (state) => state.user
+  );
   const cateScrollRef = useRef();
   const shopScrollRef = useRef();
   const [showLeftCategoryBtn, setShowLeftCategoryBtn] = useState(false);
   const [showRightCategoryBtn, setShowRightCategoryBtn] = useState(false);
   const [showLeftShopBtn, setShowLeftShopBtn] = useState(false);
   const [showRightShopBtn, setShowRightShopBtn] = useState(false);
+  const [filteredItemsList, setFilteredItemsList] = useState([]);
 
   const updateButton = (ref, setLeftBtn, setRightBtn) => {
     const element = ref.current;
@@ -42,13 +45,21 @@ const UserDashboard = () => {
     const shopElement = shopScrollRef.current;
 
     const handleCateScroll = () =>
-      updateButton(cateScrollRef, setShowLeftCategoryBtn, setShowRightCategoryBtn);
+      updateButton(
+        cateScrollRef,
+        setShowLeftCategoryBtn,
+        setShowRightCategoryBtn
+      );
 
     const handleShopScroll = () =>
       updateButton(shopScrollRef, setShowLeftShopBtn, setShowRightShopBtn);
 
     if (cateElement) {
-      updateButton(cateScrollRef, setShowLeftCategoryBtn, setShowRightCategoryBtn);
+      updateButton(
+        cateScrollRef,
+        setShowLeftCategoryBtn,
+        setShowRightCategoryBtn
+      );
       cateElement.addEventListener("scroll", handleCateScroll);
     }
 
@@ -63,8 +74,22 @@ const UserDashboard = () => {
       if (shopElement)
         shopElement.removeEventListener("scroll", handleShopScroll);
     };
-
   }, [shopsInMyCity]);
+
+  const handleFilterByCategory = (category) => {
+    if (category === "All") {
+      setFilteredItemsList(itemsInMyCity);
+    } else {
+      const filteredList = itemsInMyCity?.filter(
+        (i) => i.category === category
+      );
+      setFilteredItemsList(filteredList);
+    }
+  };
+
+  useEffect(() => {
+    setFilteredItemsList(itemsInMyCity);
+  }, [itemsInMyCity]);
 
   return (
     <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-bg overflow-y-auto">
@@ -98,6 +123,7 @@ const UserDashboard = () => {
                 name={cate.category}
                 image={cate.image}
                 key={index}
+                onClick={() => handleFilterByCategory(cate.category)}
               />
             ))}
           </div>
@@ -162,9 +188,13 @@ const UserDashboard = () => {
 
         {/* --------------- Items ------------ */}
         <div className="w-full h-auto flex flex-wrap gap-[20px] justify-center">
-          {itemsInMyCity?.map((item, index) => (
-            <FoodCard key={index} data={item} />
-          ))}
+          {filteredItemsList.length == 0 ? (
+            <p className="text-lg text-gray-600 font-semibold">No Available Item</p>
+          ) : (
+            filteredItemsList?.map((item, index) => (
+              <FoodCard key={index} data={item} />
+            ))
+          )}
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ import menu_14 from './Juices.jpeg'
 import menu_15 from './Noodles.webp'
 
 export const categories = [
+    { category: "All", image: menu_1 },
     { category: "Snacks", image: menu_1 },
     { category: "Pizza", image: menu_10 },
     { category: "Burgers", image: menu_6 },
