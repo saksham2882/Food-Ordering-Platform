@@ -98,6 +98,7 @@ export const getMyOrders = async (req, res) => {
                 .populate("shopOrders.shop", "name")
                 .populate("user")
                 .populate("shopOrders.shopOrderItems.item", "name image price")
+                .populate("shopOrders.assignedDeliveryBoy", "fullName mobile")
 
             // Keep only that part of the order which belongs to this owner’s shop(s)
             const filteredOrders = orders.map((order => ({
@@ -170,7 +171,7 @@ export const updateOrderStatus = async (req, res) => {
             const candidates = availableBoys.map(b => b._id)
 
             // If no delivery boys are available
-            if(candidates.length == 0){
+            if (candidates.length == 0) {
                 await order.save()
                 return res.json({
                     message: "Order status updated but no available delivery boys found."
@@ -214,7 +215,7 @@ export const updateOrderStatus = async (req, res) => {
             shopOrder: updatedShopOrder,
             assignedDeliveryBoy: updatedShopOrder?.assignedDeliveryBoy,
             availableBoys: deliveryBoysPayload,
-            assignment: updatedShopOrder?.assignment._id
+            assignment: updatedShopOrder?.assignment?._id
         })
 
     } catch (error) {
@@ -235,9 +236,9 @@ export const getDeliveryBoyAssignment = async (req, res) => {
             broadcastedTo: deliveryBoyId,
             status: "BroadCasted"
         })
-        .sort({ createdAt: -1})
-        .populate("order")
-        .populate("shop")
+            .sort({ createdAt: -1 })
+            .populate("order")
+            .populate("shop")
 
         // Format the data so delivery boy gets only the required info
         const formattedData = assignments.map(a => ({
@@ -255,5 +256,55 @@ export const getDeliveryBoyAssignment = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({ message: `Get Delivery Assignment error: ${error}` })
+    }
+}
+
+
+// Accept Delivery Assignment:
+export const acceptDeliveryAssignment = async (req, res) => {
+    try {
+        const { assignmentId } = req.params
+
+        const assignment = await DeliveryAssignment.findById(assignmentId)
+        if (!assignment) {
+            return res.status(400).json({ message: "Delivery assignment not found" })
+        }
+
+        // Check if assignment is still open for acceptance
+        if (assignment.status !== "BroadCasted") {
+            return res.status(400).json({ message: "This delivery assignment is no longer available." })
+        }
+
+        // Check if this delivery boy is already assigned to another active order
+        const alreadyAssigned = await DeliveryAssignment.findOne({
+            assignedTo: req.userId,
+            status: { $nin: ["BroadCasted", "Completed"] }
+        })
+
+        if (alreadyAssigned) {
+            return res.status(400).json({ message: "You are already assigned to another delivery." })
+        }
+
+        // Assign this delivery to the current delivery boy
+        assignment.assignedTo = req.userId
+        assignment.status = "Assigned"
+        assignment.acceptedAt = new Date()
+        await assignment.save()
+
+        // Find the related order
+        const order = await Order.findById(assignment.order)
+        if (!order) {
+            return res.status(400).json({ message: "Order not found" })
+        }
+
+        // Update the specific shop order with assigned delivery boy
+        const shopOrder = order.shopOrders.id(assignment.shopOrderId)
+        shopOrder.assignedDeliveryBoy = req.userId
+        await order.save()
+
+        return res.status(200).json({ message: "Delivery assignment accepted successfully." })
+
+    } catch (error) {
+        return res.status(500).json({ message: `Accept Delivery Assignment error: ${error}` })
     }
 }

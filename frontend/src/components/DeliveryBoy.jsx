@@ -19,6 +19,18 @@ const DeliveryBoy = () => {
     }
   };
 
+  const acceptDeliveryAssignment = async (assignmentId) => {
+    try {
+      const res = await axios.get(
+        `${SERVER_URL}/api/order/accept-order/${assignmentId}`,
+        { withCredentials: true }
+      );
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     getAssignments();
   }, [userData]);
@@ -68,7 +80,10 @@ const DeliveryBoy = () => {
                   </div>
 
                   {/* --------------- Delivery Accept Button ------------ */}
-                  <button className="bg-orange-500 text-white px-4 py-1 rounded-lg text-sm hover:bg-orange-600 cursor-pointer">
+                  <button
+                    className="bg-orange-500 text-white px-4 py-1 rounded-lg text-sm hover:bg-orange-600 cursor-pointer"
+                    onClick={() => acceptDeliveryAssignment(a.assignmentId)}
+                  >
                     Accept
                   </button>
                 </div>
