@@ -5,6 +5,7 @@ import Navbar from "./Navbar";
 import { FaCircleChevronLeft, FaCircleChevronRight } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import FoodCard from "./FoodCard";
+import { useNavigate } from "react-router-dom";
 
 const UserDashboard = () => {
   const { currentCity, shopsInMyCity, itemsInMyCity } = useSelector(
@@ -12,6 +13,7 @@ const UserDashboard = () => {
   );
   const cateScrollRef = useRef();
   const shopScrollRef = useRef();
+  const navigate = useNavigate()
   const [showLeftCategoryBtn, setShowLeftCategoryBtn] = useState(false);
   const [showRightCategoryBtn, setShowRightCategoryBtn] = useState(false);
   const [showLeftShopBtn, setShowLeftShopBtn] = useState(false);
@@ -164,7 +166,7 @@ const UserDashboard = () => {
             ref={shopScrollRef}
           >
             {shopsInMyCity?.map((shop, index) => (
-              <CategoryCard name={shop.name} image={shop.image} key={index} />
+              <CategoryCard name={shop.name} image={shop.image} key={index} onClick={() => navigate(`/shop/${shop._id}`)} />
             ))}
           </div>
 
@@ -188,7 +190,7 @@ const UserDashboard = () => {
 
         {/* --------------- Items ------------ */}
         <div className="w-full h-auto flex flex-wrap gap-[20px] justify-center">
-          {filteredItemsList.length == 0 ? (
+          {filteredItemsList?.length == 0 ? (
             <p className="text-lg text-gray-600 font-semibold">No Available Item</p>
           ) : (
             filteredItemsList?.map((item, index) => (
