@@ -8,12 +8,11 @@ import FoodCard from "./FoodCard";
 import { useNavigate } from "react-router-dom";
 
 const UserDashboard = () => {
-  const { currentCity, shopsInMyCity, itemsInMyCity } = useSelector(
-    (state) => state.user
-  );
+  const { currentCity, shopsInMyCity, itemsInMyCity, searchItems } =
+    useSelector((state) => state.user);
   const cateScrollRef = useRef();
   const shopScrollRef = useRef();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [showLeftCategoryBtn, setShowLeftCategoryBtn] = useState(false);
   const [showRightCategoryBtn, setShowRightCategoryBtn] = useState(false);
   const [showLeftShopBtn, setShowLeftShopBtn] = useState(false);
@@ -97,6 +96,21 @@ const UserDashboard = () => {
     <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-bg overflow-y-auto">
       <Navbar />
 
+      {/* ------------- Searched Items ------------ */}
+      {searchItems && searchItems?.length > 0 && (
+        <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-5 bg-white shadow-md rounded-2xl mt-4">
+          <h1 className="text-gray-900 text-2xl sm:text-3xl font-semibold border-b border-gray-200 pb-2">
+            Search Results
+          </h1>
+
+          <div className="w-full h-auto flex flex-wrap gap-6 justify-center">
+            {searchItems?.map((item) => (
+              <FoodCard data={item} key={item._id} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ------------- Food Category ------------- */}
       <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-[10px]">
         <h1 className="text-gray-700 text-xl sm:text-2xl">
@@ -166,7 +180,12 @@ const UserDashboard = () => {
             ref={shopScrollRef}
           >
             {shopsInMyCity?.map((shop, index) => (
-              <CategoryCard name={shop.name} image={shop.image} key={index} onClick={() => navigate(`/shop/${shop._id}`)} />
+              <CategoryCard
+                name={shop.name}
+                image={shop.image}
+                key={index}
+                onClick={() => navigate(`/shop/${shop._id}`)}
+              />
             ))}
           </div>
 
@@ -191,7 +210,9 @@ const UserDashboard = () => {
         {/* --------------- Items ------------ */}
         <div className="w-full h-auto flex flex-wrap gap-[20px] justify-center">
           {filteredItemsList?.length == 0 ? (
-            <p className="text-lg text-gray-600 font-semibold">No Available Item</p>
+            <p className="text-lg text-gray-600 font-semibold">
+              No Available Item
+            </p>
           ) : (
             filteredItemsList?.map((item, index) => (
               <FoodCard key={index} data={item} />

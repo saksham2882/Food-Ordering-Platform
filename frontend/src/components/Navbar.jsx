@@ -4,10 +4,10 @@ import { FiShoppingCart } from "react-icons/fi";
 import { TbReceipt } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
 import { RxCross2 } from "react-icons/rx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { SERVER_URL } from "../App";
-import { setUserData } from "../redux/userSlice";
+import { setSearchItems, setUserData } from "../redux/userSlice";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -19,6 +19,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const [showPopup, setShowPopup] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
   const handleLogOut = async () => {
@@ -36,6 +37,27 @@ const Navbar = () => {
       );
     }
   };
+
+  const handleSearchItems = async () => {
+    try {
+      const res = await axios.get(
+        `${SERVER_URL}/api/item/search-items?query=${query}&city=${currentCity}`,
+        { withCredentials: true }
+      );
+      dispatch(setSearchItems(res.data))
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (query) {
+      handleSearchItems();
+    }
+    else{
+      dispatch(setSearchItems(null))
+    }
+  }, [query]);
 
   return (
     <div className="w-full h-[80px] flex items-center justify-between md:justify-center gap-[30px] px-[20px] fixed top-0 z-[9999] bg-bg overflow-visible">
@@ -55,6 +77,8 @@ const Navbar = () => {
               type="text"
               placeholder="search delicious food...."
               className="px-[10px] text-gray-700 outline-0 w-full"
+              onChange={(e) => setQuery(e.target.value)}
+              value={query}
             />
           </div>
         </div>
@@ -77,6 +101,8 @@ const Navbar = () => {
               type="text"
               placeholder="search delicious food...."
               className="px-[10px] text-gray-700 outline-0 w-full"
+              onChange={(e) => setQuery(e.target.value)}
+              value={query}
             />
           </div>
         </div>
