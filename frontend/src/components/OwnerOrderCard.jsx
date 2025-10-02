@@ -56,6 +56,23 @@ const OwnerOrderCard = ({ data }) => {
         </p>
       </div>
 
+      <div className="flex justify-between text-sm text-gray-700 font-semibold">
+        {data.paymentMethod == "Online" ? (
+          <>
+            <p>
+              Payment Method: <span className="text-red-600">{data.paymentMethod}</span>
+            </p>
+            <p>
+              Payment Status: <span className="text-red-600">{data.payment ? "Paid" : "Not Paid"}</span>
+            </p>
+          </>
+        ) : (
+          <p>
+            Payment Method: <span className="text-red-600">{data.paymentMethod}</span>
+          </p>
+        )}
+      </div>
+
       <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-100">
         {/* ----------Order Id --------- */}
         <p className="font-semibold">

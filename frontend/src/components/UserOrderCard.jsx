@@ -15,7 +15,7 @@ const UserOrderCard = ({ data }) => {
   return (
     <div className="bg-white rounded-lg shadow p-4 space-y-4">
       {/* ----------- Order Info ---------- */}
-      <div className="flex justify-between border-b pb-2">
+      <div className="flex justify-between border-b border-gray-300 pb-2">
         <div>
           {/* ----------Order Id --------- */}
           <p className="font-semibold">Order ID: #{data._id?.slice(-9)}</p>
@@ -37,6 +37,28 @@ const UserOrderCard = ({ data }) => {
             {data.shopOrders?.[0].status}
           </p>
         </div>
+      </div>
+
+      <div className="flex justify-between text-sm text-gray-700 font-semibold">
+        {data.paymentMethod == "Online" ? (
+          <>
+            <p>
+              Payment Method:{" "}
+              <span className="text-red-600">{data.paymentMethod}</span>
+            </p>
+            <p>
+              Payment Status:{" "}
+              <span className="text-red-600">
+                {data.payment ? "Paid" : "Not Paid"}
+              </span>
+            </p>
+          </>
+        ) : (
+          <p>
+            Payment Method:{" "}
+            <span className="text-red-600">{data.paymentMethod}</span>
+          </p>
+        )}
       </div>
 
       {/* ----------- Shop Order items ------------ */}
@@ -78,7 +100,7 @@ const UserOrderCard = ({ data }) => {
       ))}
 
       {/* -------------- Total Amount --------------- */}
-      <div className="flex justify-between items-center border-t pt-2">
+      <div className="flex justify-between items-center border-t border-gray-400 pt-2">
         <p>Total: ₹{data.totalAmount}</p>
 
         {/* -------------- Track order ------------ */}

@@ -1,8 +1,18 @@
+import dotenv from "dotenv"
+dotenv.config()
 import Order from "../models/order.model.js"
 import Shop from "../models/shop.model.js"
 import User from "../models/user.model.js"
 import DeliveryAssignment from "../models/deliveryAssignment.model.js"
 import { sendDeliveryOTPMail } from "../utils/mail.js"
+import RazorPay from "razorpay"
+
+
+
+let instance = new RazorPay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+})
 
 
 // Place Order
@@ -57,6 +67,30 @@ export const placeOrder = async (req, res) => {
             }
         }))
 
+        // Payment through Online
+        if(paymentMethod == "Online"){
+            const razorOrder = await instance.orders.create({
+                amount: Math.round(totalAmount * 100),         // in paisa
+                currency: "INR",
+                receipt: `receipt_${Date.now()}`
+            })
+
+            const newOrder = await Order.create({
+                user: req.userId,
+                paymentMethod,
+                deliveryAddress,
+                totalAmount,
+                shopOrders,
+                razorpayOrderId: razorOrder.id,
+                payment: false
+            })
+ 
+            return res.status(200).json({
+                razorOrder,
+                orderId: newOrder._id,
+            })
+        }
+
         // create new order
         const newOrder = await Order.create({
             user: req.userId,
@@ -71,7 +105,38 @@ export const placeOrder = async (req, res) => {
         return res.status(201).json({ message: "Order Placed Successfully", newOrder })
 
     } catch (error) {
+        console.log("Place Order Error: ", error)
         return res.status(500).json({ message: `Something went wrong while placing order: ${error}` });
+    }
+}
+
+
+// Verify Online Payment
+export const verifyPayment = async (req, res) => {
+    try {
+        const {razorpay_payment_id, orderId} = req.body
+
+        const payment = await instance.payments.fetch(razorpay_payment_id)
+        if(!payment || payment.status != "captured"){
+            return res.status(400).json({message: "Payment not captured"})
+        }
+
+        const order = await Order.findById(orderId)
+        if(!order){
+            return res.status(400).json({message: "Order not found"})
+        }
+
+        order.payment = true
+        order.razorpayPaymentId = razorpay_payment_id
+        await order.save()
+
+        await order.populate("shopOrders.shopOrderItems.item", "name image price")
+        await order.populate("shopOrders.shop", "name")
+
+        return res.status(200).json(order)
+
+    } catch (error) {
+        return res.status(500).json({ message: `Something went wrong while verifying payment: ${error}` });
     }
 }
 
@@ -108,7 +173,8 @@ export const getMyOrders = async (req, res) => {
                 user: order.user,
                 shopOrders: order.shopOrders.find(o => o.owner._id == req.userId),
                 createdAt: order.createdAt,
-                deliveryAddress: order.deliveryAddress
+                deliveryAddress: order.deliveryAddress,
+                payment: order.payment
             })))
 
             return res.status(200).json(filteredOrders)

@@ -100,15 +100,57 @@ const CheckOut = () => {
         },
         { withCredentials: true }
       );
-      dispatch(addMyOrder(res.data.newOrder))
-      toast.success(res?.data?.message || "Order Placed Successfully")
-      navigate("/order-placed")
+
+      if(paymentMethod == "COD"){
+        dispatch(addMyOrder(res.data.newOrder));
+        toast.success(res?.data?.message || "Order Placed Successfully");
+        navigate("/order-placed");
+      } else {
+        const orderId = res.data.orderId
+        const razorOrder = res.data.razorOrder
+        openRazorpayWindow(orderId, razorOrder)
+      }
+      
     } catch (error) {
+      console.log(error)
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
     } finally{
       setLoading(false)
     }
   };
+
+  const openRazorpayWindow = (orderId, razorOrder) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: razorOrder.amount,
+      currency: "INR",
+      name: "Yummigo",
+      description: "Food Delivery Platform",
+      order_id: razorOrder.id,
+      handler: function (response) {
+        verifyPayment(response, orderId);
+      },
+    };
+
+    const rzp = new window.Razorpay(options)
+    rzp.open();
+  }
+
+  const verifyPayment = async (response, orderId) => {
+    try {
+      const res = await axios.post(`${SERVER_URL}/api/order/verify-payment`, {
+        razorpay_payment_id: response.razorpay_payment_id,
+        orderId
+      }, {withCredentials: true})
+
+      dispatch(addMyOrder(res.data.newOrder));
+      toast.success(res?.data?.message || "Order Placed Successfully");
+      navigate("/order-placed");
+    } catch (error) {
+      console.log(error)
+      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    }
+  }
 
   useEffect(() => {
     setAddressInput(address);
