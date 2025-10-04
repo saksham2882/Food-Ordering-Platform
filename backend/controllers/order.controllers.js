@@ -325,6 +325,24 @@ export const updateOrderStatus = async (req, res) => {
 
         await order.populate("shopOrders.shop", "name")
         await order.populate("shopOrders.assignedDeliveryBoy", "fullName email mobile")
+        await order.populate("user", "socketId")
+
+        // get socket io from req.app -> where we set io in express app
+        const io = req.app.get("io")
+
+        // Send real-time status update to user for particular order from this owner shop
+        if(io){
+            const userSocketId = order.user.socketId
+
+            if(userSocketId){
+                io.to(userSocketId).emit('update-status', {
+                    orderId: order._id,
+                    shopId: updatedShopOrder.shop._id,
+                    status: updatedShopOrder.status,
+                    userId: order.user._id
+                })
+            }
+        }
 
         return res.status(200).json({
             shopOrder: updatedShopOrder,
