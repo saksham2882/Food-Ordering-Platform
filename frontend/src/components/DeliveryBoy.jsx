@@ -5,6 +5,8 @@ import { SERVER_URL } from "../App";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import DeliveryBoyTracking from "./DeliveryBoyTracking";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { ClipLoader } from "react-spinners";
 
 const DeliveryBoy = () => {
   const { userData, socket } = useSelector((state) => state.user);
@@ -13,6 +15,11 @@ const DeliveryBoy = () => {
   const [showOtpBox, setShowOtpBox] = useState(false);
   const [otp, setOtp] = useState("");
   const [deliveryBoyLocation, setDeliveryBoyLocation] = useState(null)
+  const [todayDeliveries, setTodayDeliveries] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const ratePerDelivery = 50
+  const totalEarning = todayDeliveries.reduce((sum, d) => sum + d.count * ratePerDelivery, 0)
 
   const getAssignments = async () => {
     try {
@@ -56,6 +63,7 @@ const DeliveryBoy = () => {
   };
 
   const sendOTP = async () => {
+    setLoading(true)
     try {
       const res = await axios.post(
         `${SERVER_URL}/api/order/send-delivery-otp`,
@@ -72,6 +80,8 @@ const DeliveryBoy = () => {
           error?.message ||
           "Something went wrong"
       );
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -84,6 +94,7 @@ const DeliveryBoy = () => {
       );
       console.log(res.data);
       toast.success(res.data.message || "Order Delivered Successfully");
+      location.reload()
     } catch (error) {
       console.log(error);
       toast.error(
@@ -93,6 +104,16 @@ const DeliveryBoy = () => {
       );
     }
   };
+
+  const handleTodayDeliveries = async () => {
+    try {
+      const res = await axios.get(`${SERVER_URL}/api/order/get-today-deliveries`, {withCredentials: true})
+      console.log("Today Deliveries: ", res.data)
+      setTodayDeliveries(res.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   useEffect(() => {
     socket?.on('newAssignment', (data) => {
@@ -143,6 +164,7 @@ const DeliveryBoy = () => {
   useEffect(() => {
     getAssignments();
     getCurrentOrder();
+    handleTodayDeliveries()
   }, [userData]);
 
   return (
@@ -162,6 +184,36 @@ const DeliveryBoy = () => {
             <span className="font-bold">Longitude: </span>{" "}
             {deliveryBoyLocation?.lon}
           </p>
+        </div>
+
+        {/* ------------ Today Deliveries Chart ------------- */}
+        <div className="bg-white rounded-2xl shadow-md p-5 w-[90%] mb-6 border border-orange-100">
+          <h1 className="text-lg font-bold mb-3 text-primary">
+            Today Deliveries
+          </h1>
+
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={todayDeliveries}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="hour" tickFormatter={(h) => `${h}:00`} />
+              <YAxis allowDecimals={false} />
+              <Tooltip
+                formatter={(value) => [value, "orders"]}
+                labelFormatter={(label) => `${label}:00`}
+              />
+              <Bar dataKey="count" fill="#ff4d2d" />
+            </BarChart>
+          </ResponsiveContainer>
+
+          {/* --------------- Total Earning --------------- */}
+          <div className="max-w-sm mx-auto mt-6 p-6 bg-white rounded-2xl shadow-lg text-center">
+            <h1 className="text-xl font-semibold text-gray-800 mb-2">
+              Today's Earning
+            </h1>
+            <span className="text-3xl font-bold text-green-600">
+              ₹{totalEarning}
+            </span>
+          </div>
         </div>
 
         {/* ------------- Available Delivery Assignments -------------- */}
@@ -246,8 +298,9 @@ const DeliveryBoy = () => {
               <button
                 className="mt-4 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-green-600 active:scale-95 transition-all duration-200 cursor-pointer"
                 onClick={sendOTP}
+                disabled={loading}
               >
-                Mark As Delivered
+                {loading ? <ClipLoader size={20} color="white" /> : "Mark As Delivered"}
               </button>
             ) : (
               <div className="mt-4 p-4 border rounded-xl bg-gray-50">

@@ -68,7 +68,7 @@ export const placeOrder = async (req, res) => {
         }))
 
         // Payment through Online
-        if(paymentMethod == "Online"){
+        if (paymentMethod == "Online") {
             const razorOrder = await instance.orders.create({
                 amount: Math.round(totalAmount * 100),         // in paisa
                 currency: "INR",
@@ -84,7 +84,7 @@ export const placeOrder = async (req, res) => {
                 razorpayOrderId: razorOrder.id,
                 payment: false
             })
- 
+
             return res.status(200).json({
                 razorOrder,
                 orderId: newOrder._id,
@@ -108,11 +108,11 @@ export const placeOrder = async (req, res) => {
         const io = req.app.get("io")
 
         // send real-time order to particular owner for each shop Order
-        if(io){
+        if (io) {
             newOrder.shopOrders.forEach(shopOrder => {
                 const ownerSocketId = shopOrder.owner.socketId
 
-                if(ownerSocketId){
+                if (ownerSocketId) {
                     io.to(ownerSocketId).emit('newOrder', {
                         _id: newOrder._id,
                         paymentMethod: newOrder.paymentMethod,
@@ -138,16 +138,16 @@ export const placeOrder = async (req, res) => {
 // Verify Online Payment
 export const verifyPayment = async (req, res) => {
     try {
-        const {razorpay_payment_id, orderId} = req.body
+        const { razorpay_payment_id, orderId } = req.body
 
         const payment = await instance.payments.fetch(razorpay_payment_id)
-        if(!payment || payment.status != "captured"){
-            return res.status(400).json({message: "Payment not captured"})
+        if (!payment || payment.status != "captured") {
+            return res.status(400).json({ message: "Payment not captured" })
         }
 
         const order = await Order.findById(orderId)
-        if(!order){
-            return res.status(400).json({message: "Order not found"})
+        if (!order) {
+            return res.status(400).json({ message: "Order not found" })
         }
 
         order.payment = true
@@ -321,11 +321,11 @@ export const updateOrderStatus = async (req, res) => {
             // send real-time new delivery-assignment notification to all available delivery boys
             const io = req.app.get("io")
 
-            if(io) {
+            if (io) {
                 availableBoys.forEach(boy => {
                     const deliveryBoySocketId = boy.socketId
 
-                    if(deliveryBoySocketId){
+                    if (deliveryBoySocketId) {
                         io.to(deliveryBoySocketId).emit('newAssignment', {
                             sentTo: boy._id,
                             assignmentId: deliveryAssignment._id,
@@ -357,10 +357,10 @@ export const updateOrderStatus = async (req, res) => {
         const io = req.app.get("io")
 
         // Send real-time status update to user for particular order from this owner shop
-        if(io){
+        if (io) {
             const userSocketId = order.user.socketId
 
-            if(userSocketId){
+            if (userSocketId) {
                 io.to(userSocketId).emit('update-status', {
                     orderId: order._id,
                     shopId: updatedShopOrder.shop._id,
@@ -621,9 +621,66 @@ export const verifyDeliveryOTP = async (req, res) => {
             assignedTo: shopOrder.assignedDeliveryBoy
         })
 
-        return res.status(200).json({message: "Order Delivered Successfully"})
+        return res.status(200).json({ message: "Order Delivered Successfully" })
 
     } catch (error) {
         return res.status(500).json({ message: 'Send Delivery Confirmation OTP Error: ${error}' })
+    }
+}
+
+
+// Today Delivery Records for Delivery boy
+export const getTodayDeliveries = async (req, res) => {
+    try {
+        const deliveryBoyId = req.userId
+
+        // Get start of the current day (12:00 AM)
+        const startsOfDay = new Date()
+        startsOfDay.setHours(0, 0, 0, 0)
+
+        // Fetch orders delivered today by this delivery boy
+        const orders = await Order.find({
+            "shopOrders.assignedDeliveryBoy": deliveryBoyId,
+            "shopOrders.status": "Delivered",
+            "shopOrders.deliveredAt": { $gte: startsOfDay }
+        }).lean()
+
+        let todaysDeliveries = []
+
+        // Extract only those shopOrders that match today's delivered orders
+        orders.forEach(order => {
+            order.shopOrders.forEach(shopOrder => {
+                if (shopOrder.assignedDeliveryBoy == deliveryBoyId &&
+                    shopOrder.status == "Delivered" &&
+                    shopOrder.deliveredAt &&
+                    shopOrder.deliveredAt >= startsOfDay
+                ) {
+                    todaysDeliveries.push(shopOrder)
+                }
+            })
+        })
+
+        // Calculate delivery count per hour
+        let stats = {}
+
+        todaysDeliveries.forEach(shopOrder => {
+            const hour = new Date(shopOrder.deliveredAt).getHours()
+            // hour: delivery count
+            stats[hour] = (stats[hour] || 0) + 1
+        })
+
+        // Format and sort data for chart/graph display
+        let formattedStats = Object.keys(stats).map(hour => ({
+            hour: parseInt(hour),
+            count: stats[hour]
+        }))
+
+        // Sort by hour (ascending order)
+        formattedStats.sort((a, b) => a.hour - b.hour)
+
+        return res.status(200).json(formattedStats)
+
+    } catch (error) {
+        return res.status(500).json({ message: 'Get Today Deliveries Error: ${error}' })
     }
 }
