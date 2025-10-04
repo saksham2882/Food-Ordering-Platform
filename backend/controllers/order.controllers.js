@@ -314,6 +314,32 @@ export const updateOrderStatus = async (req, res) => {
                 latitude: b.location.coordinates?.[1],
                 mobile: b.mobile
             }))
+
+            await deliveryAssignment.populate('order')
+            await deliveryAssignment.populate('shop')
+
+            // send real-time new delivery-assignment notification to all available delivery boys
+            const io = req.app.get("io")
+
+            if(io) {
+                availableBoys.forEach(boy => {
+                    const deliveryBoySocketId = boy.socketId
+
+                    if(deliveryBoySocketId){
+                        io.to(deliveryBoySocketId).emit('newAssignment', {
+                            sentTo: boy._id,
+                            assignmentId: deliveryAssignment._id,
+                            orderId: deliveryAssignment.order._id,
+                            shopName: deliveryAssignment.shop.name,
+                            deliveryAddress: deliveryAssignment.order.deliveryAddress,
+
+                            // find shopOrder that belongs to this assignment & return items
+                            items: deliveryAssignment.order.shopOrders.find(so => so._id.equals(deliveryAssignment.shopOrderId)).shopOrderItems || [],
+                            subtotal: deliveryAssignment.order.shopOrders.find(so => so._id.equals(deliveryAssignment.shopOrderId))?.subtotal
+                        })
+                    }
+                })
+            }
         }
 
         // Save updated shopOrder and order

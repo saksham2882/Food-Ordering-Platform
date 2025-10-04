@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import DeliveryBoyTracking from "./DeliveryBoyTracking";
 
 const DeliveryBoy = () => {
-  const { userData } = useSelector((state) => state.user);
+  const { userData, socket } = useSelector((state) => state.user);
   const [availableAssignments, setAvailableAssignments] = useState(null);
   const [currentOrder, setCurrentOrder] = useState();
   const [showOtpBox, setShowOtpBox] = useState(false);
@@ -92,6 +92,18 @@ const DeliveryBoy = () => {
       );
     }
   };
+
+  useEffect(() => {
+    socket?.on('newAssignment', (data) => {
+      if(data.sentTo == userData._id){
+        setAvailableAssignments(prev => [...prev, data])
+      }
+    })
+
+    return () => {
+      socket?.off('newAssignment')
+    }
+  }, [socket])
 
   useEffect(() => {
     getAssignments();
