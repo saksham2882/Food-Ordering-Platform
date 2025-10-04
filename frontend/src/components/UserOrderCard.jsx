@@ -1,7 +1,12 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { SERVER_URL } from "../App";
+import { toast } from "sonner";
 
 const UserOrderCard = ({ data }) => {
   const navigate = useNavigate();
+  const [selectedRating, setSelectedRating] = useState({}); // itemId: rating
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -10,6 +15,28 @@ const UserOrderCard = ({ data }) => {
       month: "short",
       year: "numeric",
     });
+  };
+
+  const handleRating = async (itemId, rating) => {
+    try {
+      const res = await axios.post(
+        `${SERVER_URL}/api/item/rating`,
+        { itemId, rating },
+        { withCredentials: true }
+      );
+      setSelectedRating((prev) => ({
+        ...prev,
+        [itemId]: rating,
+      }));
+      toast.success("Thank you for rating");
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong"
+      );
+    }
   };
 
   return (
@@ -85,6 +112,24 @@ const UserOrderCard = ({ data }) => {
                 <p className="text-xs text-gray-500">
                   Qty: {item.quantity} x ₹{item.price}.00
                 </p>
+
+                {/* -------------- rating when order delivered -------------- */}
+                {shopOrder.status == "Delivered" && (
+                  <div className="flex space-x-1 mt-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        className={`text-xl cursor-pointer ${
+                          selectedRating[item.item._id] >= star
+                            ? "text-yellow-400"
+                            : "text-gray-500/50"
+                        }`}
+                        onClick={() => handleRating(item.item._id, star)}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
