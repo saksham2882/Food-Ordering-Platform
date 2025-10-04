@@ -1,12 +1,27 @@
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom";
 import UserOrderCard from "../components/UserOrderCard";
-import OwnerOrderCard from "../components/OwnerOrderCard";
+import OwnerOrderCard from "../components/OwnerOrderCard"
+import { useEffect } from "react";
+import { setMyOrders } from "../redux/userSlice";
 
 const MyOrders = () => {
-  const { userData, myOrders } = useSelector((state) => state.user);
+  const { userData, myOrders, socket } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    socket?.on("newOrder", (data) => {
+      if (data.shopOrders?.owner._id == userData._id) {
+        dispatch(setMyOrders([data, ...myOrders]));
+      }
+    });
+
+    return () => {
+      socket?.off("newOrder");
+    };
+  }, [socket]);
 
   return (
     <div className="w-full min-h-screen bg-bg flex justify-center px-4">

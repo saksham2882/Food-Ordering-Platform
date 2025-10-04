@@ -101,6 +101,30 @@ export const placeOrder = async (req, res) => {
         })
         await newOrder.populate("shopOrders.shopOrderItems.item", "name image price")
         await newOrder.populate("shopOrders.shop", "name")
+        await newOrder.populate("shopOrders.owner", "name socketId")
+        await newOrder.populate("user", "name email mobile")
+
+        // get socket io from req.app -> where we set io in express app
+        const io = req.app.get("io")
+
+        // send real-time order to particular owner for each shop Order
+        if(io){
+            newOrder.shopOrders.forEach(shopOrder => {
+                const ownerSocketId = shopOrder.owner.socketId
+
+                if(ownerSocketId){
+                    io.to(ownerSocketId).emit('newOrder', {
+                        _id: newOrder._id,
+                        paymentMethod: newOrder.paymentMethod,
+                        user: newOrder.user,
+                        shopOrders: shopOrder,
+                        createdAt: newOrder.createdAt,
+                        deliveryAddress: newOrder.deliveryAddress,
+                        payment: newOrder.payment
+                    })
+                }
+            })
+        }
 
         return res.status(201).json({ message: "Order Placed Successfully", newOrder })
 
