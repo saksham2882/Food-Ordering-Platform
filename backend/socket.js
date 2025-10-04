@@ -17,6 +17,32 @@ export const socketHandler = (io) => {
             }
         })
 
+        // when delivery boy location updates
+        socket.on('updateLocation', async ({latitude, longitude, deliveryBoyId}) => {
+            try {
+                const deliveryBoy = await User.findByIdAndUpdate(deliveryBoyId, {
+                    location: {
+                        type: 'Point',
+                        coordinates: [longitude, latitude]
+                    },
+                    isOnline: true,
+                    socketId: socket.id
+                })
+
+                if(deliveryBoy){
+                    // emit event to update delivery boy location in user order tracking map
+                    io.emit('updateDeliveryLocation', {
+                        deliveryBoyId,
+                        latitude,
+                        longitude
+                    })
+                }
+
+            } catch (error) {
+                console.log("Update delivery location error: ", error)
+            }
+        })
+
         // when user disconnect
         socket.on("disconnect", async () => {
             try {
