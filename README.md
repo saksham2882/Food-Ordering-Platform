@@ -2,7 +2,16 @@
 
 This is a full-stack **real-time food delivery platform** built with the MERN stack (MongoDB, Express, React, Node.js) and Socket.IO. It connects users, restaurants, and delivery personnel in a seamless, real-time environment.
 
-**Live Demo:** [Go to Site](https://yummigoo.onrender.com)
+[![React](https://img.shields.io/badge/React-blue?logo=react)](https://reactjs.org/) [![Vite](https://img.shields.io/badge/Vite-purple?logo=vite)](https://vitejs.dev/) [![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-purple?logo=redux)](https://redux-toolkit.js.org/) [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-cyan?logo=tailwind-css)](https://tailwindcss.com/) [![React Router](https://img.shields.io/badge/React_Router-red?logo=react-router)](https://reactrouter.com/) [![Leaflet](https://img.shields.io/badge/Leaflet-green?logo=leaflet)](https://leafletjs.com/) [![Socket.IO](https://img.shields.io/badge/Socket.IO-black?logo=socketdotio)](https://socket.io/) [![Sonner](https://img.shields.io/badge/Sonner-orange?logo=sonos)](https://sonner.emilkowal.ski/) [![Axios](https://img.shields.io/badge/Axios-blue?logo=axios)](https://axios-http.com/) [![Recharts](https://img.shields.io/badge/Recharts-orange?logo=recharts)](https://recharts.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-black?logo=express&logoColor=white)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![JWT](https://img.shields.io/badge/JWT-grey?logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?logo=cloudinary&logoColor=white)](https://cloudinary.com/)
+[![Razorpay](https://img.shields.io/badge/Razorpay-02042B?logo=razorpay&logoColor=white)](https://razorpay.com/)
+[![Nodemailer](https://img.shields.io/badge/Nodemailer-0078D4?logo=mail.ru&logoColor=white)](https://nodemailer.com/about/)
+
+
 
 ## 📜 Table of Contents
 
@@ -17,6 +26,8 @@ This is a full-stack **real-time food delivery platform** built with the MERN st
 - [Setup and Installation](#-setup-and-installation)
 - [Contributing](#-contributing)
 - [Contact](#-contact)
+
+## 🌐 Live Demo: [Link](https://yummigoo.onrender.com)
 
 ## 📝 Project Overview
 
