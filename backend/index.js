@@ -18,7 +18,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors: {
-        origin: "https://yummigoo.onrender.com",
+        origin: process.env.FRONTEND_URL,
         credentials: true,
         methods: ["POST", "GET"]
     }
@@ -32,7 +32,7 @@ const port = process.env.PORT || 4000
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: "https://yummigoo.onrender.com",
+    origin: process.env.FRONTEND_URL,
     credentials: true
 }))
 

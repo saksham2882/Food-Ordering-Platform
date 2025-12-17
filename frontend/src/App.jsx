@@ -25,7 +25,7 @@ import { useEffect } from "react"
 import { io } from "socket.io-client"
 import { setSocket } from "./redux/userSlice"
 
-export const SERVER_URL = "https://food-ordering-platform-backend-4f9u.onrender.com";
+export const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 const App = () => {
   useGetCurrentUser()
