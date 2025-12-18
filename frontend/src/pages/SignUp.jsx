@@ -43,11 +43,6 @@ const SignUp = () => {
   };
 
   const handleGoogleAuth = async () => {
-    if (!mobile) {
-      toast.info("Please enter your mobile number before proceeding");
-      return null;
-    }
-
     const provider = new GoogleAuthProvider();
     const res = await signInWithPopup(auth, provider);
     console.log(res)
@@ -59,8 +54,9 @@ const SignUp = () => {
         {
           fullName: res.user.displayName,
           email: res.user.email,
-          role,
-          mobile,
+          // role and mobile are optional/default on backend now for Google Auth
+          role: role || "user", 
+          mobile: mobile || "",
         },
         { withCredentials: true }
       );

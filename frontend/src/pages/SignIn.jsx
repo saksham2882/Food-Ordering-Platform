@@ -51,6 +51,7 @@ const SignIn = () => {
         `${SERVER_URL}/api/auth/google-auth`,
         {
           email: res.user.email,
+          fullName: res.user.displayName,
         },
         { withCredentials: true }
       );
