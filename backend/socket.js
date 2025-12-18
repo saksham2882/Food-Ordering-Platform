@@ -1,24 +1,26 @@
 import User from "./models/user.model.js"
+import logger from "./utils/logger.js"
 
 export const socketHandler = (io) => {
     io.on('connection', (socket) => {
-        console.log("⚡ New socket connected:", socket.id)
+        logger.info(`⚡ New socket connected: ${socket.id}`)
 
         // when user connect
         socket.on("identity", async ({ userId }) => {
+            if (!userId) return;
             try {
-                const user = await User.findByIdAndUpdate(userId, {
+                await User.findByIdAndUpdate(userId, {
                     socketId: socket.id,
                     isOnline: true
                 }, { new: true })
-
             } catch (error) {
-                console.log(error)
+                logger.error(`Socket identity error for user ${userId}: ${error.message}`)
             }
         })
 
         // when delivery boy location updates
-        socket.on('updateLocation', async ({latitude, longitude, deliveryBoyId}) => {
+        socket.on('updateLocation', async ({ latitude, longitude, deliveryBoyId }) => {
+            if (!deliveryBoyId || !latitude || !longitude) return;
             try {
                 const deliveryBoy = await User.findByIdAndUpdate(deliveryBoyId, {
                     location: {
@@ -29,7 +31,7 @@ export const socketHandler = (io) => {
                     socketId: socket.id
                 })
 
-                if(deliveryBoy){
+                if (deliveryBoy) {
                     // emit event to update delivery boy location in user order tracking map
                     io.emit('updateDeliveryLocation', {
                         deliveryBoyId,
@@ -37,23 +39,21 @@ export const socketHandler = (io) => {
                         longitude
                     })
                 }
-
             } catch (error) {
-                console.log("Update delivery location error: ", error)
+                logger.error("Update delivery location error: ", error.message)
             }
         })
 
         // when user disconnect
         socket.on("disconnect", async () => {
             try {
-                console.log("Disconnect: ", socket.id)
-
+                logger.info(`Disconnect: ${socket.id}`)
                 await User.findOneAndUpdate({ socketId: socket.id }, {
                     socketId: null,
                     isOnline: false
                 })
             } catch (error) {
-                console.log(error)
+                logger.error("Socket disconnect error:", error.message)
             }
         })
     })

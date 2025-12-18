@@ -33,6 +33,9 @@ const shopSchema = new mongoose.Schema({
 
 }, { timestamps: true })
 
+shopSchema.index({ city: 1, state: 1 })
+shopSchema.index({ name: "text" })
+
 const Shop = mongoose.model("Shop", shopSchema)
 
 export default Shop

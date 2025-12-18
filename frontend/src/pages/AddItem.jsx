@@ -195,7 +195,7 @@ const AddItem = () => {
               value={foodType}
             >
               <option value="veg">veg</option>
-              <option value="non veg">non veg</option>
+              <option value="non-veg">non-veg</option>
             </select>
           </div>
 
