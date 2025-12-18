@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv"
 dotenv.config()
 import connectDB from "./config/db.js";
+import logger from "./utils/logger.js";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.routes.js";
 import cors from "cors"
@@ -12,6 +13,9 @@ import orderRouter from "./routes/order.routes.js";
 import http from "http"
 import { Server } from "socket.io";
 import { socketHandler } from "./socket.js";
+import helmet from "helmet";
+import morgan from "morgan";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 const server = http.createServer(app)
@@ -36,6 +40,29 @@ app.use(cors({
     credentials: true
 }))
 
+
+// Security & Logging
+app.use(helmet());
+app.use(morgan("dev"));
+
+
+// Rate limiting (100 requests per 15 minutes)
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: "Too many requests from this IP, please try again after 15 minutes"
+});
+app.use("/api", limiter);
+
+
+// Health Check
+app.get("/api/health", (req, res) => {
+    res.status(200).json({ status: "ok", message: "Server started" });
+});
+
+
 // Database connection
 connectDB()
 
@@ -49,5 +76,5 @@ app.use("/api/order", orderRouter)
 socketHandler(io)
 
 server.listen(port, () => {
-    console.log(`Server running on port: ${port}`)
-}) 
+    logger.info(`Server running on port: ${port}`)
+})

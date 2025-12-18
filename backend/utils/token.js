@@ -1,11 +1,13 @@
 import jwt from "jsonwebtoken"
+import logger from "./logger.js";
 
 const genToken = async (userId) => {
     try {
-        const token = await jwt.sign({ userId }, process.env.JWT_SECRET, {expiresIn: "7d"})
+        const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" })
         return token
     } catch (error) {
-        console.log(error)
+        logger.error(`Token generation failed: ${error.message}`)
+        return null
     }
 }
 
