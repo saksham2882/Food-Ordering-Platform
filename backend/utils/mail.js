@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
 import { getDeliveryConfirmationOTP, getResetPasswordTemplate } from "./emailTemplate.js"
+import logger from "./logger.js";
 dotenv.config()
 
 const transporter = nodemailer.createTransport({
@@ -24,7 +25,8 @@ export const sendOtpMail = async (to, otp, name) => {
         const res = await transporter.sendMail(mail);
         return res;
     } catch (error) {
-        throw new Error(`Failed to send email: ${err.message || 'Unknown error'}`);
+        logger.error("Email send error:", error.message);
+        throw new Error(`Failed to send email: ${error.message}`);
     }
 }
 
@@ -39,6 +41,7 @@ export const sendDeliveryOTPMail = async (user, otp) => {
         const res = await transporter.sendMail(mail);
         return res;
     } catch (error) {
-        throw new Error(`Failed to send email: ${err.message || 'Unknown error'}`);
+        logger.error("Email send error:", error.message);
+        throw new Error(`Failed to send email: ${error.message}`);
     }
 }

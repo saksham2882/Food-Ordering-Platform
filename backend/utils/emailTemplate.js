@@ -1,185 +1,149 @@
+const styles = `
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background-color: #f6f9fc; 
+      margin: 0; 
+      padding: 0; 
+      line-height: 1.6; 
+      color: #333; 
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 40px auto; 
+      background: #ffffff; 
+      border-radius: 12px; 
+      overflow: hidden; 
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); 
+    }
+    .header { 
+      background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); 
+      padding: 30px; 
+      text-align: center; 
+      color: white; 
+    }
+    .header h1 { 
+      margin: 0; 
+      font-size: 28px; 
+      font-weight: 700; 
+      letter-spacing: 1px; 
+    }
+    .content { 
+      padding: 40px 30px; 
+      text-align: center; 
+    }
+    .content p { 
+      font-size: 16px; 
+      color: #555; 
+      margin-bottom: 25px; 
+    }
+    .otp-box { 
+      background: #f0f4f8; 
+      border: 2px dashed #007bff; 
+      color: #007bff; 
+      font-size: 36px; 
+      font-weight: 800; 
+      padding: 15px 30px; 
+      border-radius: 8px; 
+      display: inline-block; 
+      letter-spacing: 5px; 
+      margin: 20px 0; 
+    }
+    .otp-box.delivery { 
+      border-color: #28a745; 
+      color: #28a745; 
+      background: #e8f5e9; 
+    }
+    .btn { 
+      display: inline-block; 
+      background-color: #007bff; 
+      color: white; 
+      padding: 12px 30px; 
+      border-radius: 50px; 
+      text-decoration: none; 
+      font-weight: 600; 
+      margin-top: 20px; 
+      transition: background-color 0.3s; 
+    }
+    .btn:hover { 
+      background-color: #0056b3; 
+    }
+    .footer { 
+      background-color: #f9f9f9; 
+      padding: 20px; 
+      text-align: center; 
+      font-size: 13px; 
+      color: #888; 
+      border-top: 1px solid #eaeaea; 
+    }
+    .footer a { 
+      color: #007bff; 
+      text-decoration: none; 
+      margin: 0 5px; 
+    }
+`;
+
+
+// Reset Password Template
 export const getResetPasswordTemplate = (fullName, otp) => {
-    return `
+  return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            text-align: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        .header h1 {
-            color: #007bff;
-            font-size: 24px;
-            margin: 0;
-        }
-        .content {
-            padding: 20px;
-            text-align: center;
-        }
-        .content p {
-            font-size: 16px;
-            line-height: 1.5;
-            margin: 10px 0;
-        }
-        .reset-code {
-            display: inline-block;
-            font-size: 24px;
-            font-weight: bold;
-            color: #007bff;
-            background: #f8f9fa;
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        .footer {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-size: 14px;
-            color: #666;
-        }
-        .footer a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-            margin: 10px 0;
-        }
-    </style>
+    <style>${styles}</style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Yummigo Password Reset</h1>
+            <h1>Yummigo</h1>
         </div>
         <div class="content">
-            <p>Dear ${fullName},</p>
-            <p>We received a request to reset your Yummigo account password. Please use the following 6-digit code to reset your password:</p>
-            <div class="reset-code">${otp}</div>
-            <p>This OTP is valid for 5 minutes. If you did not request a password reset, please ignore this email or contact our support team.</p>
-            <a href="" class="button">Reset Password</a>
+            <h2 style="color: #333; margin-top: 0;">Password Reset Request</h2>
+            <p>Hello ${fullName},</p>
+            <p>We received a request to reset your password. Use the code below to complete the process. This code expires in 5 minutes.</p>
+            <div class="otp-box">${otp}</div>
+            <p style="font-size: 14px; color: #777;">If you didn't request this, you can safely ignore this email.</p>
         </div>
         <div class="footer">
-            <p>Best regards,<br>Yummigo Support Team</p>
-            <p><a href="">Contact Support</a> | <a href="">Visit Yummigo</a></p>
+            <p>Copyright &copy; ${new Date().getFullYear()} Yummigo. All rights reserved.</p>
+            <p><a href="#">Help Center</a> | <a href="#">Privacy Policy</a></p>
         </div>
     </div>
-</body>
-</html>
-  `;
-};
-
-
-export const getDeliveryConfirmationOTP = (fullName, otp) => {
-    return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-    .container {
-      max-width: 600px;
-      margin: 20px auto;
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .header {
-      text-align: center;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #eee;
-    }
-    .header h1 {
-      color: #28a745;
-      font-size: 24px;
-      margin: 0;
-    }
-    .content {
-      padding: 20px;
-      text-align: center;
-    }
-    .content p {
-      font-size: 16px;
-      line-height: 1.5;
-      margin: 10px 0;
-    }
-    .otp-code {
-      display: inline-block;
-      font-size: 28px;
-      font-weight: bold;
-      color: #28a745;
-      background: #f1fdf4;
-      padding: 12px 25px;
-      border-radius: 6px;
-      margin: 20px 0;
-      border: 1px dashed #28a745;
-    }
-    .footer {
-      text-align: center;
-      padding-top: 20px;
-      border-top: 1px solid #eee;
-      font-size: 14px;
-      color: #666;
-    }
-    .footer a {
-      color: #28a745;
-      text-decoration: none;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Yummigo Delivery Confirmation</h1>
-    </div>
-    <div class="content">
-      <p>Dear ${fullName},</p>
-      <p>Your order has arrived! Please share the following OTP with your delivery partner to confirm and complete your delivery:</p>
-      <div class="otp-code">${otp}</div>
-      <p>This OTP is valid only for the next 5 minutes. Please do not share it with anyone except your Yummigo delivery partner.</p>
-      <p>Thank you for choosing Yummigo. Enjoy your meal!</p>
-    </div>
-    <div class="footer">
-      <p>Best regards,<br>Yummigo Support Team</p>
-      <p><a href="">Contact Support</a> | <a href="">Visit Yummigo</a></p>
-    </div>
-  </div>
 </body>
 </html>
     `;
-}
+};
+
+
+// Delivery Confirmation OTP Template
+export const getDeliveryConfirmationOTP = (fullName, otp) => {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>${styles}</style>
+</head>
+<body>
+    <div class="container">
+        <div class="header" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+            <h1>Yummigo Delivery</h1>
+        </div>
+        <div class="content">
+            <h2 style="color: #333; margin-top: 0;">Order Arrival!</h2>
+            <p>Hey ${fullName}, your delicious food has arrived at your doorstep!</p>
+            <p>Please share the One-Time Password (OTP) below with your delivery partner to verify and receive your order.</p>
+            <div class="otp-box delivery">${otp}</div>
+            <p style="font-size: 14px; color: #777;">Enjoy your meal! 🍔🍕</p>
+        </div>
+        <div class="footer">
+             <p>Copyright &copy; ${new Date().getFullYear()} Yummigo. All rights reserved.</p>
+             <p>Need help with your order? <a href="#">Contact Support</a></p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+};

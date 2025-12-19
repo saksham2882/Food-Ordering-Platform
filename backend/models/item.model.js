@@ -53,7 +53,7 @@ const itemSchema = new mongoose.Schema({
     },
     foodType: {
         type: String,
-        enum: ["veg", "non veg"],
+        enum: ["veg", "non-veg"],
         required: true
     },
     rating: {
@@ -61,6 +61,10 @@ const itemSchema = new mongoose.Schema({
         userCount: { type: Number, default: 0 }
     }
 }, { timestamps: true })
+
+itemSchema.index({ shop: 1, category: 1 })
+itemSchema.index({ category: 1 })
+itemSchema.index({ name: "text" })
 
 const Item = mongoose.model("Item", itemSchema)
 

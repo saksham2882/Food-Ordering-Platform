@@ -148,7 +148,7 @@ Stores information about the food items on the menu.
 -   `shop` (ObjectId, ref: `'Shop'`): The shop to which the item belongs.
 -   `category` (String, enum: `[...]`, required): The category of the item.
 -   `price` (Number, min: `0`, required): The price of the item.
--   `foodType` (String, enum: `['veg', 'non veg']`, required): The food type of the item.
+-   `foodType` (String, enum: `['veg', 'non-veg']`, required): The food type of the item.
 -   `rating` (Object): The rating of the item.
     -   `average` (Number, default: `0`): The average rating of the item.
     -   `userCount` (Number, default: `0`): The number of users who have rated the item.

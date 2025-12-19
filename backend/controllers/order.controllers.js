@@ -5,27 +5,32 @@ import Shop from "../models/shop.model.js"
 import User from "../models/user.model.js"
 import DeliveryAssignment from "../models/deliveryAssignment.model.js"
 import { sendDeliveryOTPMail } from "../utils/mail.js"
+import { placeOrderSchema } from "../utils/validators.js";
+import { randomInt } from 'crypto'
+import logger from "../utils/logger.js";
 import RazorPay from "razorpay"
+import mongoose from "mongoose"
 
 
-
+// ---------- RazorPay Instance ----------
 let instance = new RazorPay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
 })
 
 
-// Place Order
+// ---------- Place Order ----------
 export const placeOrder = async (req, res) => {
     try {
-        const { cartItems, paymentMethod, deliveryAddress, totalAmount } = req.body
+        const validation = placeOrderSchema.safeParse(req.body);
 
-        if (cartItems.length == 0 || !cartItems) {
-            return res.status(400).json({ message: "Cart is empty" })
+        if (!validation.success) {
+            const errorMsg = validation.error.issues?.[0]?.message || "Invalid Input Data";
+            logger.warn(`Place Order Validation Failed: ${errorMsg}`);
+            return res.status(400).json({ message: errorMsg });
         }
-        if (!deliveryAddress.text || !deliveryAddress.latitude || !deliveryAddress.longitude) {
-            return res.status(400).json({ message: "Send complete delivery address" })
-        }
+
+        const { cartItems, paymentMethod, deliveryAddress, totalAmount } = req.body
 
         // We want to organize cart items based on shopId.
         // Example: { shopId1: [item1, item2], shopId2: [item3, item4] }
@@ -47,7 +52,9 @@ export const placeOrder = async (req, res) => {
 
             const shop = await Shop.findById(shopId).populate("owner")
             if (!shop) {
-                return res.status(400).json({ message: "Shop not found" })
+                // If one shop is missing, this entire order process might fail or need handling.
+                // For simplicity, we might throw here to be caught by catch block
+                throw new Error("Shop not found");
             }
 
             // ordered items from shop
@@ -126,30 +133,42 @@ export const placeOrder = async (req, res) => {
             })
         }
 
+        logger.info(`Order Placed Successfully: ${newOrder._id} for User ${req.userId}`);
         return res.status(201).json({ message: "Order Placed Successfully", newOrder })
 
     } catch (error) {
-        console.log("Place Order Error: ", error)
-        return res.status(500).json({ message: `Something went wrong while placing order: ${error}` });
+        logger.error(`Place Order Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" })
     }
 }
 
 
-// Verify Online Payment
+// ---------- Verify Online Payment ----------
 export const verifyPayment = async (req, res) => {
     try {
         const { razorpay_payment_id, orderId } = req.body
 
-        const payment = await instance.payments.fetch(razorpay_payment_id)
-        if (!payment || payment.status != "captured") {
-            return res.status(400).json({ message: "Payment not captured" })
+        if (!razorpay_payment_id || !orderId) {
+            return res.status(400).json({ message: "Payment ID and Order ID are required" })
         }
 
         const order = await Order.findById(orderId)
         if (!order) {
-            return res.status(400).json({ message: "Order not found" })
+            return res.status(404).json({ message: "Order not found" })
         }
 
+        // Prevent double processing
+        if (order.payment) {
+            return res.status(400).json({ message: "Order is already paid" })
+        }
+
+        // Verify Payment Status from Razorpay
+        const payment = await instance.payments.fetch(razorpay_payment_id)
+        if (!payment || payment.status !== "captured") {
+            return res.status(400).json({ message: "Payment not captured" })
+        }
+
+        // Update Order
         order.payment = true
         order.razorpayPaymentId = razorpay_payment_id
         await order.save()
@@ -181,36 +200,39 @@ export const verifyPayment = async (req, res) => {
             })
         }
 
+        logger.info(`Payment Verified Successfully for Order: ${orderId}`);
         return res.status(200).json(order)
 
     } catch (error) {
-        return res.status(500).json({ message: `Something went wrong while verifying payment: ${error}` });
+        logger.error(`Verify Payment Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" });
     }
 }
 
 
-// Get My Orders (for both user and owner)
+// ---------- Get My Orders (for both user and owner) ----------
 export const getMyOrders = async (req, res) => {
     try {
         const user = await User.findById(req.userId)
+        if (!user) return res.status(404).json({ message: "User not found" });
 
         // If logged-in user is a normal user -> fetch all his own orders
-        if (user.role == "user") {
+        if (user.role === "user") {
             const orders = await Order.find({ user: req.userId })
                 .sort({ createdAt: -1 })
                 .populate("shopOrders.shop", "name")
                 .populate("shopOrders.owner", "name email mobile")
                 .populate("shopOrders.shopOrderItems.item", "name image price")
 
-            return res.status(200).json(orders)
+            return res.status(200).json(orders);
         }
 
         // If logged-in user is an owner -> fetch all orders that belong to his shops
-        else if (user.role == "owner") {
+        if (user.role === "owner") {
             const orders = await Order.find({ "shopOrders.owner": req.userId })
                 .sort({ createdAt: -1 })
                 .populate("shopOrders.shop", "name")
-                .populate("user")
+                .populate("user", "fullName email mobile location")
                 .populate("shopOrders.shopOrderItems.item", "name image price")
                 .populate("shopOrders.assignedDeliveryBoy", "fullName mobile")
 
@@ -225,27 +247,40 @@ export const getMyOrders = async (req, res) => {
                 payment: order.payment
             })))
 
-            return res.status(200).json(filteredOrders)
+            return res.status(200).json(filteredOrders);
         }
 
+        // other roles (e.g. deliveryBoy)
+        return res.status(403).json({ message: "Access denied" }); 
+
     } catch (error) {
-        return res.status(500).json({ message: `Get My Order Error: ${error}` })
+        logger.error(`Get My Orders Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" })
     }
 }
 
 
-// Update order status
+// ---------- Update order status ----------
 export const updateOrderStatus = async (req, res) => {
     try {
         const { orderId, shopId } = req.params
         const { status } = req.body
 
+        // Check if the user owns the shop
+        const shop = await Shop.findOne({ _id: shopId, owner: req.userId });
+        if (!shop) {
+            return res.status(403).json({ message: "Unauthorized: You do not own this shop" });
+        }
+
         const order = await Order.findById(orderId)
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
 
         // Find the specific shop order inside the order
         const shopOrder = order.shopOrders.find(o => o.shop == shopId)
         if (!shopOrder) {
-            return res.status(400).json({ message: "Shop order not found" })
+            return res.status(404).json({ message: "Shop order not found" })
         }
 
         // Update shop order status
@@ -287,6 +322,7 @@ export const updateOrderStatus = async (req, res) => {
 
             // If no delivery boys are available
             if (candidates.length == 0) {
+                // Save status update even if no delivery boy found
                 await order.save()
                 return res.json({
                     message: "Order status updated but no available delivery boys found."
@@ -378,12 +414,13 @@ export const updateOrderStatus = async (req, res) => {
         })
 
     } catch (error) {
-        return res.status(500).json({ message: `Order status error: ${error}` })
+        logger.error(`Update Order Status Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" })
     }
 }
 
 
-// get delivery assignment for a delivery boy
+// ---------- get delivery assignment for a delivery boy ----------
 export const getDeliveryBoyAssignment = async (req, res) => {
 
     try {
@@ -397,44 +434,46 @@ export const getDeliveryBoyAssignment = async (req, res) => {
         })
             .sort({ createdAt: -1 })
             .populate("order")
-            .populate("shop")
+            .populate("shop", "name")
 
-        // Format the data so delivery boy gets only the required info
-        const formattedData = assignments.map(a => ({
-            assignmentId: a._id,
-            orderId: a.order._id,
-            shopName: a.shop.name,
-            deliveryAddress: a.order.deliveryAddress,
+        // Format the data safely, filtering out invalid assignments
+        const formattedData = assignments.reduce((acc, a) => {
+            if (!a.order || !a.shop) return acc;
 
-            // find shopOrder that belongs to this assignment & return items
-            items: a.order.shopOrders.find(so => so._id.equals(a.shopOrderId)).shopOrderItems || [],
-            subtotal: a.order.shopOrders.find(so => so._id.equals(a.shopOrderId))?.subtotal
-        }))
+            // Find specific shopOrder safely using string comparison for ObjectIds
+            const relevantShopOrder = a.order.shopOrders?.find(so => 
+                so._id.toString() === a.shopOrderId.toString()
+            );
+
+            if (!relevantShopOrder) return acc;
+
+            acc.push({
+                assignmentId: a._id,
+                orderId: a.order._id,
+                shopName: a.shop.name,
+                deliveryAddress: a.order.deliveryAddress,
+                items: relevantShopOrder.shopOrderItems || [],
+                subtotal: relevantShopOrder.subtotal
+            });
+
+            return acc;
+        }, []);
 
         return res.status(200).json(formattedData)
 
     } catch (error) {
-        return res.status(500).json({ message: `Get Delivery Assignment error: ${error}` })
+        logger.error(`Get Delivery Assignment Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" })
     }
 }
 
 
-// Accept Delivery Assignment:
+// ---------- Accept Delivery Assignment ----------
 export const acceptDeliveryAssignment = async (req, res) => {
     try {
         const { assignmentId } = req.params
 
-        const assignment = await DeliveryAssignment.findById(assignmentId)
-        if (!assignment) {
-            return res.status(400).json({ message: "Delivery assignment not found" })
-        }
-
-        // Check if assignment is still open for acceptance
-        if (assignment.status !== "BroadCasted") {
-            return res.status(400).json({ message: "This delivery assignment is no longer available." })
-        }
-
-        // Check if this delivery boy is already assigned to another active order
+        // 1. Check if this delivery boy is already busy (Early exit)
         const alreadyAssigned = await DeliveryAssignment.findOne({
             assignedTo: req.userId,
             status: { $nin: ["BroadCasted", "Completed"] }
@@ -444,32 +483,60 @@ export const acceptDeliveryAssignment = async (req, res) => {
             return res.status(400).json({ message: "You are already assigned to another delivery." })
         }
 
-        // Assign this delivery to the current delivery boy
-        assignment.assignedTo = req.userId
-        assignment.status = "Assigned"
-        assignment.acceptedAt = new Date()
-        await assignment.save()
+        // 2. Try to claim the assignment
+        const assignment = await DeliveryAssignment.findOneAndUpdate(
+            { _id: assignmentId, status: "BroadCasted" }, 
+            {
+                $set: {
+                    assignedTo: req.userId,
+                    status: "Assigned",
+                    acceptedAt: new Date()
+                }
+            },
+            { new: true }
+        )
 
-        // Find the related order
-        const order = await Order.findById(assignment.order)
-        if (!order) {
-            return res.status(400).json({ message: "Order not found" })
+        // If null, it means either ID is wrong OR status was not BroadCasted (taken/cancelled)
+        if (!assignment) {
+            return res.status(400).json({ message: "Assignment not found or already accepted by someone else." })
         }
 
-        // Update the specific shop order with assigned delivery boy
+        // 3. Update the Order
+        const order = await Order.findById(assignment.order)
+        if (!order) {
+            // ROLLBACK: If order is missing, release the assignment
+            await DeliveryAssignment.findByIdAndUpdate(assignmentId, {
+                $unset: { assignedTo: 1, acceptedAt: 1 },
+                $set: { status: "BroadCasted" }
+            });
+            return res.status(404).json({ message: "Order not found" })
+        }
+
+        // 4. Update the ShopOrder
         const shopOrder = order.shopOrders.id(assignment.shopOrderId)
+        if (!shopOrder) {
+             // ROLLBACK
+             await DeliveryAssignment.findByIdAndUpdate(assignmentId, {
+                $unset: { assignedTo: 1, acceptedAt: 1 },
+                $set: { status: "BroadCasted" }
+            });
+            return res.status(404).json({ message: "ShopOrder not found within Order" })
+        }
+
         shopOrder.assignedDeliveryBoy = req.userId
         await order.save()
 
+        logger.info(`Delivery Assignment Accepted: ${assignmentId} by ${req.userId}`);
         return res.status(200).json({ message: "Delivery assignment accepted successfully." })
 
     } catch (error) {
-        return res.status(500).json({ message: `Accept Delivery Assignment error: ${error}` })
+        logger.error(`Accept Delivery Assignment Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" })
     }
 }
 
 
-// Get current assigned delivery order
+// ---------- Get current assigned delivery order ----------
 export const getCurrentOrder = async (req, res) => {
     try {
         // Find the delivery assignment where status is "Assigned" for this delivery boy
@@ -483,33 +550,38 @@ export const getCurrentOrder = async (req, res) => {
                 path: "order",
                 populate: [{ path: "user", select: "fullName email location mobile" }]
             })
+            .lean();
 
         if (!assignment) {
-            return res.status(400).json({ message: "Assignment not found" })
+            return res.status(200).json({ message: "No current assignment" })
         }
 
         // If order not linked with assignment
         if (!assignment.order) {
-            return res.status(400).json({ message: "Order not found" })
+            return res.status(404).json({ message: "Order not found" })
+        }
+        if (!assignment.assignedTo) {
+             return res.status(404).json({ message: "Delivery Boy profile not found" })
         }
 
         // Find specific shopOrder inside the order
-        const shopOrder = assignment.order.shopOrders.find(so => String(so._id) == String(assignment.shopOrderId))
+        const shopOrder = assignment.order.shopOrders?.find(so => 
+            so._id.toString() === assignment.shopOrderId.toString()
+        )
+
         if (!shopOrder) {
-            return res.status(400).json({ message: "Shop order not found" })
+            return res.status(404).json({ message: "Shop order not found" })
         }
 
-        let deliveryBoyLocation = { lat: null, lon: null }
-        if (assignment.assignedTo.location.coordinates.length == 2) {
-            deliveryBoyLocation.lat = assignment.assignedTo.location.coordinates[1]
-            deliveryBoyLocation.lon = assignment.assignedTo.location.coordinates[0]
-        }
+        const deliveryBoyLocation = {
+            lat: assignment.assignedTo.location?.coordinates?.[1] || null,
+            lon: assignment.assignedTo.location?.coordinates?.[0] || null
+        };
 
-        let customerLocation = { lat: null, lon: null }
-        if (assignment.order.deliveryAddress) {
-            customerLocation.lat = assignment.order.deliveryAddress.latitude
-            customerLocation.lon = assignment.order.deliveryAddress.longitude
-        }
+        const customerLocation = {
+            lat: assignment.order.deliveryAddress?.latitude || null,
+            lon: assignment.order.deliveryAddress?.longitude || null
+        };
 
         return res.status(200).json({
             _id: assignment.order._id,
@@ -521,12 +593,13 @@ export const getCurrentOrder = async (req, res) => {
         })
 
     } catch (error) {
-        return res.status(500).json({ message: `Get Current Delivery Assignment error: ${error}` })
+        logger.error(`Get Current Delivery Assignment Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" })
     }
 }
 
 
-// Get Order Tracking for User
+// ---------- Get Order Tracking for User ----------
 export const getOrderById = async (req, res) => {
     try {
         const { orderId } = req.params
@@ -548,55 +621,138 @@ export const getOrderById = async (req, res) => {
             .lean()
 
         if (!order) {
-            return res.status(400).json({ message: "Order not found" })
+            return res.status(404).json({ message: "Order not found" })
+        }
+
+        // Handle if User was deleted
+        const orderUserId = order.user?._id?.toString();
+        
+        // Access Control Logic
+        const isUser = orderUserId === req.userId;
+        
+        // Check if requester is an Owner of any shop in this order
+        const isOwner = order.shopOrders?.some(so => so.owner?.toString() === req.userId);
+        
+        // Check if requester is an Assigned Delivery Boy for any shop in this order
+        const isDeliveryBoy = order.shopOrders?.some(so => so.assignedDeliveryBoy?._id?.toString() === req.userId);
+
+        if (!isUser && !isOwner && !isDeliveryBoy) {
+            return res.status(403).json({ message: "Unauthorized to view this order" });
+        }
+
+        // Privacy Filtering:
+        // - User see the full order.
+        // - Owners/DeliveryBoys only see the specific shopOrders relevant to them.
+        if (!isUser) {
+            order.shopOrders = order.shopOrders.filter(so => {
+                const belongsToOwner = so.owner?.toString() === req.userId;
+                const assignedToBoy = so.assignedDeliveryBoy?._id?.toString() === req.userId;
+                return belongsToOwner || assignedToBoy;
+            });
         }
 
         return res.status(200).json(order)
 
     } catch (error) {
-        return res.status(500).json({ message: 'Order Tracking Error: ${error}' })
+        logger.error(`Order Tracking Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" })
     }
 }
 
 
-// Send Order Delivery Confirmation through otp
+// ---------- Send Order Delivery Confirmation through otp ----------
 export const sendDeliveryOTP = async (req, res) => {
     try {
         const { orderId, shopOrderId } = req.body
 
-        const order = await Order.findById(orderId).populate("user")
-        const shopOrder = order.shopOrders.id(shopOrderId)
-
-        if (!order || !shopOrder) {
-            return res.status(400).json({ message: "Order/ShopOrder not found" })
+        if (!orderId || !shopOrderId) {
+            return res.status(400).json({ message: "Order ID and Shop Order ID are required" })
         }
 
-        const otp = Math.floor(100000 + Math.random() * 900000).toString()
+        const order = await Order.findById(orderId).populate("user")
+        if (!order) return res.status(404).json({ message: "Order not found" });
+
+        // check for deleted user
+        if (!order.user) {
+            return res.status(400).json({ message: "Customer account no longer exists. Cannot send OTP." });
+        }
+
+        const shopOrder = order.shopOrders.id(shopOrderId)
+        if (!shopOrder) return res.status(404).json({ message: "ShopOrder not found" });
+
+        // Check if requester is the assigned delivery boy
+        if (shopOrder.assignedDeliveryBoy?.toString() !== req.userId) {
+            return res.status(403).json({ message: "Unauthorized: only assigned delivery boy can send OTP" });
+        }
+
+        // Check if already delivered
+        if (shopOrder.status === "Delivered") {
+            return res.status(400).json({ message: "Order is already delivered" });
+        }
+
+        // Ensure order is in valid state for OTP
+        if (!["Out for Delivery", "Assigned"].includes(shopOrder.status)) {
+            return res.status(400).json({ message: "Order must be Out for Delivery to generate OTP" });
+        }
+
+        // Rate Limiting (1 Minute Cooldown)
+        const fiveMinutes = 5 * 60 * 1000;
+        const oneMinute = 60 * 1000;
+        if (shopOrder.otpExpires && shopOrder.otpExpires > Date.now() + (fiveMinutes - oneMinute)) {
+            const remainingTime = Math.ceil((shopOrder.otpExpires - (Date.now() + (fiveMinutes - oneMinute))) / 1000);
+            return res.status(429).json({ message: `Please wait ${remainingTime} seconds before resending OTP` });
+        }
+
+        const otp = randomInt(100000, 999999).toString();
 
         shopOrder.deliveryOtp = otp
-        shopOrder.otpExpires = Date.now() + 5 * 60 * 1000     // expire in 5 minutes
+        shopOrder.otpExpires = Date.now() + fiveMinutes     // expire in 5 minutes
 
         await order.save()
-        await sendDeliveryOTPMail(order.user, otp)
+        
+        try {
+            await sendDeliveryOTPMail(order.user, otp)
+        } catch (mailError) {
+            logger.error(`Failed to send OTP email: ${mailError.message}`);
+            return res.status(500).json({ message: "OTP generated but email failed to send." });
+        }
 
-        return res.status(200).json({ message: `OTP successfully send to: ${order?.user?.fullName}` })
+        logger.info(`Delivery OTP Sent to ${order.user.email} for Order ${orderId}`);
+        return res.status(200).json({ message: `OTP sent successfully to ${order.user.fullName || "Customer"}` })
 
     } catch (error) {
-        return res.status(500).json({ message: 'Send Delivery Confirmation OTP Error: ${error}' })
+        logger.error(`Send Delivery OTP Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" })
     }
 }
 
 
-// Verify Delivery Confirmation OTP
+// ---------- Verify Delivery Confirmation OTP ----------
 export const verifyDeliveryOTP = async (req, res) => {
     try {
         const { orderId, shopOrderId, otp } = req.body
 
-        const order = await Order.findById(orderId).populate("user")
-        const shopOrder = order.shopOrders.id(shopOrderId)
+        if (!orderId || !shopOrderId || !otp) {
+            return res.status(400).json({ message: "Order ID, Shop Order ID, and OTP are required" })
+        }
 
-        if (!order || !shopOrder) {
-            return res.status(400).json({ message: "Order/shopOrder not found" })
+        const order = await Order.findById(orderId)
+            .populate("user", "socketId fullName email mobile")
+            .populate("shopOrders.owner", "socketId")
+        
+        if (!order) return res.status(404).json({ message: "Order not found" });
+
+        const shopOrder = order.shopOrders.id(shopOrderId)
+        if (!shopOrder) return res.status(404).json({ message: "ShopOrder not found" });
+
+        // Check if requester is the assigned delivery boy
+        if (shopOrder.assignedDeliveryBoy?.toString() !== req.userId) {
+            return res.status(403).json({ message: "Unauthorized: only assigned delivery boy can verify OTP" });
+        }
+
+        // Check if already delivered
+        if (shopOrder.status === "Delivered") {
+             return res.status(400).json({ message: "Order is already delivered" });
         }
 
         // OTP Validation
@@ -610,8 +766,12 @@ export const verifyDeliveryOTP = async (req, res) => {
             return res.status(400).json({ message: "OTP Expired" });
         }
 
+        // Mark as Delivered and Clean up OTP fields
         shopOrder.status = "Delivered"
         shopOrder.deliveredAt = Date.now()
+        shopOrder.deliveryOtp = undefined;
+        shopOrder.otpExpires = undefined;
+
         await order.save()
 
         // Delete DeliveryAssignment since order is completed
@@ -621,10 +781,36 @@ export const verifyDeliveryOTP = async (req, res) => {
             assignedTo: shopOrder.assignedDeliveryBoy
         })
 
+        // Real-time Notifications
+        const io = req.app.get("io")
+        if (io) {
+            // 1. Notify Customer
+            if (order.user?.socketId) {
+                io.to(order.user.socketId).emit('update-status', {
+                    orderId: order._id,
+                    shopId: shopOrder.shop,
+                    status: "Delivered",
+                    userId: order.user._id
+                })
+            }
+
+            // 2. Notify Shop Owner
+            if (shopOrder.owner?.socketId) {
+                io.to(shopOrder.owner.socketId).emit('update-status', {
+                    orderId: order._id,
+                    shopId: shopOrder.shop,
+                    status: "Delivered",
+                    shopOrderId: shopOrder._id
+                })
+            }
+        }
+
+        logger.info(`Order ${orderId} Marked as Delivered by ${req.userId}`);
         return res.status(200).json({ message: "Order Delivered Successfully" })
 
     } catch (error) {
-        return res.status(500).json({ message: 'Send Delivery Confirmation OTP Error: ${error}' })
+        logger.error(`Verify Delivery OTP Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" })
     }
 }
 
@@ -638,49 +824,50 @@ export const getTodayDeliveries = async (req, res) => {
         const startsOfDay = new Date()
         startsOfDay.setHours(0, 0, 0, 0)
 
-        // Fetch orders delivered today by this delivery boy
-        const orders = await Order.find({
-            "shopOrders.assignedDeliveryBoy": deliveryBoyId,
-            "shopOrders.status": "Delivered",
-            "shopOrders.deliveredAt": { $gte: startsOfDay }
-        }).lean()
-
-        let todaysDeliveries = []
-
-        // Extract only those shopOrders that match today's delivered orders
-        orders.forEach(order => {
-            order.shopOrders.forEach(shopOrder => {
-                if (shopOrder.assignedDeliveryBoy == deliveryBoyId &&
-                    shopOrder.status == "Delivered" &&
-                    shopOrder.deliveredAt &&
-                    shopOrder.deliveredAt >= startsOfDay
-                ) {
-                    todaysDeliveries.push(shopOrder)
+        const stats = await Order.aggregate([
+            // Match ONLY orders that have at least one relevant shopOrder
+            {
+                $match: {
+                    "shopOrders.assignedDeliveryBoy": new mongoose.Types.ObjectId(deliveryBoyId),
+                    "shopOrders.status": "Delivered",
+                    "shopOrders.deliveredAt": { $gte: startsOfDay }
                 }
-            })
-        })
+            },
+            // Unwind shopOrders to process them individually
+            { $unwind: "$shopOrders" },
+            // Filter the unwound documents to keep only the relevant shopOrders
+            {
+                $match: {
+                    "shopOrders.assignedDeliveryBoy": new mongoose.Types.ObjectId(deliveryBoyId),
+                    "shopOrders.status": "Delivered",
+                    "shopOrders.deliveredAt": { $gte: startsOfDay }
+                }
+            },
+            // Project the hour
+            {
+                $project: {
+                    hour: { $hour: "$shopOrders.deliveredAt" }
+                }
+            },
+            // Group by hour
+            {
+                $group: {
+                    _id: "$hour",
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ])
 
-        // Calculate delivery count per hour
-        let stats = {}
-
-        todaysDeliveries.forEach(shopOrder => {
-            const hour = new Date(shopOrder.deliveredAt).getHours()
-            // hour: delivery count
-            stats[hour] = (stats[hour] || 0) + 1
-        })
-
-        // Format and sort data for chart/graph display
-        let formattedStats = Object.keys(stats).map(hour => ({
-            hour: parseInt(hour),
-            count: stats[hour]
+        const formattedStats = stats.map(item => ({
+            hour: item._id,
+            count: item.count
         }))
-
-        // Sort by hour (ascending order)
-        formattedStats.sort((a, b) => a.hour - b.hour)
 
         return res.status(200).json(formattedStats)
 
     } catch (error) {
-        return res.status(500).json({ message: 'Get Today Deliveries Error: ${error}' })
+        logger.error(`Get Today Deliveries Error: ${error.message}`);
+        return res.status(500).json({ message: error.message || "Internal Server Error" })
     }
 }

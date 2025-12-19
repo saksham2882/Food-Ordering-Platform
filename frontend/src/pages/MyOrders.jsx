@@ -19,7 +19,7 @@ const MyOrders = () => {
     });
 
     socket?.on("update-status", ({ orderId, shopId, status, userId }) => {
-      if (userId == userData._id) {
+      if (userData.role === "owner" || (userId === userData._id)) {
         dispatch(updateRealTimeOrderStatus({ orderId, shopId, status }));
       }
     });
