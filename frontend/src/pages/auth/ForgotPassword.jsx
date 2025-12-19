@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import { SERVER_URL } from "../App";
+import { SERVER_URL } from "../../App";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
 

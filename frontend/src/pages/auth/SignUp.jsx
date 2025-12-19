@@ -3,13 +3,13 @@ import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { SERVER_URL } from "../App";
+import { SERVER_URL } from "../../App";
 import { toast } from "sonner";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../firebase";
+import { auth } from "../../../firebase";
 import { ClipLoader } from "react-spinners"
 import { useDispatch } from "react-redux";
-import { setUserData } from "../redux/userSlice";
+import { setUserData } from "../../redux/userSlice";
 
 const SignUp = () => {
   const [fullName, setFullName] = useState("");

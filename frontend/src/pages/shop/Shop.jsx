@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { SERVER_URL } from "../App";
+import { SERVER_URL } from "../../App";
 import { useEffect, useState } from "react";
 import { FaStore, FaLocationDot } from "react-icons/fa6";
 import { FaUtensils, FaArrowLeft } from "react-icons/fa";
-import FoodCard from "../components/FoodCard";
+import FoodCard from "../../components/FoodCard";
 
 const Shop = () => {
   const { shopId } = useParams();

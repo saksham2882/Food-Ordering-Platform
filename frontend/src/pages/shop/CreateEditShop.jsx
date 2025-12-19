@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import { SERVER_URL } from "../App";
-import { setMyShopData } from "../redux/ownerSlice";
+import { SERVER_URL } from "../../App";
+import { setMyShopData } from "../../redux/ownerSlice";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
 

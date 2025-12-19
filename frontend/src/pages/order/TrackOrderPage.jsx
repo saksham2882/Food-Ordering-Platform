@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { SERVER_URL } from "../App";
+import { SERVER_URL } from "../../App";
 import { useEffect, useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import DeliveryBoyTracking from "../components/DeliveryBoyTracking";
+import DeliveryBoyTracking from "../../components/DeliveryBoyTracking";
 import { useSelector } from "react-redux";
 
 const TrackOrderPage = () => {

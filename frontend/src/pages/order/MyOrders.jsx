@@ -1,10 +1,10 @@
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom";
-import UserOrderCard from "../components/UserOrderCard";
-import OwnerOrderCard from "../components/OwnerOrderCard"
+import UserOrderCard from "../../components/UserOrderCard";
+import OwnerOrderCard from "../../components/OwnerOrderCard"
 import { useEffect } from "react";
-import { setMyOrders, updateRealTimeOrderStatus } from "../redux/userSlice";
+import { setMyOrders, updateRealTimeOrderStatus } from "../../redux/userSlice";
 
 const MyOrders = () => {
   const { userData, myOrders, socket } = useSelector((state) => state.user);

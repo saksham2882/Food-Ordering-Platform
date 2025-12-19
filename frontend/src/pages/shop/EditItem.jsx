@@ -1,26 +1,29 @@
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { FaUtensils } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { SERVER_URL } from "../App";
-import { setMyShopData } from "../redux/ownerSlice";
+import { SERVER_URL } from "../../App";
+import { setMyShopData } from "../../redux/ownerSlice";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
 
-const AddItem = () => {
+const EditItem = () => {
   const navigate = useNavigate();
   const { myShopData } = useSelector((state) => state.owner);
   const dispatch = useDispatch();
+  const { itemId } = useParams();
 
+  const [currentItem, setCurrentItem] = useState(null)
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [imagePreview, setImagePreview] = useState(null); // frontend
-  const [uploadImage, setUploadImage] = useState(null); // backend
+  const [uploadImage, setUploadImage] = useState(null);   // backend
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("");
   const [foodType, setFoodType] = useState("veg");
+
   const categories = [
     "Snacks",
     "Pizza",
@@ -71,7 +74,7 @@ const AddItem = () => {
       }
 
       const res = await axios.post(
-        `${SERVER_URL}/api/item/add-item`,
+        `${SERVER_URL}/api/item/edit-item/${itemId}`,
         formData,
         {
           withCredentials: true,
@@ -80,15 +83,40 @@ const AddItem = () => {
 
       // Update shop — items will be updated automatically because we populated "items"
       dispatch(setMyShopData(res.data));
-      toast.success("Food Item Added");
-      console.log(res)
+      toast.success("Food Item Updated");
       navigate("/")
+      console.log(res);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const handleGetItemById = async () => {
+      try {
+        const res = await axios.get(
+          `${SERVER_URL}/api/item/get-by-id/${itemId}`,
+          { withCredentials: true }
+        );
+        setCurrentItem(res.data)
+      } catch (error) {
+        console.log(error)
+      }
+    };
+
+    handleGetItemById()
+  }, [itemId]);
+
+  useEffect(() => {
+    setName(currentItem?.name || "")
+    setCategory(currentItem?.category || "")
+    setFoodType(currentItem?.foodType || "veg")
+    setPrice(currentItem?.price || 0)
+    setImagePreview(currentItem?.image || null)
+  }, [currentItem])
+
 
   return (
     <div className="flex justify-center flex-col items-center p-6 bg-gradient-to-br from-orange-50 relative to-white min-h-screen">
@@ -109,7 +137,7 @@ const AddItem = () => {
             <FaUtensils className="text-primary w-16 h-16" />
           </div>
 
-          <div className="text-3xl font-extrabold text-gray-900">Add Food</div>
+          <div className="text-3xl font-extrabold text-gray-900">Edit Food</div>
         </div>
 
         {/* ----------- Form ----------- */}
@@ -212,4 +240,4 @@ const AddItem = () => {
   );
 };
 
-export default AddItem;
+export default EditItem;

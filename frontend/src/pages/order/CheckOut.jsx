@@ -7,13 +7,13 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
-import { setAddress, setLocation } from "../redux/mapSlice";
+import { setAddress, setLocation } from "../../redux/mapSlice";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { SERVER_URL } from "../App";
+import { SERVER_URL } from "../../App";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
-import { addMyOrder } from "../redux/userSlice";
+import { addMyOrder } from "../../redux/userSlice";
 
 // move Map
 const RecenterMap = ({ location }) => {

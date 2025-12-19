@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useSelector } from "react-redux";
-import Card from "../components/Card";
+import Card from "../../components/Card";
 
 const CartPage = () => {
   const navigate = useNavigate();
