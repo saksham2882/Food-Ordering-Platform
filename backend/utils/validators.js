@@ -51,11 +51,15 @@ export const placeOrderSchema = z.object({
         quantity: z.number().min(1),
         name: z.string()
     })).min(1, "Cart cannot be empty"),
-    paymentMethod: z.enum(["COD", "Online"]),
+    paymentMethod: z.enum(["COD", "Online"], {
+        required_error: "Payment method is required"
+    }),
     deliveryAddress: z.object({
         text: z.string(),
         latitude: z.number(),
         longitude: z.number()
+    }, {
+        required_error: "Delivery address is required"
     }),
-    totalAmount: z.number().min(0)
+    totalAmount: z.number().min(0, "Total amount must be a positive number")
 });
