@@ -46,13 +46,13 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 
-// Rate limiting (100 requests per 15 minutes)
+// Rate limiting (100 requests per 10 minutes)
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
+    windowMs: 10 * 60 * 1000,
     max: 100,
     standardHeaders: true,
     legacyHeaders: false,
-    message: "Too many requests from this IP, please try again after 15 minutes"
+    message: "Too many requests from this IP, please try again after 10 minutes"
 });
 app.use("/api", limiter);
 

@@ -37,7 +37,11 @@ const DeliveryBoy = () => {
       const res = await axios.get(`${SERVER_URL}/api/order/get-current-order`, {
         withCredentials: true,
       });
-      setCurrentOrder(res.data);
+      if (res.data._id) {
+        setCurrentOrder(res.data);
+      } else {
+        setCurrentOrder(null);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -268,14 +272,14 @@ const DeliveryBoy = () => {
             {/* ------------ delivery info ------------ */}
             <div className="border rounded-lg p-4 mb-3">
               <p className="font-semibold text-sm">
-                {currentOrder?.shopOrder.shop.name}
+                {currentOrder?.shopOrder?.shop?.name}
               </p>
               <p className="text-sm text-gray-500">
-                {currentOrder.deliveryAddress.text}
+                {currentOrder?.deliveryAddress?.text}
               </p>
               <p className="text-xs text-gray-400">
-                {currentOrder.shopOrder.shopOrderItems.length} items | ₹
-                {currentOrder.shopOrder.subtotal}
+                {currentOrder?.shopOrder?.shopOrderItems?.length} items | ₹
+                {currentOrder?.shopOrder?.subtotal}
               </p>
             </div>
 
@@ -283,12 +287,12 @@ const DeliveryBoy = () => {
             <DeliveryBoyTracking
               data={{
                 deliveryBoyLocation: deliveryBoyLocation || {
-                  lat: userData.location.coordinates[1],
-                  lon: userData.location.coordinates[0],
+                  lat: userData?.location?.coordinates[1],
+                  lon: userData?.location?.coordinates[0],
                 },
                 customerLocation: {
-                  lat: currentOrder.deliveryAddress.latitude,
-                  lon: currentOrder.deliveryAddress.longitude,
+                  lat: currentOrder?.deliveryAddress?.latitude,
+                  lon: currentOrder?.deliveryAddress?.longitude,
                 },
               }}
             />
