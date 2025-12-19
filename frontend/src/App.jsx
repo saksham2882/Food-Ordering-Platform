@@ -25,6 +25,9 @@ import { useEffect } from "react"
 import { io } from "socket.io-client"
 import { setSocket } from "./redux/userSlice"
 
+if (!import.meta.env.VITE_SERVER_URL) {
+  throw new Error("VITE_SERVER_URL environment variable is required");
+}
 export const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 const App = () => {

@@ -20,7 +20,7 @@ export const socketHandler = (io) => {
 
         // when delivery boy location updates
         socket.on('updateLocation', async ({ latitude, longitude, deliveryBoyId }) => {
-            if (!deliveryBoyId || !latitude || !longitude) return;
+            if (!deliveryBoyId || latitude === undefined || latitude === null || longitude === undefined || longitude === null) return;
             try {
                 const deliveryBoy = await User.findByIdAndUpdate(deliveryBoyId, {
                     location: {

@@ -27,7 +27,7 @@ export const updateUserLocation = async (req, res) => {
     try {
         const { lat, lon } = req.body
         
-        if (!lat || !lon) {
+        if (lat === undefined || lat === null || lon === undefined || lon === null) {
             return res.status(400).json({ message: "Latitude and Longitude are required" })
         }
 
