@@ -10,9 +10,6 @@ const isAuth = async (req, res, next) => {
 
         // decode token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (!decoded) {
-            return res.status(401).json({ message: "Unauthorized: Invalid token" });
-        }
 
         // get and store user id
         req.userId = decoded.userId

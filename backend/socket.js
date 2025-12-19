@@ -40,7 +40,7 @@ export const socketHandler = (io) => {
                     })
                 }
             } catch (error) {
-                logger.error("Update delivery location error: ", error.message)
+                logger.error(`Update delivery location error: ${error.message}`)
             }
         })
 
@@ -53,7 +53,7 @@ export const socketHandler = (io) => {
                     isOnline: false
                 })
             } catch (error) {
-                logger.error("Socket disconnect error:", error.message)
+                logger.error(`Socket disconnect error: ${error.message}`)
             }
         })
     })

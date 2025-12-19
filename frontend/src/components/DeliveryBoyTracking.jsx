@@ -30,17 +30,13 @@ const DeliveryBoyTracking = ({ data }) => {
   const customerLon = data?.customerLocation?.lon;
 
   // Validate coordinates
+  const isValidCoordinate = (val) => val != null && Number.isFinite(val);
+
   const isDeliveryBoyLocationValid =
-    deliveryBoyLat !== undefined &&
-    deliveryBoyLon !== undefined &&
-    deliveryBoyLat !== null &&
-    deliveryBoyLon !== null;
+    isValidCoordinate(deliveryBoyLat) && isValidCoordinate(deliveryBoyLon);
 
   const isCustomerLocationValid =
-    customerLat !== undefined &&
-    customerLon !== undefined &&
-    customerLat !== null &&
-    customerLon !== null;
+    isValidCoordinate(customerLat) && isValidCoordinate(customerLon);
 
   if (!isDeliveryBoyLocationValid || !isCustomerLocationValid) {
     return (

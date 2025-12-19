@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
 import logger from "./logger.js";
 
-const genToken = async (userId) => {
+const genToken = (userId) => {
     try {
         const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" })
         return token

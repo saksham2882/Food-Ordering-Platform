@@ -106,7 +106,7 @@ export const getResetPasswordTemplate = (fullName, otp) => {
             <p style="font-size: 14px; color: #777;">If you didn't request this, you can safely ignore this email.</p>
         </div>
         <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Yummigo. All rights reserved.</p>
+            <p>Copyright &copy; ${new Date().getFullYear()} Yummigo. All rights reserved.</p>
             <p><a href="#">Help Center</a> | <a href="#">Privacy Policy</a></p>
         </div>
     </div>

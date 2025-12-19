@@ -39,11 +39,11 @@ const OwnerOrderCard = ({ data }) => {
       {/* ---------- User personal info ------------ */}
       <div>
         <h2 className="text-lg font-semibold text-gray-800">
-          {data?.user?.fullName}
+          {data?.user?.fullName || "Unknown"}
         </h2>
-        <p className="text-sm text-gray-500">{data?.user?.email}</p>
+        <p className="text-sm text-gray-500">{data?.user?.email || "No email"}</p>
         <p className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-          <MdPhone /> <span>{data?.user?.mobile}</span>
+          <MdPhone /> <span>{data?.user?.mobile || "No mobile"}</span>
         </p>
       </div>
 

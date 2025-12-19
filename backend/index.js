@@ -64,7 +64,7 @@ app.get("/api/health", (req, res) => {
 
 
 // Database connection
-connectDB()
+await connectDB()
 
 // routes
 app.use("/api/auth", authRouter);

@@ -46,8 +46,9 @@ export const createItemSchema = z.object({
 // Order Schemas
 export const placeOrderSchema = z.object({
     cartItems: z.array(z.object({
+        id: z.string(),
         shop: z.string(),
-        price: z.number(),
+        price: z.coerce.number().min(0, "Price must be a positive number"),
         quantity: z.number().min(1),
         name: z.string()
     })).min(1, "Cart cannot be empty"),

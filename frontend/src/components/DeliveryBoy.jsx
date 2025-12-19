@@ -37,7 +37,7 @@ const DeliveryBoy = () => {
       const res = await axios.get(`${SERVER_URL}/api/order/get-current-order`, {
         withCredentials: true,
       });
-      if (res.data._id) {
+      if (res.data?._id) {
         setCurrentOrder(res.data);
       } else {
         setCurrentOrder(null);

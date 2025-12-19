@@ -13,7 +13,7 @@ export const signUp = async (req, res) => {
         const validation = signUpSchema.safeParse(req.body);
 
         if (!validation.success) {
-            const errorMsg = validation.error.issues[0].message || "Invalid Input Data";
+            const errorMsg = validation.error.issues?.[0]?.message || "Invalid Input Data";
             logger.warn(`Sign Up Validation Failed: ${errorMsg}`);
             return res.status(400).json({ message: errorMsg });
         }
@@ -38,7 +38,10 @@ export const signUp = async (req, res) => {
             password: hashedPassword
         })
 
-        const token = await genToken(user._id)
+        const token = genToken(user._id)
+        if (!token) {
+            return res.status(500).json({ message: "Token generation failed" })
+        }
         res.cookie("token", token, {
             secure: true,              // true in production
             sameSite: "none",
@@ -81,7 +84,10 @@ export const signIn = async (req, res) => {
             return res.status(400).json({ message: "Invalid email or password." })
         }
 
-        const token = await genToken(user._id)
+        const token = genToken(user._id)
+        if (!token) {
+            return res.status(500).json({ message: "Token generation failed" })
+        }
         res.cookie("token", token, {
             secure: true,      // true in production (https)
             sameSite: "none",
@@ -243,7 +249,10 @@ export const googleAuth = async (req, res) => {
         }
 
         // generate token
-        const token = await genToken(user._id)
+        const token = genToken(user._id)
+        if (!token) {
+            return res.status(500).json({ message: "Token generation failed" })
+        }
         res.cookie("token", token, {
             secure: true,      // true in production (https)
             sameSite: "none",
@@ -254,7 +263,7 @@ export const googleAuth = async (req, res) => {
         return res.status(200).json(user)
 
     } catch (error) {
-        logger.error("Google Auth Error:", error.message);
+        logger.error(`Google Auth Error: ${error.message}`);
         return res.status(500).json({ message: error.message || "Internal Server Error" });
     }
 }

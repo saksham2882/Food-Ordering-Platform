@@ -22,7 +22,7 @@ Thumbs.db
 .idea/
 *.swp
 
-# Build / cache (agar future me use ho)
+# Build / cache
 dist/
 build/
 .cache/

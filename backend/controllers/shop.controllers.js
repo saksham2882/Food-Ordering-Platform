@@ -23,9 +23,10 @@ export const createOrEditShop = async (req, res) => {
         }
 
         let shop = await Shop.findOne({ owner: req.userId })
+        const isNewShop = !shop;
 
         // Create Shop
-        if (!shop) {
+        if (isNewShop) {
             if (!image) return res.status(400).json({ message: "Image is required for creating a shop" });
 
             shop = await Shop.create({
@@ -41,7 +42,7 @@ export const createOrEditShop = async (req, res) => {
         }
 
         await shop.populate("owner items")
-        logger.info(`Shop ${shop.name} ${req.body.name ? "Updated" : "Created"} Successfully`);
+        logger.info(`Shop ${shop.name} ${isNewShop ? "Created" : "Updated"} Successfully`);
         return res.status(201).json(shop)
 
     } catch (error) {
