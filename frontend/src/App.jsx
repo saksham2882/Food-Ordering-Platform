@@ -33,11 +33,11 @@ const App = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    const socketInstance = io(SERVER_URL, {withCredentials: true})
+    const socketInstance = io(SERVER_URL, { withCredentials: true })
     dispatch(setSocket(socketInstance))
     socketInstance.on("connect", () => {
-      if(userData){
-        socketInstance.emit('identity', {userId: userData._id})
+      if (userData) {
+        socketInstance.emit('identity', { userId: userData._id })
       }
     })
 
@@ -47,7 +47,11 @@ const App = () => {
   }, [userData?._id])
 
   if (isCheckingAuth) {
-    return null;
+    return (
+      <div className="w-full h-screen flex justify-center items-center bg-bg">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (

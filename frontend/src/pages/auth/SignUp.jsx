@@ -31,11 +31,11 @@ const SignUp = () => {
     setLoading(true);
     try {
       const data = await authApi.signup({ fullName, email, password, mobile, role });
-      dispatch(setUserData(data));
+      dispatch(setUserData(data.user || data));
       toast.success(data.message || "User Registered Successfully");
+      navigate("/home");
     } catch (error) {
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally {
       setLoading(false);
     }
   };
@@ -50,8 +50,9 @@ const SignUp = () => {
         role: role || "user",
         mobile: mobile || "",
       });
-      dispatch(setUserData(data));
+      dispatch(setUserData(data.user || data));
       toast.success("User Registered Successfully");
+      navigate("/home");
     } catch (error) {
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
     }

@@ -28,12 +28,12 @@ const SignIn = () => {
     setLoading(true)
     try {
       const data = await authApi.signin(email, password);
-      dispatch(setUserData(data))
+      dispatch(setUserData(data.user || data))
       toast.success(data.message || "Sign In Successfully");
+      navigate("/home");
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally {
       setLoading(false)
     }
   };
@@ -46,8 +46,9 @@ const SignIn = () => {
         email: res.user.email,
         fullName: res.user.displayName,
       });
-      dispatch(setUserData(data))
+      dispatch(setUserData(data.user || data))
       toast.success("Sign in Successfully");
+      navigate("/home");
     } catch (error) {
       console.log(error)
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
