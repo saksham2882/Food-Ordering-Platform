@@ -3,8 +3,7 @@ import { FaUtensils } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import axios from "axios";
-import { SERVER_URL } from "../../App";
+import shopApi from "../../api/shopApi";
 import { setMyShopData } from "../../redux/ownerSlice";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
@@ -70,18 +69,12 @@ const AddItem = () => {
         formData.append("image", uploadImage);
       }
 
-      const res = await axios.post(
-        `${SERVER_URL}/api/item/add-item`,
-        formData,
-        {
-          withCredentials: true,
-        }
-      );
+      const data = await shopApi.addItem(formData);
 
       // Update shop — items will be updated automatically because we populated "items"
-      dispatch(setMyShopData(res.data));
+      dispatch(setMyShopData(data));
       toast.success("Food Item Added");
-      console.log(res)
+      console.log(data)
       navigate("/")
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong. Please try again.");

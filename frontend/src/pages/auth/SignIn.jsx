@@ -2,8 +2,6 @@ import { useState } from "react";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { SERVER_URL } from "../../App";
 import { toast } from "sonner";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../../firebase";
@@ -23,19 +21,15 @@ const SignIn = () => {
   const handleSignIn = async () => {
     setLoading(true)
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/api/auth/signin`,
-        { email, password },
-        { withCredentials: true }
-      );
-      dispatch(setUserData(res.data))
+      const data = await authApi.signin(email, password);
+      dispatch(setUserData(data))
       setError("")
-      toast.success(res.data.message || "Sign In Successfully");
+      toast.success(data.message || "Sign In Successfully");
     } catch (error) {
       console.log(error);
       setError(error?.response?.data?.message || error?.message || "Something went wrong");
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally{
+    } finally {
       setLoading(false)
     }
   };
@@ -47,14 +41,10 @@ const SignIn = () => {
 
     // send data to backend
     try {
-      const { data } = await axios.post(
-        `${SERVER_URL}/api/auth/google-auth`,
-        {
-          email: res.user.email,
-          fullName: res.user.displayName,
-        },
-        { withCredentials: true }
-      );
+      const data = await authApi.googleAuth({
+        email: res.user.email,
+        fullName: res.user.displayName,
+      });
       dispatch(setUserData(data))
       setError("")
       toast.success("Sign in Successfully");
@@ -134,7 +124,7 @@ const SignIn = () => {
           onClick={handleSignIn}
           disabled={loading}
         >
-          {loading ? <ClipLoader size={20} color='white'/> : "Sign In"}
+          {loading ? <ClipLoader size={20} color='white' /> : "Sign In"}
         </button>
 
         {error && (

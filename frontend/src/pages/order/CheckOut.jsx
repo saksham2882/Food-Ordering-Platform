@@ -8,12 +8,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import { setAddress, setLocation } from "../../redux/mapSlice";
-import axios from "axios";
 import { useEffect, useState } from "react";
-import { SERVER_URL } from "../../App";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
 import { addMyOrder } from "../../redux/userSlice";
+import cityApi from "../../api/cityApi";
+import orderApi from "../../api/orderApi";
 
 // move Map
 const RecenterMap = ({ location }) => {
@@ -28,7 +28,6 @@ const RecenterMap = ({ location }) => {
 const CheckOut = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const apiKey = import.meta.env.VITE_GEOAPIKEY;
   const { location, address } = useSelector((state) => state.map);
   const { cartItems, totalAmount, userData } = useSelector((state) => state.user);
   const [addressInput, setAddressInput] = useState("");
@@ -48,11 +47,9 @@ const CheckOut = () => {
   // get address by latitude and longitude (when moving the marker)
   const getAddressByLatLng = async (lat, lng) => {
     try {
-      const res = await axios.get(
-        `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&format=json&apiKey=${apiKey}`
-      );
-      dispatch(setAddress(res?.data?.results[0].formatted || res?.data?.results[0].address_line2));
-      setAddressInput(res?.data?.results[0].formatted || res?.data?.results[0].address_line2);
+      const data = await cityApi.getReverseGeocoding(lat, lng);
+      dispatch(setAddress(data?.results[0].formatted || data?.results[0].address_line2));
+      setAddressInput(data?.results[0].formatted || data?.results[0].address_line2);
     } catch (error) {
       console.log(error);
     }
@@ -69,13 +66,9 @@ const CheckOut = () => {
   // get latitude and longitude by address
   const getLatLngByAddress = async () => {
     try {
-      const res = await axios.get(
-        `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
-          addressInput
-        )}&apiKey=${apiKey}`
-      );
+      const data = await cityApi.getForwardGeocoding(addressInput);
 
-      const { lat, lon } = res.data.features[0].properties;
+      const { lat, lon } = data.features[0].properties;
       dispatch(setLocation({ lat, lon }));
     } catch (error) {
       console.log(error);
@@ -86,35 +79,31 @@ const CheckOut = () => {
   const handlePlaceOrder = async () => {
     setLoading(true)
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/api/order/place-order`,
-        {
-          paymentMethod,
-          deliveryAddress: {
-            text: addressInput,
-            latitude: location.lat,
-            longitude: location.lon,
-          },
-          totalAmount: AmountWithDeliveryFee,
-          cartItems,
+      const data = await orderApi.placeOrder({
+        paymentMethod,
+        deliveryAddress: {
+          text: addressInput,
+          latitude: location.lat,
+          longitude: location.lon,
         },
-        { withCredentials: true }
-      );
+        totalAmount: AmountWithDeliveryFee,
+        cartItems,
+      });
 
-      if(paymentMethod == "COD"){
-        dispatch(addMyOrder(res.data.newOrder));
-        toast.success(res?.data?.message || "Order Placed Successfully");
+      if (paymentMethod == "COD") {
+        dispatch(addMyOrder(data.newOrder));
+        toast.success(data.message || "Order Placed Successfully");
         navigate("/order-placed");
       } else {
-        const orderId = res.data.orderId
-        const razorOrder = res.data.razorOrder
+        const orderId = data.orderId
+        const razorOrder = data.razorOrder
         openRazorpayWindow(orderId, razorOrder)
       }
-      
+
     } catch (error) {
       console.log(error)
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally{
+    } finally {
       setLoading(false)
     }
   };
@@ -138,13 +127,13 @@ const CheckOut = () => {
 
   const verifyPayment = async (response, orderId) => {
     try {
-      const res = await axios.post(`${SERVER_URL}/api/order/verify-payment`, {
+      const data = await orderApi.verifyPayment({
         razorpay_payment_id: response.razorpay_payment_id,
         orderId
-      }, {withCredentials: true})
+      })
 
-      dispatch(addMyOrder(res.data.newOrder));
-      toast.success(res?.data?.message || "Order Placed Successfully");
+      dispatch(addMyOrder(data.newOrder));
+      toast.success(data.message || "Order Placed Successfully");
       navigate("/order-placed");
     } catch (error) {
       console.log(error)
@@ -239,11 +228,10 @@ const CheckOut = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* ----------- COD ------------ */}
             <div
-              className={`flex items-center gap-3 rounded-xl border p-4 text-left transition cursor-pointer ${
-                paymentMethod === "COD"
-                  ? "border-primary bg-orange-50 shadow"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
+              className={`flex items-center gap-3 rounded-xl border p-4 text-left transition cursor-pointer ${paymentMethod === "COD"
+                ? "border-primary bg-orange-50 shadow"
+                : "border-gray-200 hover:border-gray-300"
+                }`}
               onClick={() => setPaymentMethod("COD")}
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
@@ -259,11 +247,10 @@ const CheckOut = () => {
 
             {/* ------------- Online -------------- */}
             <div
-              className={`flex items-center gap-3 rounded-xl border p-4 text-left transition cursor-pointer ${
-                paymentMethod === "Online"
-                  ? "border-primary bg-orange-50 shadow"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
+              className={`flex items-center gap-3 rounded-xl border p-4 text-left transition cursor-pointer ${paymentMethod === "Online"
+                ? "border-primary bg-orange-50 shadow"
+                : "border-gray-200 hover:border-gray-300"
+                }`}
               onClick={() => setPaymentMethod("Online")}
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">

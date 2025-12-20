@@ -2,8 +2,7 @@ import { FaPen } from "react-icons/fa6";
 import { FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import axios from "axios";
-import { SERVER_URL } from "../App";
+import shopApi from "../api/shopApi";
 import { setMyShopData } from "../redux/ownerSlice";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -15,14 +14,12 @@ const OwnerItemCard = ({ data }) => {
 
   const handleDelete = async () => {
     const isConfirmed = confirm(`Are you sure you want to delete "${data.name}" from your menu?`);
-    if(!isConfirmed) return;
-    
+    if (!isConfirmed) return;
+
     setLoading(true)
     try {
-      const res = axios.get(`${SERVER_URL}/api/item/delete/${data._id}`, {
-        withCredentials: true,
-      });
-      dispatch(setMyShopData(res.data));
+      const data = await shopApi.deleteItem(data._id);
+      dispatch(setMyShopData(data));
       toast.success("Item Deleted");
     } catch (error) {
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong. Please try again.");

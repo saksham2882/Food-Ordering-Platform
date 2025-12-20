@@ -1,8 +1,6 @@
-import axios from "axios";
 import { useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import { SERVER_URL } from "../../App";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
 
@@ -17,55 +15,47 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
 
   const handleSendOTP = async () => {
-    if(!email){
-       toast.info("Please enter your email");
-       return; 
+    if (!email) {
+      toast.info("Please enter your email");
+      return;
     }
     setLoading(true)
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/api/auth/send-otp`,
-        { email },
-        { withCredentials: true }
-      );
+      const data = await authApi.sendOtp(email);
       setError("")
-      toast.success(res.data.message || "OTP Send Successfully");
+      toast.success(data.message || "OTP Send Successfully");
       setStep(2);
     } catch (error) {
       setError(error?.response?.data?.message || error?.message || "Something went wrong");
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally{
+    } finally {
       setLoading(false)
     }
   };
 
   const handleVerifyOTP = async () => {
-    if(!otp){
-        toast.info("Please enter a 6-digits OTP")
-        return;
+    if (!otp) {
+      toast.info("Please enter a 6-digits OTP")
+      return;
     }
     setLoading(true)
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/api/auth/verify-otp`,
-        { email, otp },
-        { withCredentials: true }
-      );
+      const data = await authApi.verifyOtp(email, otp);
       setError("")
-      toast.success(res.data.message || "OTP Verify Successfully");
+      toast.success(data.message || "OTP Verify Successfully");
       setStep(3);
     } catch (error) {
       setError(error?.response?.data?.message || error?.message || "Something went wrong");
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally{
+    } finally {
       setLoading(false)
     }
   };
 
   const handleResetPassword = async () => {
-    if(!newPassword || !confirmPassword){
-        toast.info("Please provide all fields")
-        return;
+    if (!newPassword || !confirmPassword) {
+      toast.info("Please provide all fields")
+      return;
     }
     if (newPassword != confirmPassword) {
       toast.info("Confirm Password not matched")
@@ -73,18 +63,14 @@ const ForgotPassword = () => {
     }
     setLoading(true);
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/api/auth/reset-password`,
-        { email, newPassword },
-        { withCredentials: true }
-      );
+      const data = await authApi.resetPassword(email, newPassword);
       setError("")
-      toast.success(res.data.message || "Password Reset Successfully");
+      toast.success(data.message || "Password Reset Successfully");
       navigate("/signin");
     } catch (error) {
       setError(error?.response?.data?.message || error?.message || "Something went wrong");
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally{
+    } finally {
       setLoading(false)
     }
   };

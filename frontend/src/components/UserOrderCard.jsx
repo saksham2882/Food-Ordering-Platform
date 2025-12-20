@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { SERVER_URL } from "../App";
+import shopApi from "../api/shopApi";
 import { toast } from "sonner";
 
 const UserOrderCard = ({ data }) => {
@@ -19,11 +18,7 @@ const UserOrderCard = ({ data }) => {
 
   const handleRating = async (itemId, rating) => {
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/api/item/rating`,
-        { itemId, rating },
-        { withCredentials: true }
-      );
+      await shopApi.addRating(itemId, rating);
       setSelectedRating((prev) => ({
         ...prev,
         [itemId]: rating,
@@ -33,8 +28,8 @@ const UserOrderCard = ({ data }) => {
       console.log(error);
       toast.error(
         error?.response?.data?.message ||
-          error?.message ||
-          "Something went wrong"
+        error?.message ||
+        "Something went wrong"
       );
     }
   };
@@ -118,11 +113,10 @@ const UserOrderCard = ({ data }) => {
                   <div className="flex space-x-1 mt-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
-                        className={`text-xl cursor-pointer ${
-                          selectedRating[item.item._id] >= star
-                            ? "text-yellow-400"
-                            : "text-gray-500/50"
-                        }`}
+                        className={`text-xl cursor-pointer ${selectedRating[item.item._id] >= star
+                          ? "text-yellow-400"
+                          : "text-gray-500/50"
+                          }`}
                         onClick={() => handleRating(item.item._id, star)}
                       >
                         ★

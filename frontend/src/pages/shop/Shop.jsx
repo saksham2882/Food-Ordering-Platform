@@ -1,6 +1,5 @@
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { SERVER_URL } from "../../App";
+import shopApi from "../../api/shopApi";
 import { useEffect, useState } from "react";
 import { FaStore, FaLocationDot } from "react-icons/fa6";
 import { FaUtensils, FaArrowLeft } from "react-icons/fa";
@@ -14,13 +13,10 @@ const Shop = () => {
 
   const handleShop = async () => {
     try {
-      const res = await axios.get(
-        `${SERVER_URL}/api/item/get-by-shop/${shopId}`,
-        { withCredentials: true }
-      );
-      console.log(res.data);
-      setShop(res.data.shop);
-      setItems(res.data.items);
+      const data = await shopApi.getItemsByShop(shopId);
+      console.log(data);
+      setShop(data.shop);
+      setItems(data.items);
     } catch (error) {
       console.log(error);
     }

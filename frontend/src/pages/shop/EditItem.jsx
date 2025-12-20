@@ -3,8 +3,7 @@ import { FaUtensils } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { SERVER_URL } from "../../App";
+import shopApi from "../../api/shopApi";
 import { setMyShopData } from "../../redux/ownerSlice";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
@@ -73,19 +72,13 @@ const EditItem = () => {
         formData.append("image", uploadImage);
       }
 
-      const res = await axios.post(
-        `${SERVER_URL}/api/item/edit-item/${itemId}`,
-        formData,
-        {
-          withCredentials: true,
-        }
-      );
+      const data = await shopApi.editItem(itemId, formData);
 
       // Update shop — items will be updated automatically because we populated "items"
-      dispatch(setMyShopData(res.data));
+      dispatch(setMyShopData(data));
       toast.success("Food Item Updated");
       navigate("/")
-      console.log(res);
+      console.log(data);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
@@ -96,11 +89,8 @@ const EditItem = () => {
   useEffect(() => {
     const handleGetItemById = async () => {
       try {
-        const res = await axios.get(
-          `${SERVER_URL}/api/item/get-by-id/${itemId}`,
-          { withCredentials: true }
-        );
-        setCurrentItem(res.data)
+        const data = await shopApi.getItemById(itemId);
+        setCurrentItem(data)
       } catch (error) {
         console.log(error)
       }

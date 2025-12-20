@@ -1,6 +1,5 @@
-import axios from "axios";
+import orderApi from "../api/orderApi";
 import { MdPhone } from "react-icons/md";
-import { SERVER_URL } from "../App";
 import { useDispatch } from "react-redux";
 import { updateOrderStatus } from "../redux/userSlice";
 import { toast } from "sonner";
@@ -12,15 +11,11 @@ const OwnerOrderCard = ({ data }) => {
 
   const handleUpdateStatus = async (orderId, shopId, status) => {
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/api/order/update-status/${orderId}/${shopId}`,
-        { status },
-        { withCredentials: true }
-      );
+      const data = await orderApi.updateOrderStatus(orderId, shopId, status);
       dispatch(updateOrderStatus({ orderId, shopId, status }));
-      setAvailableBoys(res.data.availableBoys);
+      setAvailableBoys(data.availableBoys);
       toast.success(`Order status updated to: ${status}`);
-      console.log(res.data);
+      console.log(data);
     } catch (error) {
       console.log(error);
     }

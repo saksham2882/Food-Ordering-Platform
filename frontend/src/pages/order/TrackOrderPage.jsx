@@ -1,5 +1,5 @@
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import orderApi from "../../api/orderApi";
 import { SERVER_URL } from "../../App";
 import { useEffect, useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
@@ -15,11 +15,8 @@ const TrackOrderPage = () => {
 
   const handleGetOrder = async () => {
     try {
-      const res = await axios.get(
-        `${SERVER_URL}/api/order/get-order-by-id/${orderId}`,
-        { withCredentials: true }
-      );
-      setCurrentOrder(res.data);
+      const data = await orderApi.getOrderById(orderId);
+      setCurrentOrder(data);
     } catch (error) {
       console.log(error);
     }

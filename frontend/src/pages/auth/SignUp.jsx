@@ -2,8 +2,6 @@ import { useState } from "react";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { SERVER_URL } from "../../App";
 import { toast } from "sonner";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../../firebase";
@@ -26,18 +24,14 @@ const SignUp = () => {
   const handleSignUp = async () => {
     setLoading(true)
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/api/auth/signup`,
-        { fullName, email, password, mobile, role },
-        { withCredentials: true }
-      );
-      dispatch(setUserData(res.data))
+      const data = await authApi.signup({ fullName, email, password, mobile, role });
+      dispatch(setUserData(data))
       setError("")
-      toast.success(res.data.message || "User Registered Successfully");
+      toast.success(data.message || "User Registered Successfully");
     } catch (error) {
       setError(error?.response?.data?.message || error?.message || "Something went wrong");
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally{
+    } finally {
       setLoading(false)
     }
   };
@@ -49,23 +43,19 @@ const SignUp = () => {
 
     // send data to backend
     try {
-      const { data } = await axios.post(
-        `${SERVER_URL}/api/auth/google-auth`,
-        {
-          fullName: res.user.displayName,
-          email: res.user.email,
-          // role and mobile are optional/default on backend now for Google Auth
-          role: role || "user", 
-          mobile: mobile || "",
-        },
-        { withCredentials: true }
-      );
+      const data = await authApi.googleAuth({
+        fullName: res.user.displayName,
+        email: res.user.email,
+        // role and mobile are optional/default on backend now for Google Auth
+        role: role || "user",
+        mobile: mobile || "",
+      });
       dispatch(setUserData(data))
       setError("");
       toast.success("User Registered Successfully");
     } catch (error) {
-        setError(error?.response?.data?.message || error?.message || "Something went wrong");
-        toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+      setError(error?.response?.data?.message || error?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
     }
   };
 
@@ -173,11 +163,10 @@ const SignUp = () => {
             {["user", "owner", "deliveryBoy"].map((r, key) => (
               <button
                 key={key}
-                className={`flex-1 border rounded-lg px-3 py-2 text-center font-medium transition-colors cursor-pointer ${
-                  role == r
-                    ? "bg-primary text-white"
-                    : "border-primary text-primary"
-                }`}
+                className={`flex-1 border rounded-lg px-3 py-2 text-center font-medium transition-colors cursor-pointer ${role == r
+                  ? "bg-primary text-white"
+                  : "border-primary text-primary"
+                  }`}
                 onClick={() => setRole(r)}
               >
                 {r}

@@ -1,7 +1,6 @@
 import { useSelector } from "react-redux";
 import Navbar from "./Navbar";
-import axios from "axios";
-import { SERVER_URL } from "../App";
+import orderApi from "../api/orderApi";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import DeliveryBoyTracking from "./DeliveryBoyTracking";
@@ -23,10 +22,8 @@ const DeliveryBoy = () => {
 
   const getAssignments = async () => {
     try {
-      const res = await axios.get(`${SERVER_URL}/api/order/get-assignments`, {
-        withCredentials: true,
-      });
-      setAvailableAssignments(res.data);
+      const data = await orderApi.getAssignments();
+      setAvailableAssignments(data);
     } catch (error) {
       console.log(error);
     }
@@ -34,11 +31,9 @@ const DeliveryBoy = () => {
 
   const getCurrentOrder = async (assignmentId) => {
     try {
-      const res = await axios.get(`${SERVER_URL}/api/order/get-current-order`, {
-        withCredentials: true,
-      });
-      if (res.data?._id) {
-        setCurrentOrder(res.data);
+      const data = await orderApi.getCurrentOrder();
+      if (data?._id) {
+        setCurrentOrder(data);
       } else {
         setCurrentOrder(null);
       }
@@ -49,19 +44,16 @@ const DeliveryBoy = () => {
 
   const acceptDeliveryAssignment = async (assignmentId) => {
     try {
-      const res = await axios.get(
-        `${SERVER_URL}/api/order/accept-order/${assignmentId}`,
-        { withCredentials: true }
-      );
-      console.log(res.data);
-      toast.success(res.data.message || "Delivery Assignment Accepted");
+      const data = await orderApi.acceptOrder(assignmentId);
+      console.log(data);
+      toast.success(data.message || "Delivery Assignment Accepted");
       await getCurrentOrder();
     } catch (error) {
       console.log(error);
       toast.error(
         error?.response?.data?.message ||
-          error?.message ||
-          "Something went wrong"
+        error?.message ||
+        "Something went wrong"
       );
     }
   };
@@ -69,20 +61,16 @@ const DeliveryBoy = () => {
   const sendOTP = async () => {
     setLoading(true)
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/api/order/send-delivery-otp`,
-        { orderId: currentOrder._id, shopOrderId: currentOrder.shopOrder._id },
-        { withCredentials: true }
-      );
-      console.log(res.data);
-      toast.success(res.data.message || "OTP Send Successfully");
+      const data = await orderApi.sendDeliveryOtp({ orderId: currentOrder._id, shopOrderId: currentOrder.shopOrder._id });
+      console.log(data);
+      toast.success(data.message || "OTP Send Successfully");
       setShowOtpBox(true);
     } catch (error) {
       console.log(error);
       toast.error(
         error?.response?.data?.message ||
-          error?.message ||
-          "Something went wrong"
+        error?.message ||
+        "Something went wrong"
       );
     } finally {
       setLoading(false)
@@ -91,29 +79,25 @@ const DeliveryBoy = () => {
 
   const verifyOTP = async () => {
     try {
-      const res = await axios.post(
-        `${SERVER_URL}/api/order/verify-delivery-otp`,
-        { orderId: currentOrder._id, shopOrderId: currentOrder.shopOrder._id, otp },
-        { withCredentials: true }
-      );
-      console.log(res.data);
-      toast.success(res.data.message || "Order Delivered Successfully");
+      const data = await orderApi.verifyDeliveryOtp({ orderId: currentOrder._id, shopOrderId: currentOrder.shopOrder._id, otp });
+      console.log(data);
+      toast.success(data.message || "Order Delivered Successfully");
       location.reload()
     } catch (error) {
       console.log(error);
       toast.error(
         error?.response?.data?.message ||
-          error?.message ||
-          "Something went wrong"
+        error?.message ||
+        "Something went wrong"
       );
     }
   };
 
   const handleTodayDeliveries = async () => {
     try {
-      const res = await axios.get(`${SERVER_URL}/api/order/get-today-deliveries`, {withCredentials: true})
-      console.log("Today Deliveries: ", res.data)
-      setTodayDeliveries(res.data)
+      const data = await orderApi.getTodayDeliveries();
+      console.log("Today Deliveries: ", data)
+      setTodayDeliveries(data)
     } catch (error) {
       console.log(error)
     }
@@ -121,7 +105,7 @@ const DeliveryBoy = () => {
 
   useEffect(() => {
     socket?.on('newAssignment', (data) => {
-      if(data.sentTo == userData._id){
+      if (data.sentTo == userData._id) {
         setAvailableAssignments(prev => [...prev, data])
       }
     })
@@ -142,7 +126,7 @@ const DeliveryBoy = () => {
       (watchId = navigator.geolocation.watchPosition((position) => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
-        setDeliveryBoyLocation({lat: latitude, lon: longitude})
+        setDeliveryBoyLocation({ lat: latitude, lon: longitude })
 
         socket.emit("updateLocation", {
           latitude,
@@ -153,13 +137,13 @@ const DeliveryBoy = () => {
         (error) => {
           console.log(error);
         },
-        {
-          enableHighAccuracy: true,
-        };
+      {
+        enableHighAccuracy: true,
+      };
     }
 
     return () => {
-      if(watchId) {
+      if (watchId) {
         navigator.geolocation.clearWatch(watchId)
       }
     }

@@ -5,8 +5,8 @@ import { TbReceipt } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
 import { RxCross2 } from "react-icons/rx";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { SERVER_URL } from "../App";
+import shopApi from "../api/shopApi";
+import authApi from "../api/authApi";
 import { setSearchItems, setUserData } from "../redux/userSlice";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -24,27 +24,22 @@ const Navbar = () => {
 
   const handleLogOut = async () => {
     try {
-      const res = await axios.get(`${SERVER_URL}/api/auth/signout`, {
-        withCredentials: true,
-      });
+      const data = await authApi.signout();
       dispatch(setUserData(null));
-      toast.success(res.data.message || "Log Out Successfully");
+      toast.success(data.message || "Log Out Successfully");
     } catch (error) {
       toast.error(
         error?.response?.data?.message ||
-          error?.message ||
-          "Something went wrong"
+        error?.message ||
+        "Something went wrong"
       );
     }
   };
 
   const handleSearchItems = async () => {
     try {
-      const res = await axios.get(
-        `${SERVER_URL}/api/item/search-items?query=${query}&city=${currentCity}`,
-        { withCredentials: true }
-      );
-      dispatch(setSearchItems(res.data))
+      const data = await shopApi.searchItems(query, currentCity);
+      dispatch(setSearchItems(data))
     } catch (error) {
       console.log(error);
     }
@@ -54,7 +49,7 @@ const Navbar = () => {
     if (query) {
       handleSearchItems();
     }
-    else{
+    else {
       dispatch(setSearchItems(null))
     }
   }, [query]);
@@ -203,11 +198,10 @@ const Navbar = () => {
         {/* ------------ Profile Popup ----------- */}
         {showPopup && (
           <div
-            className={`fixed top-[80px] right-[10px] ${
-              userData.role == "deliveryBoy"
-                ? "md:right-[20%] lg:right-[40%]"
-                : "md:right-[19%] lg:right-[35%]"
-            }  w-[180px] bg-white shadow-xl rounded-xl p-[20px] flex flex-col gap-[10px] z-[9999]`}
+            className={`fixed top-[80px] right-[10px] ${userData.role == "deliveryBoy"
+              ? "md:right-[20%] lg:right-[40%]"
+              : "md:right-[19%] lg:right-[35%]"
+              }  w-[180px] bg-white shadow-xl rounded-xl p-[20px] flex flex-col gap-[10px] z-[9999]`}
           >
             {/* -------- full Name -------- */}
             <div className="text-[17px] font-semibold text-gray-700">
