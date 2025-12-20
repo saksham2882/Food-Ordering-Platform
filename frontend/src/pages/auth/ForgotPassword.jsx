@@ -2,7 +2,17 @@ import { useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ClipLoader } from "react-spinners";
+import authApi from "../../api/authApi";
+import AuthLayout from "@/components/layouts/AuthLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1); // forgot password in three step - email type, opt send, enter opt and match
@@ -10,8 +20,7 @@ const ForgotPassword = () => {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSendOTP = async () => {
@@ -19,197 +28,161 @@ const ForgotPassword = () => {
       toast.info("Please enter your email");
       return;
     }
-    setLoading(true)
+    setLoading(true);
     try {
       const data = await authApi.sendOtp(email);
-      setError("")
       toast.success(data.message || "OTP Send Successfully");
       setStep(2);
     } catch (error) {
-      setError(error?.response?.data?.message || error?.message || "Something went wrong");
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
   const handleVerifyOTP = async () => {
-    if (!otp) {
-      toast.info("Please enter a 6-digits OTP")
+    if (!otp || otp.length !== 6) {
+      toast.info("Please enter a valid 6-digit OTP");
       return;
     }
-    setLoading(true)
+    setLoading(true);
     try {
       const data = await authApi.verifyOtp(email, otp);
-      setError("")
       toast.success(data.message || "OTP Verify Successfully");
       setStep(3);
     } catch (error) {
-      setError(error?.response?.data?.message || error?.message || "Something went wrong");
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
   const handleResetPassword = async () => {
     if (!newPassword || !confirmPassword) {
-      toast.info("Please provide all fields")
+      toast.info("Please provide all fields");
       return;
     }
     if (newPassword != confirmPassword) {
-      toast.info("Confirm Password not matched")
+      toast.info("Confirm Password not matched");
       return null;
     }
     setLoading(true);
     try {
       const data = await authApi.resetPassword(email, newPassword);
-      setError("")
       toast.success(data.message || "Password Reset Successfully");
       navigate("/signin");
     } catch (error) {
-      setError(error?.response?.data?.message || error?.message || "Something went wrong");
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex w-full items-center justify-center min-h-screen p-4 bg-bg">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-8">
-        <div className="flex items-center gap-4 mb-6">
-          <IoIosArrowRoundBack
-            size={35}
-            className="text-primary shadow-sm cursor-pointer hover:bg-hover rounded-full hover:text-white"
-            onClick={() => navigate("/signin")}
-          />
-          <h1 className="text-2xl font-bold text-center text-primary">
-            Forgot Password
-          </h1>
-        </div>
-
-        {step == 1 && (
-          <div>
-            <div className="mb-6">
-              <label
-                htmlFor="email"
-                className="block text-gray-700 font-medium mb-1"
-              >
-                Email
-              </label>
-              <input
+    <AuthLayout
+      title="Forgot Password"
+      subtitle={
+        step === 1 ? "Enter your email to receive a code" :
+          step === 2 ? `Enter the code sent to ${email}` :
+            "Create a new password"
+      }
+    >
+      <div className="grid gap-6">
+        {/* ------------- Step 1: Email Input ------------- */}
+        {step === 1 && (
+          <div className="grid gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
                 type="email"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none"
-                placeholder="Enter your email"
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
                 value={email}
-                required
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus
               />
             </div>
-
-            <button
-              type="submit"
-              className="w-full font-medium py-2 rounded-lg transition duration-200 cursor-pointer bg-primary text-white hover:bg-hover"
-              onClick={handleSendOTP}
-              disabled={loading}
-            >
-              {loading ? <ClipLoader size={20} color="white" /> : "Send OTP"}
-            </button>
-
-            {error && (
-              <p className="text-primary text-center my-[10px]">*{error}</p>
-            )}
+            <Button disabled={loading} onClick={handleSendOTP} className="w-full">
+              {loading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
+              Send OTP
+            </Button>
           </div>
         )}
 
-        {step == 2 && (
-          <div>
-            <div className="mb-6">
-              <label
-                htmlFor="otp"
-                className="block text-gray-700 font-medium mb-1"
-              >
-                One Time Password
-              </label>
-              <input
-                type="text"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none"
-                placeholder="Enter OTP here"
-                onChange={(e) => setOtp(e.target.value)}
-                value={otp}
-                required
-              />
-            </div>
-
-            <button
-              className="w-full font-medium py-2 rounded-lg transition duration-200 cursor-pointer bg-primary text-white hover:bg-hover"
-              onClick={handleVerifyOTP}
-              disabled={loading}
+        {/* ------------- Step 2: OTP Input ------------- */}
+        {step === 2 && (
+          <div className="grid gap-6 animate-in fade-in slide-in-from-right-4 duration-300 justify-items-center">
+            <InputOTP
+              maxLength={6}
+              value={otp}
+              onChange={(value) => setOtp(value)}
             >
-              {loading ? <ClipLoader size={20} color="white" /> : "Verify"}
-            </button>
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
 
-            {error && (
-              <p className="text-primary text-center my-[10px]">*{error}</p>
-            )}
+            <div className="grid gap-2 w-full">
+              <Button disabled={loading} onClick={handleVerifyOTP} className="w-full">
+                {loading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
+                Verify OTP
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setStep(1)}
+                disabled={loading}
+                className="w-full"
+              >
+                Change Email
+              </Button>
+            </div>
           </div>
         )}
 
-        {step == 3 && (
-          <div>
-            <div className="mb-6">
-              <label
-                htmlFor="newPassword"
-                className="block text-gray-700 font-medium mb-1"
-              >
-                New Password
-              </label>
-              <input
+        {/* ------------- Step 3: Reset Password ------------- */}
+        {step === 3 && (
+          <div className="grid gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="grid gap-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
                 type="password"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none"
                 placeholder="Enter new password"
-                onChange={(e) => setNewPassword(e.target.value)}
                 value={newPassword}
-                required
+                onChange={(e) => setNewPassword(e.target.value)}
               />
             </div>
-            <div className="mb-6">
-              <label
-                htmlFor="confirmPassword"
-                className="block text-gray-700 font-medium mb-1"
-              >
-                Confirm Password
-              </label>
-              <input
+            <div className="grid gap-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
                 type="password"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none"
-                placeholder="Confirm your password"
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
                 value={confirmPassword}
-                required
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
-
-            <button
-              className="w-full font-medium py-2 rounded-lg transition duration-200 cursor-pointer bg-primary text-white hover:bg-hover"
-              onClick={handleResetPassword}
-              disabled={loading}
-            >
-              {loading ? (
-                <ClipLoader size={20} color="white" />
-              ) : (
-                "Reset Password"
-              )}
-            </button>
-
-            {error && (
-              <p className="text-primary text-center my-[10px]">*{error}</p>
-            )}
+            <Button disabled={loading} onClick={handleResetPassword} className="w-full">
+              {loading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
+              Reset Password
+            </Button>
           </div>
         )}
+
+        <div className="text-center">
+          <Button variant="link" onClick={() => navigate("/signin")} className="p-0 h-auto font-normal text-muted-foreground hover:text-primary">
+            <IoIosArrowRoundBack className="mr-1 h-4 w-4" />
+            Back to Sign In
+          </Button>
+        </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
+
 export default ForgotPassword;
