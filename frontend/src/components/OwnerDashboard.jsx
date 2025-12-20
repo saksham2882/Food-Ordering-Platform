@@ -4,8 +4,10 @@ import { FaUtensils } from "react-icons/fa6";
 import { FaPen } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import OwnerItemCard from "./OwnerItemCard";
+import useGetMyShop from "../hooks/useGetMyShop";
 
 const OwnerDashboard = () => {
+  useGetMyShop();
   const { myShopData } = useSelector((state) => state.owner);
   const navigate = useNavigate();
 

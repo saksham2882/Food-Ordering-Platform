@@ -5,8 +5,10 @@ import UserOrderCard from "../../components/UserOrderCard";
 import OwnerOrderCard from "../../components/OwnerOrderCard"
 import { useEffect } from "react";
 import { setMyOrders, updateRealTimeOrderStatus } from "../../redux/userSlice";
+import useGetMyOrders from "../../hooks/useGetMyOrders";
 
 const MyOrders = () => {
+  useGetMyOrders();
   const { userData, myOrders, socket } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();

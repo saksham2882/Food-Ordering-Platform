@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { categories } from "../assets/category";
 import CategoryCard from "./CategoryCard";
 import Navbar from "./Navbar";
@@ -6,8 +6,17 @@ import { FaCircleChevronLeft, FaCircleChevronRight } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import FoodCard from "./FoodCard";
 import { useNavigate } from "react-router-dom";
+import useGetCity from "../hooks/useGetCity";
+import useGetShopByCity from "../hooks/useGetShopByCity";
+import useGetItemsByCity from "../hooks/useGetItemsByCity";
+import useUpdateLocation from "../hooks/useUpdateLocation";
 
 const UserDashboard = () => {
+  useGetCity();
+  useGetShopByCity();
+  useGetItemsByCity();
+  useUpdateLocation();
+
   const { currentCity, shopsInMyCity, itemsInMyCity, searchItems } =
     useSelector((state) => state.user);
   const cateScrollRef = useRef();
