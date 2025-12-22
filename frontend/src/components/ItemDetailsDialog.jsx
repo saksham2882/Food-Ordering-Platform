@@ -6,13 +6,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FaLeaf, FaDrumstickBite, FaStar, FaMinus, FaPlus, FaClock, FaFire, FaStore } from "react-icons/fa6";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/userSlice";
 
 
 const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
     const dispatch = useDispatch();
+    const { shopsInMyCity } = useSelector((state) => state.user);
     const [quantity, setQuantity] = useState(cartItem ? cartItem.quantity : 1);
+
+    const shopDetails = shopsInMyCity?.find((s) => s._id === data?.shop);
+    const shopName = shopDetails?.name || "FoodXpress Partner";
 
     const handleAddToCart = () => {
         dispatch(
@@ -22,6 +26,7 @@ const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
                 price: data.price,
                 image: data.image,
                 shop: data.shop,
+                shopName: shopName,
                 quantity,
                 foodType: data.foodType,
                 description: data.description,
@@ -88,7 +93,7 @@ const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
                                 <FaStore className="text-primary" />
-                                {data.shop?.shopName || "Yummigo Partner"}
+                                {shopName}
                             </div>
                             <Badge
                                 variant="outline"

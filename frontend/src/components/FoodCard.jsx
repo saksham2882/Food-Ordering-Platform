@@ -13,13 +13,16 @@ import ItemDetailsDialog from "./ItemDetailsDialog";
 
 const FoodCard = ({ data }) => {
   const dispatch = useDispatch();
-  const { cartItems } = useSelector((state) => state.user);
+  const { cartItems, shopsInMyCity } = useSelector((state) => state.user);
   const [showDetails, setShowDetails] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
 
   const cartItem = cartItems.find((item) => item.id === data._id);
   const isInCart = !!cartItem;
   const quantity = cartItem?.quantity || 0;
+
+  const shopDetails = shopsInMyCity?.find((s) => s._id === data.shop);
+  const shopName = shopDetails?.name || "FoodXpress Partner";
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -30,6 +33,7 @@ const FoodCard = ({ data }) => {
         price: data.price,
         image: data.image,
         shop: data.shop,
+        shopName: shopName,
         quantity: 1,
         foodType: data.foodType,
       })
@@ -132,7 +136,7 @@ const FoodCard = ({ data }) => {
           {/* ----------- Shop Name ----------- */}
           <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">
             <FaStore className="text-primary size-3" />
-            {data.shop?.shopName || "Yummigo Partner"}
+            {shopName}
           </div>
 
           {/* ----------- Title & Description ----------- */}
