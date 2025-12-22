@@ -10,8 +10,8 @@ const userSlice = createSlice({
         currentAddress: null,
         shopsInMyCity: null,
         itemsInMyCity: null,
-        cartItems: [],
-        totalAmount: 0,
+        cartItems: JSON.parse(localStorage.getItem("cartItems")) || [],
+        totalAmount: JSON.parse(localStorage.getItem("totalAmount")) || 0,
         myOrders: [],
         searchItems: null,
         socket: null
@@ -52,6 +52,10 @@ const userSlice = createSlice({
                 state.cartItems.push(cartItem)
             }
             state.totalAmount = state.cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+
+            // Sync to LocalStorage
+            localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+            localStorage.setItem("totalAmount", JSON.stringify(state.totalAmount));
         },
         updateQuantity: (state, action) => {
             const { id, quantity } = action.payload
@@ -60,10 +64,16 @@ const userSlice = createSlice({
                 item.quantity = quantity
             }
             state.totalAmount = state.cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+
+            localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+            localStorage.setItem("totalAmount", JSON.stringify(state.totalAmount));
         },
         removeCartItem: (state, action) => {
             state.cartItems = state.cartItems.filter(i => i.id !== action.payload)
             state.totalAmount = state.cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+
+            localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+            localStorage.setItem("totalAmount", JSON.stringify(state.totalAmount));
         },
         setMyOrders: (state, action) => {
             state.myOrders = action.payload
@@ -83,9 +93,9 @@ const userSlice = createSlice({
         updateRealTimeOrderStatus: (state, action) => {
             const { orderId, shopId, status } = action.payload
             const order = state.myOrders.find(o => o._id == orderId)
-            if(order){
+            if (order) {
                 const shopOrder = order.shopOrders.find(so => so.shop._id == shopId)
-                if(shopOrder) {
+                if (shopOrder) {
                     shopOrder.status = status
                 }
             }
