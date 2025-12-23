@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { FaLocationDot, FaPlus, FaMagnifyingGlass, FaCartShopping, FaReceipt, FaBars, FaUser, FaXmark } from "react-icons/fa6";
 import { setSearchItems, setUserData } from "../redux/userSlice";
@@ -22,6 +22,7 @@ const Navbar = () => {
   const { myShopData } = useSelector((state) => state.owner);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [query, setQuery] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
@@ -146,8 +147,8 @@ const Navbar = () => {
           </div>
 
 
-          {/* ------------ Search Bar - Desktop ------------ */}
-          {userData?.role === "user" && (
+          {/* -------------- Search Bar - Desktop --------------  */}
+          {userData?.role === "user" && location.pathname !== "/checkout" && (
             <div className="hidden md:flex flex-1 max-w-2xl mx-8 items-center relative group">
               <div className="absolute inset-0 bg-gray-100 rounded-full transition-colors group-hover:bg-gray-100/80" />
               <div className="relative flex items-center w-full h-11 px-1">
