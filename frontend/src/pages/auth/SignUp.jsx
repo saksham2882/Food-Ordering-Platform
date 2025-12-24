@@ -22,7 +22,7 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [mobile, setMobile] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("user");
+  const [role] = useState("user");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();

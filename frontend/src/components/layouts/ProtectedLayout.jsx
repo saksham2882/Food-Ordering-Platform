@@ -1,7 +1,6 @@
 import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
 import { Spinner } from "../ui/spinner";
-import Footer from "../common/Footer";
 
 const ProtectedLayout = () => {
   const { userData, isCheckingAuth } = useSelector((state) => state.user);
@@ -23,7 +22,6 @@ const ProtectedLayout = () => {
       <div className="flex-grow">
         <Outlet />
       </div>
-      <Footer />
     </div>
   );
 };
