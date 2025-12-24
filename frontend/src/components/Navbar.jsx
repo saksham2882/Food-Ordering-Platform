@@ -148,7 +148,7 @@ const Navbar = () => {
 
 
           {/* -------------- Search Bar - Desktop --------------  */}
-          {userData?.role === "user" && location.pathname !== "/checkout" && (
+          {userData?.role === "user" && location.pathname !== "/checkout" && location.pathname !== "/my-orders" && (
             <div className="hidden md:flex flex-1 max-w-2xl mx-8 items-center relative group">
               <div className="absolute inset-0 bg-gray-100 rounded-full transition-colors group-hover:bg-gray-100/80" />
               <div className="relative flex items-center w-full h-11 px-1">
@@ -215,7 +215,7 @@ const Navbar = () => {
 
 
             {/* ------------ Mobile Search Toggle ------------ */}
-            {userData?.role === "user" && (
+            {userData?.role === "user" && location.pathname !== "/checkout" && location.pathname !== "/my-orders" && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -300,7 +300,7 @@ const Navbar = () => {
         </div>
 
         {/* ------------ Mobile Search Bar ------------ */}
-        {showMobileSearch && userData?.role === "user" && (
+        {showMobileSearch && userData?.role === "user" && location.pathname !== "/checkout" && location.pathname !== "/my-orders" && (
           <div className="md:hidden w-full px-4 pb-4 animate-in slide-in-from-top-2">
             <div className="relative flex items-center w-full h-12 px-1 bg-gray-100 rounded-full">
               <FaMagnifyingGlass className="ml-4 text-gray-400 text-sm" />
