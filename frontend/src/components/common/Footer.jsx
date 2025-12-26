@@ -16,16 +16,16 @@ const Footer = () => {
             </p>
 
             <div className="flex gap-4 pt-2">
-              <a href="#" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="#" aria-label="Facebook" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="#" aria-label="Twitter" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <Twitter size={20} />
               </a>
-              <a href="#" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="#" aria-label="Instagram" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="#" aria-label="LinkedIn" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <Linkedin size={20} />
               </a>
             </div>
@@ -64,7 +64,7 @@ const Footer = () => {
                 placeholder="Your email"
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-primary"
               />
-              <Button size="icon" className="bg-primary hover:bg-hover shrink-0">
+              <Button size="icon" aria-label="Subscribe to newsletter" className="bg-primary hover:bg-hover shrink-0">
                 <Mail size={18} />
               </Button>
             </div>
@@ -100,6 +100,7 @@ const Footer = () => {
           <a
             href={'https://saksham-agrahari.vercel.app'}
             target="_blank"
+            rel="noopener noreferrer"
             className="flex gap-1 items-center justify-center ml-1 hover:text-cyan-400 hover:underline underline-offset-2"
           >
             <ExternalLink size={14} /> Saksham Agrahari

@@ -25,6 +25,15 @@ const SignIn = () => {
   const dispatch = useDispatch()
 
   const handleSignIn = async () => {
+    if (!email || !password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
     setLoading(true)
     try {
       const data = await authApi.signin(email, password);
@@ -34,12 +43,14 @@ const SignIn = () => {
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally {
       setLoading(false)
     }
   };
 
   const handleGoogleAuth = async () => {
     const provider = new GoogleAuthProvider();
+    setLoading(true)
     try {
       const res = await signInWithPopup(auth, provider);
       const data = await authApi.googleAuth({
@@ -52,6 +63,8 @@ const SignIn = () => {
     } catch (error) {
       console.log(error)
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally {
+      setLoading(false)
     }
   };
 
