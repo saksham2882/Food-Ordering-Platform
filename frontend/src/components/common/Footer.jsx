@@ -100,6 +100,7 @@ const Footer = () => {
           <a
             href={'https://saksham-agrahari.vercel.app'}
             target="_blank"
+            rel="noopener noreferrer"
             className="flex gap-1 items-center justify-center ml-1 hover:text-cyan-400 hover:underline underline-offset-2"
           >
             <ExternalLink size={14} /> Saksham Agrahari
