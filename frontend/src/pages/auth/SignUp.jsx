@@ -42,6 +42,7 @@ const SignUp = () => {
 
   const handleGoogleAuth = async () => {
     const provider = new GoogleAuthProvider();
+    setLoading(true);
     try {
       const res = await signInWithPopup(auth, provider);
       const data = await authApi.googleAuth({
@@ -55,6 +56,8 @@ const SignUp = () => {
       navigate("/home");
     } catch (error) {
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
