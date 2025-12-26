@@ -116,13 +116,15 @@ const Navbar = () => {
                     >
                       <FaUser className="text-gray-400" /> Profile
                     </Button>
-                    <Button
-                      variant="ghost"
-                      className="justify-start gap-3 h-12 text-base font-medium"
-                      onClick={() => navigate("/my-orders")}
-                    >
-                      <FaReceipt className="text-gray-400" /> My Orders
-                    </Button>
+                    {userData?.role !== "deliveryBoy" && (
+                      <Button
+                        variant="ghost"
+                        className="justify-start gap-3 h-12 text-base font-medium"
+                        onClick={() => navigate("/my-orders")}
+                      >
+                        <FaReceipt className="text-gray-400" /> My Orders
+                      </Button>
+                    )}
 
                     <div className="h-px bg-gray-100 my-2" />
 
