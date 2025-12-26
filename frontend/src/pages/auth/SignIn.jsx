@@ -25,6 +25,15 @@ const SignIn = () => {
   const dispatch = useDispatch()
 
   const handleSignIn = async () => {
+    if (!email || !password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
     setLoading(true)
     try {
       const data = await authApi.signin(email, password);
