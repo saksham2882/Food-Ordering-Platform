@@ -41,6 +41,7 @@ const SignIn = () => {
 
   const handleGoogleAuth = async () => {
     const provider = new GoogleAuthProvider();
+    setLoading(true)
     try {
       const res = await signInWithPopup(auth, provider);
       const data = await authApi.googleAuth({
@@ -53,6 +54,8 @@ const SignIn = () => {
     } catch (error) {
       console.log(error)
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally {
+      setLoading(false)
     }
   };
 
