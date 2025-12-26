@@ -64,7 +64,7 @@ const Footer = () => {
                 placeholder="Your email"
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-primary"
               />
-              <Button size="icon" className="bg-primary hover:bg-hover shrink-0">
+              <Button size="icon" aria-label="Subscribe to newsletter" className="bg-primary hover:bg-hover shrink-0">
                 <Mail size={18} />
               </Button>
             </div>
