@@ -73,7 +73,7 @@ const DeliveryBoy = () => {
         setActiveTab("active");
       } else {
         setCurrentOrder(null);
-        if (activeTab === "active") setActiveTab("dashboard");
+        setActiveTab((prev) => (prev === "active" ? "dashboard" : prev));
       }
     } catch (error) {
       console.error(error);
@@ -545,7 +545,7 @@ const DeliveryBoy = () => {
                   <div className="w-full h-auto border-2 border-slate-300 shadow-xl hover:shadow-2xl rounded-2xl p-2">
                     <DeliveryBoyTracking
                       data={{
-                        deliveryBoyLocation: deliveryBoyLocation || { lat: 28.61, lon: 77.23 },
+                        deliveryBoyLocation: deliveryBoyLocation,
                         customerLocation: {
                           lat: currentOrder.deliveryAddress.latitude,
                           lon: currentOrder.deliveryAddress.longitude,

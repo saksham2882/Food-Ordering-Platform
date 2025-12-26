@@ -193,7 +193,7 @@ const OwnerOrderCard = ({ data }) => {
                   <div className="h-16 w-16 bg-gray-100 rounded-lg overflow-hidden shrink-0">
                     <img
                       src={item.item.image}
-                      alt=""
+                      alt={item.item.name || 'Food item'}  
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -274,14 +274,14 @@ const OwnerOrderCard = ({ data }) => {
               {data.shopOrders.assignedDeliveryBoy ? (
                 <div className="bg-white/10 rounded-xl p-2 px-4 flex items-center gap-3 border border-white/10 backdrop-blur-sm">
                   <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-green-500/20">
-                    {data.shopOrders.assignedDeliveryBoy.fullName.charAt(0)}
+                    {data.shopOrders.assignedDeliveryBoy?.fullName?.charAt(0) || "N/A"}
                   </div>
                   <div className="text-right sm:text-left">
                     <p className="text-white text-sm font-bold">
-                      {data.shopOrders.assignedDeliveryBoy.fullName}
+                      {data.shopOrders.assignedDeliveryBoy?.fullName || "N/A"}
                     </p>
                     <p className="text-xs text-slate-300 font-mono">
-                      {data.shopOrders.assignedDeliveryBoy.mobile}
+                      {data.shopOrders.assignedDeliveryBoy?.mobile || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -295,14 +295,14 @@ const OwnerOrderCard = ({ data }) => {
                         className="flex items-center gap-2 p-2 px-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-colors cursor-pointer shrink-0"
                       >
                         <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[10px]">
-                          {boy.fullName.charAt(0)}
+                          {boy.fullName?.charAt(0) || "N/A"}
                         </div>
                         <div>
                           <p className="text-white text-xs font-bold">
-                            {boy.fullName}
+                            {boy.fullName || "N/A"}
                           </p>
                           <p className="text-[10px] text-slate-400">
-                            {boy.mobile}
+                            {boy.mobile || "N/A"}
                           </p>
                         </div>
                       </div>

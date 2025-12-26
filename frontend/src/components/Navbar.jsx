@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -27,6 +27,7 @@ const Navbar = () => {
   const [query, setQuery] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const debouncedSearchRef = useRef(null);
 
   const handleLogOut = async () => {
     try {
@@ -39,26 +40,29 @@ const Navbar = () => {
     }
   };
 
-  const debouncedSearch = useMemo(
-    () => debounce(async (searchQuery) => {
-        if (searchQuery.trim()) {
-          try {
-            const data = await shopApi.searchItems(searchQuery, currentCity);
-            dispatch(setSearchItems(data));
-          } catch (error) {
-            console.error(error);
-          }
-        } else {
-          dispatch(setSearchItems(null));
+  useEffect(() => {
+    debouncedSearchRef.current = debounce(async (searchQuery) => {
+      if (searchQuery.trim()) {
+        try {
+          const data = await shopApi.searchItems(searchQuery, currentCity);
+          dispatch(setSearchItems(data));
+        } catch (error) {
+          console.error(error);
         }
-      }, 300),
-    [currentCity, dispatch]
-  )
+      } else {
+        dispatch(setSearchItems(null));
+      }
+    }, 300);
+
+    return () => {
+      debouncedSearchRef.current?.cancel();
+    };
+  }, [currentCity, dispatch]);
 
   const handleSearchItems = useCallback(async (searchQuery) => {
     setQuery(searchQuery);
-    debouncedSearch(searchQuery);
-  }, [debouncedSearch]);
+    debouncedSearchRef.current(searchQuery);
+  }, [debouncedSearchRef]);
 
   return (
     <>

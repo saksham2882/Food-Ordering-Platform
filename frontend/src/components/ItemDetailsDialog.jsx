@@ -18,6 +18,12 @@ const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
     const shopDetails = shopsInMyCity?.find((s) => s._id === data?.shop);
     const shopName = shopDetails?.name || "FoodXpress Partner";
 
+    if (!data) return null;
+
+    useEffect(() => {
+        setQuantity(cartItem ? cartItem.quantity : 1);
+    }, [cartItem?.quantity, data?._id]);
+
     const handleAddToCart = () => {
         dispatch(
             addToCart({
@@ -34,12 +40,6 @@ const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
         );
         onOpenChange(false);
     };
-
-    if (!data) return null;
-
-    useEffect(() => {
-        setQuantity(cartItem ? cartItem.quantity : 1);
-    }, [cartItem?.quantity, data?._id]);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
