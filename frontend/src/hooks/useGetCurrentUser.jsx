@@ -1,8 +1,7 @@
-import axios from "axios";
 import { useEffect } from "react";
-import { SERVER_URL } from "../App";
 import { useDispatch } from "react-redux";
-import { setUserData } from "../redux/userSlice";
+import { setCheckingAuth, setUserData } from "../redux/userSlice";
+import authApi from "../api/authApi";
 
 const useGetCurrentUser = () => {
   const dispatch = useDispatch()
@@ -10,12 +9,12 @@ const useGetCurrentUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`${SERVER_URL}/api/user/current`, {
-          withCredentials: true,
-        });
-        dispatch(setUserData(res.data))
+        const data = await authApi.checkAuth();
+        dispatch(setUserData(data))
       } catch (error) {
         console.log(error);
+      } finally {
+        dispatch(setCheckingAuth(false))
       }
     }
 

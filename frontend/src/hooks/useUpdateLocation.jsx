@@ -1,28 +1,37 @@
-import axios from "axios";
 import { useEffect } from "react";
-import { SERVER_URL } from "../App";
 import { useSelector } from "react-redux";
+import userApi from "../api/userApi";
 
 const useUpdateLocation = () => {
   const { userData } = useSelector((state) => state.user);
 
   useEffect(() => {
     const updateLocation = async (lat, lon) => {
-      const res = await axios.post(
-        `${SERVER_URL}/api/user/update-location`,
-        { lat, lon },
-        { withCredentials: true }
-      );
-      console.log(res.data);
+      try {
+        const data = await userApi.updateLocation(lat, lon);
+        console.log(data);
+      } catch (error) {
+        console.error("Failed to update location", error)
+      }
     };
 
     // Update user location whenever browser geolocation detects a change
     // navigator.geolocation.watchPosition() continuously watches for location updates
 
-    navigator.geolocation.watchPosition((pos) => {
-      updateLocation(pos.coords.latitude, pos.coords.longitude);
-    });
-    
+    if (userData) {
+      const watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          updateLocation(pos.coords.latitude, pos.coords.longitude);
+        },
+        (error) => {
+          console.error("Geolocation error", error);
+        }
+      );
+      return () => {
+        navigator.geolocation.clearWatch(watchId);
+      };
+    }
+
   }, [userData]);
 };
 

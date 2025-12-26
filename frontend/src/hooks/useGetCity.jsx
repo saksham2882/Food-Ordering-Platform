@@ -1,13 +1,12 @@
-import axios from "axios";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentAddress, setCurrentCity, setCurrentState } from "../redux/userSlice";
 import { setAddress, setLocation } from "../redux/mapSlice";
+import cityApi from "../api/cityApi";
 
 const useGetCity = () => {
   const dispatch = useDispatch();
   const { userData } = useSelector((state) => state.user);
-  const apiKey = import.meta.env.VITE_GEOAPIKEY;
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(async (position) => {
@@ -18,20 +17,22 @@ const useGetCity = () => {
       const longitude = position.coords.longitude;
 
       // set current Location for delivery
-      dispatch(setLocation({lat: latitude, lon: longitude}))
+      dispatch(setLocation({ lat: latitude, lon: longitude }))
 
       // fetch city
-      const res = await axios.get(
-        `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&format=json&apiKey=${apiKey}`
-      );
+      try {
+        const data = await cityApi.getReverseGeocoding(latitude, longitude);
 
-      // console.log(res)
-      dispatch(setCurrentCity(res?.data?.results[0]?.city));
-      dispatch(setCurrentState(res?.data?.results[0]?.state));
-      dispatch(setCurrentAddress(res?.data?.results[0]?.formatted || res?.data?.results[0]?.address_line2));
+        // console.log(res)
+        dispatch(setCurrentCity(data?.results[0]?.city));
+        dispatch(setCurrentState(data?.results[0]?.state));
+        dispatch(setCurrentAddress(data?.results[0]?.formatted || data?.results[0]?.address_line2));
 
-      // set current Address for delivery
-      dispatch(setAddress(res?.data?.results[0]?.formatted || res?.data?.results[0]?.address_line2));
+        // set current Address for delivery
+        dispatch(setAddress(data?.results[0]?.formatted || data?.results[0]?.address_line2));
+      } catch (error) {
+        console.error("Error fetching city data:", error);
+      }
     });
   }, [userData]);
 };

@@ -1,89 +1,37 @@
-import { use, useEffect, useRef, useState } from "react";
-import { categories } from "../assets/category";
-import CategoryCard from "./CategoryCard";
-import Navbar from "./Navbar";
-import { FaCircleChevronLeft, FaCircleChevronRight } from "react-icons/fa6";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import FoodCard from "./FoodCard";
 import { useNavigate } from "react-router-dom";
+import CategoryCard from "./CategoryCard";
+import FoodCard from "./FoodCard";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { categories } from "../assets/category";
+import { FaMagnifyingGlass, FaArrowRightLong, FaX } from "react-icons/fa6";
+import useGetCity from "../hooks/useGetCity";
+import useGetShopByCity from "../hooks/useGetShopByCity";
+import useGetItemsByCity from "../hooks/useGetItemsByCity";
+import useUpdateLocation from "../hooks/useUpdateLocation";
+import UserLayout from "./layouts/UserLayout";
+
 
 const UserDashboard = () => {
-  const { currentCity, shopsInMyCity, itemsInMyCity, searchItems } =
-    useSelector((state) => state.user);
-  const cateScrollRef = useRef();
-  const shopScrollRef = useRef();
+  useGetCity();
+  useGetShopByCity();
+  useGetItemsByCity();
+  useUpdateLocation();
+
+  const { currentCity, shopsInMyCity, itemsInMyCity, searchItems } = useSelector((state) => state.user);
   const navigate = useNavigate();
-  const [showLeftCategoryBtn, setShowLeftCategoryBtn] = useState(false);
-  const [showRightCategoryBtn, setShowRightCategoryBtn] = useState(false);
-  const [showLeftShopBtn, setShowLeftShopBtn] = useState(false);
-  const [showRightShopBtn, setShowRightShopBtn] = useState(false);
   const [filteredItemsList, setFilteredItemsList] = useState([]);
-
-  const updateButton = (ref, setLeftBtn, setRightBtn) => {
-    const element = ref.current;
-    if (element) {
-      setLeftBtn(element.scrollLeft > 0);
-      setRightBtn(
-        element.scrollLeft + element.clientWidth < element.scrollWidth
-      );
-      // console.log("client width: ", element.clientWidth)
-      // console.log("scroll width: ", element.scrollWidth)
-      // console.log("scroll left: ", element.scrollLeft)
-    }
-  };
-
-  const scrollHandler = (ref, direction) => {
-    if (ref.current) {
-      ref.current.scrollBy({
-        left: direction == "left" ? -200 : 200,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  useEffect(() => {
-    const cateElement = cateScrollRef.current;
-    const shopElement = shopScrollRef.current;
-
-    const handleCateScroll = () =>
-      updateButton(
-        cateScrollRef,
-        setShowLeftCategoryBtn,
-        setShowRightCategoryBtn
-      );
-
-    const handleShopScroll = () =>
-      updateButton(shopScrollRef, setShowLeftShopBtn, setShowRightShopBtn);
-
-    if (cateElement) {
-      updateButton(
-        cateScrollRef,
-        setShowLeftCategoryBtn,
-        setShowRightCategoryBtn
-      );
-      cateElement.addEventListener("scroll", handleCateScroll);
-    }
-
-    if (shopElement) {
-      updateButton(shopScrollRef, setShowLeftShopBtn, setShowRightShopBtn);
-      shopElement.addEventListener("scroll", handleShopScroll);
-    }
-
-    return () => {
-      if (cateElement)
-        cateElement.removeEventListener("scroll", handleCateScroll);
-      if (shopElement)
-        shopElement.removeEventListener("scroll", handleShopScroll);
-    };
-  }, [shopsInMyCity]);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   const handleFilterByCategory = (category) => {
+    setActiveCategory(category);
     if (category === "All") {
       setFilteredItemsList(itemsInMyCity);
     } else {
-      const filteredList = itemsInMyCity?.filter(
-        (i) => i.category === category
-      );
+      const filteredList = itemsInMyCity?.filter((i) => i.category === category);
       setFilteredItemsList(filteredList);
     }
   };
@@ -93,134 +41,187 @@ const UserDashboard = () => {
   }, [itemsInMyCity]);
 
   return (
-    <div className="w-screen min-h-screen flex flex-col gap-5 items-center bg-bg overflow-y-auto">
-      <Navbar />
+    <UserLayout>
+      <div className="flex flex-col gap-8 md:gap-12 font-sans fade-in-up">
 
-      {/* ------------- Searched Items ------------ */}
-      {searchItems && searchItems?.length > 0 && (
-        <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-5 bg-white shadow-md rounded-2xl mt-4">
-          <h1 className="text-gray-900 text-2xl sm:text-3xl font-semibold border-b border-gray-200 pb-2">
-            Search Results
-          </h1>
+        {/* ------------- Banner ------------- */}
+        <section className="relative w-full h-[320px] md:h-[450px] lg:h-[500px] rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl shadow-orange-500/20 group">
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent z-10" />
+          <img
+            src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2075"
+            alt="Hero Food"
+            className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
+          />
 
-          <div className="w-full h-auto flex flex-wrap gap-6 justify-center">
-            {searchItems?.map((item) => (
-              <FoodCard data={item} key={item._id} />
-            ))}
-          </div>
-        </div>
-      )}
+          <div className="absolute inset-0 z-20 flex flex-col justify-center px-6 md:px-12 lg:px-20 space-y-4 md:space-y-6 max-w-3xl">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 md:px-4 md:py-1.5 rounded-full w-fit border border-white/10">
+              <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-400 animate-pulse"></span>
+              <span className="text-white text-xs md:text-sm font-semibold tracking-wide uppercase">Delivering to {currentCity}</span>
+            </div>
 
-      {/* ------------- Food Category ------------- */}
-      <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-[10px]">
-        <h1 className="text-gray-700 text-xl sm:text-2xl">
-          Inspiration for your first order
-        </h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight drop-shadow-lg">
+              Craving Something <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-400">Extraordinary?</span>
+            </h1>
 
-        {/* ----------- Food Categories Slider --------------- */}
-        <div className="w-full relative">
-          {/* -------------- Left Button ------------- */}
-          {showLeftCategoryBtn && (
-            <button
-              className="absolute left-1 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-hover z-10 cursor-pointer"
-              onClick={() => scrollHandler(cateScrollRef, "left")}
-            >
-              <FaCircleChevronLeft size={25} />
-            </button>
-          )}
-
-          {/* -------------- Categories --------------- */}
-          <div
-            className="w-full flex overflow-x-auto gap-4 pb-2"
-            ref={cateScrollRef}
-          >
-            {categories.map((cate, index) => (
-              <CategoryCard
-                name={cate.category}
-                image={cate.image}
-                key={index}
-                onClick={() => handleFilterByCategory(cate.category)}
-              />
-            ))}
-          </div>
-
-          {/* -------------- Right Button ------------- */}
-          {showRightCategoryBtn && (
-            <button
-              className="absolute right-1 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-hover z-10 cursor-pointer"
-              onClick={() => scrollHandler(cateScrollRef, "right")}
-            >
-              <FaCircleChevronRight size={25} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* ------------- Shops by Location -------------- */}
-      <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-[10px]">
-        <h1 className="text-gray-700 text-xl sm:text-2xl">
-          Best Shop in {currentCity}
-        </h1>
-
-        {/* -------------- Shops Slider ------------- */}
-        <div className="w-full relative">
-          {/* -------------- Left Button ------------- */}
-          {showLeftShopBtn && (
-            <button
-              className="absolute left-1 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-hover z-10 cursor-pointer"
-              onClick={() => scrollHandler(shopScrollRef, "left")}
-            >
-              <FaCircleChevronLeft size={25} />
-            </button>
-          )}
-
-          {/* -------------- Categories --------------- */}
-          <div
-            className="w-full flex overflow-x-auto gap-4 pb-2"
-            ref={shopScrollRef}
-          >
-            {shopsInMyCity?.map((shop, index) => (
-              <CategoryCard
-                name={shop.name}
-                image={shop.image}
-                key={index}
-                onClick={() => navigate(`/shop/${shop._id}`)}
-              />
-            ))}
-          </div>
-
-          {/* -------------- Right Button ------------- */}
-          {showRightShopBtn && (
-            <button
-              className="absolute right-1 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-hover z-10 cursor-pointer"
-              onClick={() => scrollHandler(shopScrollRef, "right")}
-            >
-              <FaCircleChevronRight size={25} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* ------------- Food Items By My City -------------  */}
-      <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-[10px]">
-        <h1 className="text-gray-700 text-xl sm:text-2xl">
-          Suggested Food Items
-        </h1>
-
-        {/* --------------- Items ------------ */}
-        <div className="w-full h-auto flex flex-wrap gap-[20px] justify-center">
-          {filteredItemsList?.length == 0 ? (
-            <p className="text-lg text-gray-600 font-semibold">
-              No Available Item
+            <p className="text-white/90 text-sm md:text-lg lg:text-xl font-medium max-w-lg leading-relaxed hidden sm:block">
+              Order from the top-rated restaurants in your area and get lightning-fast delivery.
             </p>
+
+            <Button
+              className="bg-primary hover:bg-orange-600 text-white font-bold rounded-full h-12 md:h-14 px-6 md:px-8 text-base md:text-lg shadow-xl shadow-primary/30 w-fit gap-2 md:gap-3 mt-2"
+              onClick={() => document.getElementById("recommended").scrollIntoView({ behavior: 'smooth' })}
+            >
+              Order Now <FaArrowRightLong />
+            </Button>
+          </div>
+        </section>
+
+
+        {/* ------------- Search Results ------------ */}
+        {searchItems && searchItems.length > 0 && (
+          <section className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center gap-3 border-b pb-4 border-gray-100">
+              <div className="bg-primary/10 p-3 rounded-full text-primary">
+                <FaMagnifyingGlass className="text-xl" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Search Results</h2>
+                <p className="text-gray-500 text-sm">Found {searchItems.length} items matching your search</p>
+              </div>
+            </div>
+
+            <Carousel opts={{ align: "start" }} className="w-full">
+              <CarouselContent className="-ml-4 py-4">
+                {searchItems.map((item) => (
+                  <CarouselItem key={item._id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                    <FoodCard data={item} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+
+              <CarouselPrevious className="left-2 bg-white/80 hover:bg-white text-primary border-primary/20 hover:border-primary shadow-lg h-9 w-9 md:h-11 md:w-11 md:left-0 md:-translate-x-1/2" />
+              <CarouselNext className="right-2 bg-white/80 hover:bg-white text-primary border-primary/20 hover:border-primary shadow-lg h-9 w-9 md:h-11 md:w-11 md:right-0 md:translate-x-1/2" />
+            </Carousel>
+          </section>
+        )}
+
+
+        {/* ------------- Categories ------------- */}
+        <section className="space-y-4 md:space-y-6">
+          <div className="flex justify-between items-end">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Categories</h2>
+              <p className="text-gray-500 font-medium mt-1 text-sm md:text-base">Explore our wide range of delicious options</p>
+            </div>
+          </div>
+
+          <Carousel opts={{ align: "start", dragFree: true }} className="w-full">
+            <CarouselContent className="-ml-3 py-4">
+              {categories.map((cate, index) => (
+                <CarouselItem key={index} className="basis-auto pl-6">
+                  <CategoryCard
+                    name={cate.category}
+                    image={cate.image}
+                    onClick={() => handleFilterByCategory(cate.category)}
+                    className={activeCategory === cate.category ? "ring-4 ring-primary ring-offset-2 scale-105" : ""}
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+
+            <CarouselPrevious className="flex -left-2 lg:-left-5 bg-white shadow-lg border-none text-primary hover:text-white hover:bg-primary transition-all rounded-full h-8 w-8 lg:h-12 lg:w-12" />
+            <CarouselNext className="flex -right-2 lg:-right-5 bg-white shadow-lg border-none text-primary hover:text-white hover:bg-primary transition-all rounded-full h-8 w-8 lg:h-12 lg:w-12" />
+          </Carousel>
+        </section>
+
+
+        {/* ------------- Best Shops ------------- */}
+        <section className="space-y-6 bg-gray-50 rounded-[24px] md:rounded-[32px] p-5 md:p-10 -mx-4 md:mx-0">
+          <div className="flex items-center justify-between px-2 md:px-0">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Top Restaurants</h2>
+              <p className="text-gray-500 font-medium mt-1 text-sm md:text-base">The best rated shops in {currentCity}</p>
+            </div>
+            <Button variant="outline" className="rounded-full hidden sm:flex border-gray-300">View All</Button>
+          </div>
+
+          {!shopsInMyCity ? (
+            <div className="flex gap-4 overflow-hidden px-2 md:px-0">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="w-[180px] h-[120px] md:w-[200px] md:h-[150px] rounded-xl shrink-0" />
+              ))}
+            </div>
           ) : (
-            filteredItemsList?.map((item, index) => (
-              <FoodCard key={index} data={item} />
-            ))
+            <Carousel opts={{ align: "start" }} className="w-full px-2 md:px-0">
+              <CarouselContent className="-ml-4 pb-4">
+                {shopsInMyCity.map((shop) => (
+                  <CarouselItem key={shop._id} className="basis-auto pl-4">
+                    <CategoryCard
+                      name={shop.name}
+                      image={shop.image}
+                      className="w-[200px] h-[130px] md:w-[240px] md:h-[160px] rounded-xl"
+                      onClick={() => navigate(`/shop/${shop._id}`)}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+
+              <CarouselPrevious className="flex -left-2 lg:-left-4 bg-white shadow-md text-gray-800 hover:bg-primary hover:text-white border-0 h-8 w-8 lg:h-10 lg:w-10" />
+              <CarouselNext className="flex -right-2 lg:-right-4 bg-white shadow-md text-gray-800 hover:bg-primary hover:text-white border-0 h-8 w-8 lg:h-10 lg:w-10" />
+            </Carousel>
           )}
-        </div>
+        </section>
+
+
+        {/* ------------- Food Items ------------- */}
+        <section id="recommended" className="space-y-8 scroll-mt-24">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                Recommended For You
+                <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded-full">{filteredItemsList?.length || 0} items</span>
+              </h2>
+            </div>
+
+            {activeCategory !== "All" && (
+              <div className="flex items-center gap-2 bg-orange-50 px-4 py-2 rounded-full border border-orange-100 w-fit">
+                <span className="text-sm font-medium text-gray-600">Filtering: <span className="font-bold text-primary">{activeCategory}</span></span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleFilterByCategory("All")}
+                  className="h-6 w-6 p-0 rounded-full hover:bg-white text-gray-400 hover:text-red-500"
+                >
+                  <FaX size={15} className="font-extrabold" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {filteredItemsList?.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[32px] border-2 border-dashed border-gray-100 text-center">
+              <div className="bg-gray-50 p-6 rounded-full mb-4">
+                <span className="text-4xl">🥗</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">No items found</h3>
+              <p className="text-gray-500 max-w-xs mx-auto mt-2 mb-6">
+                We couldn't find any items in the "{activeCategory}" category.
+              </p>
+              <Button onClick={() => handleFilterByCategory("All")} className="rounded-full px-8 font-bold">
+                View All Menu
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gap-y-10 justify-items-center sm:justify-items-stretch">
+              {filteredItemsList?.map((item) => (
+                <FoodCard key={item._id} data={item} />
+              ))}
+            </div>
+          )}
+        </section>
+
       </div>
-    </div>
+    </UserLayout>
   );
 };
 
