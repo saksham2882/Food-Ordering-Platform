@@ -37,12 +37,12 @@ const MyOrders = () => {
 
   useEffect(() => {
     socket?.on("newOrder", (data) => {
-      if (data.shopOrders?.owner._id == userData._id) {
-        dispatch(setMyOrders([data, ...myOrders]));
+      if (data.shopOrders?.owner._id === userData._id) {
+        dispatch(setMyOrders((prevOrders) => [data, ...prevOrders]));
       }
     });
     socket?.on("update-status", ({ orderId, shopId, status, userId }) => {
-      if (userData.role === "owner" || (userId === userData._id)) {
+      if (userData.role === "owner" || userId === userData._id) {
         dispatch(updateRealTimeOrderStatus({ orderId, shopId, status }));
       }
     });
@@ -50,7 +50,7 @@ const MyOrders = () => {
       socket?.off("newOrder");
       socket?.off("update-status")
     };
-  }, [socket, myOrders, userData, dispatch]);
+  }, [socket, userData, dispatch]);
 
 
   // ---------- Filtering & Sorting -----------

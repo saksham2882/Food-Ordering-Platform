@@ -8,9 +8,9 @@ const Home = () => {
 
   return (
     <>
-      {userData.role == "user" && <UserDashboard />}
-      {userData.role == "owner" && <OwnerDashboard />}
-      {userData.role == "deliveryBoy" && <DeliveryBoy />}
+      {userData.role === "user" && <UserDashboard />}
+      {userData.role === "owner" && <OwnerDashboard />}
+      {userData.role === "deliveryBoy" && <DeliveryBoy />}
     </>
   );
 };

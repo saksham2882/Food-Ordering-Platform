@@ -13,6 +13,7 @@ const useGetCurrentUser = () => {
         dispatch(setUserData(data))
       } catch (error) {
         console.log(error);
+      } finally {
         dispatch(setCheckingAuth(false))
       }
     }

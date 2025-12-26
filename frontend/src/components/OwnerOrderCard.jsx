@@ -28,7 +28,7 @@ const OwnerOrderCard = ({ data }) => {
     try {
       const res = await orderApi.updateOrderStatus(orderId, shopId, status);
       dispatch(updateOrderStatus({ orderId, shopId, status }));
-      setAvailableBoys(res.availableBoys);
+      setAvailableBoys(res.availableBoys || []);
       toast.success(`Order status updated to: ${status}`);
     } catch (error) {
       toast.error("Failed to update status");
@@ -37,9 +37,9 @@ const OwnerOrderCard = ({ data }) => {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString, locale = navigator.language || "en-GB") => {
     const date = new Date(dateString);
-    return date.toLocaleString("en-GB", {
+    return date.toLocaleString(locale, {
       day: "numeric",
       month: "short",
       year: "numeric",

@@ -9,6 +9,13 @@ const CategoryCard = ({ name, image, onClick, className }) => {
         className
       )}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          onClick?.(e);
+        }
+      }}
     >
       <div className="absolute inset-0 bg-gray-200">
         <img

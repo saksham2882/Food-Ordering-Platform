@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import debounce from "lodash.debounce";
 
 
 const Navbar = () => {
@@ -38,19 +39,26 @@ const Navbar = () => {
     }
   };
 
-  const handleSearchItems = async (searchQuery) => {
+  const debouncedSearch = useMemo(
+    () => debounce(async (searchQuery) => {
+        if (searchQuery.trim()) {
+          try {
+            const data = await shopApi.searchItems(searchQuery, currentCity);
+            dispatch(setSearchItems(data));
+          } catch (error) {
+            console.error(error);
+          }
+        } else {
+          dispatch(setSearchItems(null));
+        }
+      }, 300),
+    [currentCity, dispatch]
+  )
+
+  const handleSearchItems = useCallback(async (searchQuery) => {
     setQuery(searchQuery);
-    if (searchQuery.trim()) {
-      try {
-        const data = await shopApi.searchItems(searchQuery, currentCity);
-        dispatch(setSearchItems(data));
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      dispatch(setSearchItems(null));
-    }
-  };
+    debouncedSearch(searchQuery);
+  }, [debouncedSearch]);
 
   return (
     <>

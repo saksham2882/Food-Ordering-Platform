@@ -110,13 +110,21 @@ const FoodCard = ({ data }) => {
 
           {/* --------- Bottom Left - Rating --------- */}
           <div className="absolute bottom-4 left-4 z-10 flex items-center gap-2">
-            <Badge className="bg-yellow-400 hover:bg-yellow-500 text-black border-0 shadow-lg px-2 py-0.5 gap-1 font-bold">
-              <span className="text-sm">{data.rating?.average || 4.2}</span>
-              <FaStar className="size-3" />
-            </Badge>
-            <span className="text-xs text-gray-300 font-medium tracking-wide">
-              ({data.rating?.userCount || 24}+ reviews)
-            </span>
+            {data.rating?.average ? (
+              <>
+                <Badge className="bg-yellow-400 hover:bg-yellow-500 text-black border-0 shadow-lg px-2 py-0.5 gap-1 font-bold">
+                  <span className="text-sm">{data.rating.average}</span>
+                  <FaStar className="size-3" />
+                </Badge>
+                <span className="text-xs text-gray-300 font-medium tracking-wide">
+                  ({data.rating.userCount}+ reviews)
+                </span>
+              </>
+            ) : (
+              <Badge className="bg-white/90 text-gray-700 border-0 shadow-lg px-2 py-0.5 font-bold">
+                New
+              </Badge>
+            )}
           </div>
 
           {/* --------- Bottom Right - Time Estimate (Mock) --------- */}

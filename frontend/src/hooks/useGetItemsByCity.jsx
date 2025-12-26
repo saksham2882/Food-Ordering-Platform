@@ -12,7 +12,6 @@ const useGetItemsByCity = () => {
       try {
         const data = await shopApi.getItemsByCity(currentCity);
         dispatch(setItemsInMyCity(data));
-        console.log(data);
       } catch (error) {
         console.log(error);
       }

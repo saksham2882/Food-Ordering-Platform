@@ -154,8 +154,8 @@ const UserDashboard = () => {
           ) : (
             <Carousel opts={{ align: "start" }} className="w-full px-2 md:px-0">
               <CarouselContent className="-ml-4 pb-4">
-                {shopsInMyCity.map((shop, index) => (
-                  <CarouselItem key={index} className="basis-auto pl-4">
+                {shopsInMyCity.map((shop) => (
+                  <CarouselItem key={shop._id} className="basis-auto pl-4">
                     <CategoryCard
                       name={shop.name}
                       image={shop.image}
@@ -213,8 +213,8 @@ const UserDashboard = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gap-y-10 justify-items-center sm:justify-items-stretch">
-              {filteredItemsList?.map((item, index) => (
-                <FoodCard key={index} data={item} />
+              {filteredItemsList?.map((item) => (
+                <FoodCard key={item._id} data={item} />
               ))}
             </div>
           )}

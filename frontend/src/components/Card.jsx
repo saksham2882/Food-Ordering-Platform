@@ -82,7 +82,7 @@ const Card = ({ data }) => {
                   variant="ghost"
                   size="icon"
                   className="h-9 w-9 rounded-xl bg-white shadow-sm hover:shadow-md text-gray-400 hover:text-primary transition-all active:scale-95"
-                  onClick={() => dispatch(updateQuantity({ id: data.id, quantity: Math.max(1, data.quantity - 1) }))}
+                  onClick={() => dispatch(updateQuantity({ id: data.id, quantity: data.quantity - 1 }))}
                   disabled={data.quantity <= 1}
                 >
                   <FaMinus size={10} />

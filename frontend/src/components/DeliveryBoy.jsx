@@ -25,6 +25,21 @@ const chartConfig = {
   },
 };
 
+// View Components
+const StatsCard = ({ title, value, icon: Icon, colorClass }) => (
+  <Card className="border-none shadow-sm hover:shadow-lg transition-shadow bg-white/50 backdrop-blur-sm">
+    <CardContent className="p-6 flex items-center gap-4">
+      <div className={`p-3 rounded-full ${colorClass} bg-opacity-10`}>
+        <Icon className={`w-6 h-6 ${colorClass}`} />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <h3 className="text-2xl font-bold tracking-tight">{value}</h3>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 
 const DeliveryBoy = () => {
   const { userData, socket } = useSelector((state) => state.user);
@@ -101,7 +116,12 @@ const DeliveryBoy = () => {
         otp,
       });
       toast.success(data.message || "Order Delivered Successfully");
-      window.location.reload();
+      setCurrentOrder(null);
+      setShowOtpBox(false);
+      setOtp("");
+      setActiveTab("dashboard");
+      await getAssignments();
+      await handleTodayDeliveries();
     } catch (error) {
       console.error(error);
       toast.error(error?.response?.data?.message || error?.message || "Invalid OTP");
@@ -120,7 +140,7 @@ const DeliveryBoy = () => {
   // Socket & Location
   useEffect(() => {
     socket?.on("newAssignment", (data) => {
-      if (data.sentTo == userData._id) {
+      if (data.sentTo === userData._id) {
         // Prepend new assignment to show it first
         setAvailableAssignments((prev) => [data, ...prev]);
         toast.info("New order available nearby!");
@@ -158,21 +178,6 @@ const DeliveryBoy = () => {
     getCurrentOrder();
     handleTodayDeliveries();
   }, [userData]);
-
-  // View Components
-  const StatsCard = ({ title, value, icon: Icon, colorClass }) => (
-    <Card className="border-none shadow-sm hover:shadow-lg transition-shadow bg-white/50 backdrop-blur-sm">
-      <CardContent className="p-6 flex items-center gap-4">
-        <div className={`p-3 rounded-full ${colorClass} bg-opacity-10`}>
-          <Icon className={`w-6 h-6 ${colorClass}`} />
-        </div>
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <h3 className="text-2xl font-bold tracking-tight">{value}</h3>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">

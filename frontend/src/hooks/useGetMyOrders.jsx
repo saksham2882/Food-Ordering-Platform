@@ -11,7 +11,6 @@ const useGetMyOrders = () => {
     const fetchOrders = async () => {
       try {
         const data = await orderApi.getMyOrders();
-        console.log(data)
         dispatch(setMyOrders(data));
       } catch (error) {
         console.log(error);

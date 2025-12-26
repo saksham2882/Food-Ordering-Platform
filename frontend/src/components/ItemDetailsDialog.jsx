@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FaLeaf, FaDrumstickBite, FaStar, FaMinus, FaPlus, FaClock, FaFire, FaStore } from "react-icons/fa6";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/userSlice";
 
@@ -13,7 +13,7 @@ import { addToCart } from "../redux/userSlice";
 const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
     const dispatch = useDispatch();
     const { shopsInMyCity } = useSelector((state) => state.user);
-    const [quantity, setQuantity] = useState(cartItem ? cartItem.quantity : 1);
+    const [quantity, setQuantity] = useState(1);
 
     const shopDetails = shopsInMyCity?.find((s) => s._id === data?.shop);
     const shopName = shopDetails?.name || "FoodXpress Partner";
@@ -36,6 +36,10 @@ const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
     };
 
     if (!data) return null;
+
+    useEffect(() => {
+        setQuantity(cartItem ? cartItem.quantity : 1);
+    }, [cartItem?.quantity, data?._id]);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>

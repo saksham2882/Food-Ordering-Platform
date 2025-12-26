@@ -253,7 +253,7 @@ const OwnerDashboard = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredItems.map((item, index) => (
-                  <OwnerItemCard data={item} key={index} />
+                  <OwnerItemCard data={item} key={item._id || item.id || index} />
                 ))}
               </div>
             )}

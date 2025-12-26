@@ -71,6 +71,10 @@ const AddItem = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (price <= 0) {
+      toast.error("Price must be greater than 0");
+      return;
+    }
     if (!name || !price || !image || !category || !foodType) {
       toast.error("Please fill all fields");
       return;

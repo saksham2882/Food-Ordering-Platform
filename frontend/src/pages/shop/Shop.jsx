@@ -37,10 +37,7 @@ const Shop = () => {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      handleShop();
-    }, 800);
-    return () => clearTimeout(timer);
+    handleShop();
   }, [shopId]);
 
   // ------ Filter -------

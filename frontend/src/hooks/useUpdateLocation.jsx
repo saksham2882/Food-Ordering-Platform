@@ -19,9 +19,17 @@ const useUpdateLocation = () => {
     // navigator.geolocation.watchPosition() continuously watches for location updates
 
     if (userData) {
-      navigator.geolocation.watchPosition((pos) => {
-        updateLocation(pos.coords.latitude, pos.coords.longitude);
-      });
+      const watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          updateLocation(pos.coords.latitude, pos.coords.longitude);
+        },
+        (error) => {
+          console.error("Geolocation error", error);
+        }
+      );
+      return () => {
+        navigator.geolocation.clearWatch(watchId);
+      };
     }
 
   }, [userData]);

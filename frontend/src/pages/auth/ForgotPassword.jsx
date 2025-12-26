@@ -62,7 +62,11 @@ const ForgotPassword = () => {
       toast.info("Please provide all fields");
       return;
     }
-    if (newPassword != confirmPassword) {
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
       toast.info("Confirm Password not matched");
       return null;
     }

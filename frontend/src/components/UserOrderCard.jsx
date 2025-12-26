@@ -19,7 +19,18 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 const UserOrderCard = ({ data }) => {
   const navigate = useNavigate();
-  const [selectedRating, setSelectedRating] = useState({});
+  
+  const [selectedRating, setSelectedRating] = useState(() => {
+    const initial = {};
+    data.shopOrders?.forEach((so) => {
+      so.shopOrderItems?.forEach((item) => {
+        if (item.userRating) {
+          initial[item.item._id] = item.userRating;
+        }
+      });
+    });
+    return initial;
+  });
 
   const formatDate = (dateString, type = "full") => {
     const date = new Date(dateString);

@@ -28,6 +28,10 @@ const SignUp = () => {
   const dispatch = useDispatch();
 
   const handleSignUp = async () => {
+    if (!fullName.trim() || !email.trim() || !password.trim()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
     setLoading(true);
     try {
       const data = await authApi.signup({ fullName, email, password, mobile, role });
@@ -36,6 +40,7 @@ const SignUp = () => {
       navigate("/home");
     } catch (error) {
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally {
       setLoading(false);
     }
   };

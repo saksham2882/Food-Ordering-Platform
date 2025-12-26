@@ -12,7 +12,6 @@ const useGetShopByCity = () => {
       try {
         const data = await shopApi.getShopsByCity(currentCity);
         dispatch(setShopsInMyCity(data));
-        console.log(data)
       } catch (error) {
         console.log(error);
       }

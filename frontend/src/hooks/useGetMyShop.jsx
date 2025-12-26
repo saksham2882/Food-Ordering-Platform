@@ -20,7 +20,7 @@ const useGetMyShop = () => {
     if (userData) {
       fetchShop();
     }
-  }, [userData]);
+  }, [userData, dispatch]);
 };
 
 export default useGetMyShop;

@@ -64,8 +64,7 @@ const CheckOut = () => {
         mobile: userData.mobile || "",
         street: address || ""
       }));
-      // Simulate loading data fetch delay
-      setTimeout(() => setPageLoading(false), 800);
+      setPageLoading(false);
     }
   }, [userData, address]);
 
@@ -86,7 +85,12 @@ const CheckOut = () => {
   const getAddressByLatLng = async (lat, lng) => {
     try {
       const data = await cityApi.getReverseGeocoding(lat, lng);
-      const formattedAddress = data?.results[0].formatted || data?.results[0].address_line2;
+      const result = data?.results?.[0];
+      if (!result) {
+        toast.error("Could not determine address for this location");
+        return;
+      }
+      const formattedAddress = result.formatted || result.address_line2;
       dispatch(setAddress(formattedAddress));
       setAddressDetails(prev => ({ ...prev, street: formattedAddress }));
     } catch (error) {
@@ -118,7 +122,7 @@ const CheckOut = () => {
   const validateForm = () => {
     if (!addressDetails.street) return "Please enter a delivery address";
     if (!addressDetails.houseNo) return "House or Flat number is required";
-    if (!addressDetails.mobile || addressDetails.mobile.length < 10 || addressDetails.mobile.length > 10) return "Valid mobile number is required";
+    if (!addressDetails.mobile || !/^\d{10}$/.test(addressDetails.mobile)) return "Valid 10-digit mobile number is required";
     return null;
   };
 
@@ -167,6 +171,10 @@ const CheckOut = () => {
 
   // Razorpay Payment
   const openRazorpayWindow = (orderId, razorOrder) => {
+    if (!window.Razorpay) {
+      toast.error("Payment gateway not available. Please try again.");
+      return;
+    }
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: razorOrder.amount,

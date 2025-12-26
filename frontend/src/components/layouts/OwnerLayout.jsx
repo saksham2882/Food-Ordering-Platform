@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { FaStore, FaPlus, FaPen, FaBars, FaChartPie, FaUser, FaRightFromBracket, FaBoxOpen } from "react-icons/fa6";
@@ -11,6 +11,12 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import Footer from "../common/Footer";
 import { setUserData } from "@/redux/userSlice";
 
+const navItems = [
+    { name: "Dashboard", icon: <FaChartPie />, path: "/home" },
+    { name: "Orders", icon: <FaBoxOpen />, path: "/my-orders" },
+    { name: "Add Item", icon: <FaPlus />, path: "/add-item" },
+    { name: "Edit Shop", icon: <FaPen />, path: "/create-edit-shop" },
+];
 
 const OwnerLayout = ({ children }) => {
     const { userData } = useSelector((state) => state.user);
@@ -19,13 +25,6 @@ const OwnerLayout = ({ children }) => {
     const dispatch = useDispatch();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showLogoutAlert, setShowLogoutAlert] = useState(false);
-
-    const navItems = [
-        { name: "Dashboard", icon: <FaChartPie />, path: "/home" },
-        { name: "Orders", icon: <FaBoxOpen />, path: "/my-orders" },
-        { name: "Add Item", icon: <FaPlus />, path: "/add-item" },
-        { name: "Edit Shop", icon: <FaPen />, path: "/create-edit-shop" },
-    ];
 
     const handleLogout = () => {
         dispatch(setUserData(null));
@@ -36,7 +35,7 @@ const OwnerLayout = ({ children }) => {
     };
 
     // -------- Sidebar Content --------
-    const SidebarContent = () => (
+    const SidebarContent = useCallback(() => (
         <div className="flex flex-col h-full bg-slate-900 text-white border-r border-slate-800">
             {/* ------------- Logo / Shop Header ------------- */}
             <div className="p-6">
@@ -136,7 +135,7 @@ const OwnerLayout = ({ children }) => {
                 </DropdownMenu>
             </div>
         </div>
-    );
+    ), [location.pathname, userData, navigate]);
 
 
     return (
