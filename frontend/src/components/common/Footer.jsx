@@ -16,16 +16,16 @@ const Footer = () => {
             </p>
 
             <div className="flex gap-4 pt-2">
-              <a href="#" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="#" aria-label="Facebook" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="#" aria-label="Twitter" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <Twitter size={20} />
               </a>
-              <a href="#" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="#" aria-label="Instagram" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="#" aria-label="LinkedIn" className="bg-gray-800 p-2 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <Linkedin size={20} />
               </a>
             </div>
