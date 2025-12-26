@@ -33,6 +33,7 @@
     "firebase": "^12.2.1",
     "input-otp": "^1.4.2",
     "leaflet": "^1.9.4",
+    "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.562.0",
     "path": "^0.12.7",
     "react": "^19.1.1",
