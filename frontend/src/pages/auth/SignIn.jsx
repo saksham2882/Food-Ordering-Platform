@@ -50,7 +50,6 @@ const SignIn = () => {
 
   const handleGoogleAuth = async () => {
     const provider = new GoogleAuthProvider();
-    setLoading(true)
     try {
       const res = await signInWithPopup(auth, provider);
       const data = await authApi.googleAuth({
@@ -63,8 +62,6 @@ const SignIn = () => {
     } catch (error) {
       console.log(error)
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally {
-      setLoading(false)
     }
   };
 
@@ -143,7 +140,7 @@ const SignIn = () => {
         </div>
 
         <Button variant="outline" type="button" disabled={loading} onClick={handleGoogleAuth} className="w-full">
-          <FcGoogle className="mr-2 h-4 w-4" />
+          <FcGoogle className="mr-1 h-4 w-4" />
           Google
         </Button>
       </div>

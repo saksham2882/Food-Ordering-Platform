@@ -4,9 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const AuthLayout = ({ children, title, subtitle }) => {
     return (
-        <div className="min-h-screen w-full lg:grid lg:grid-cols-2">
+        <div className="h-screen w-full lg:grid lg:grid-cols-2 overflow-hidden">
             {/* ---------------- Left Side -------------*/}
-            <div className="hidden lg:flex flex-col relative bg-zinc-900 text-white dark:border-r">
+            <div className="hidden lg:flex flex-col relative bg-zinc-900 text-white dark:border-r h-full">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-50" />
                 <div className="relative z-20 flex items-center text-lg font-medium p-8">
                     <img src="/logo.svg" alt="Logo" className="w-10 h-10 mr-2" onError={(e) => e.target.style.display = 'none'} />
@@ -40,15 +40,19 @@ const AuthLayout = ({ children, title, subtitle }) => {
             </div>
 
             {/* ---------------- Right Side----------------*/}
-            <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-background">
-                <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
-                    <div className="flex flex-col space-y-2 text-center">
-                        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-                        <p className="text-sm text-muted-foreground">
-                            {subtitle}
-                        </p>
+            <div className="h-full overflow-y-auto bg-background">
+                <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
+                        <div className="flex flex-col space-y-2 text-center">
+                            <h1 className="text-3xl font-bold tracking-tight">
+                                {title}
+                            </h1>
+                            <p className="text-sm text-muted-foreground">
+                                {subtitle}
+                            </p>
+                        </div>
+                        {children}
                     </div>
-                    {children}
                 </div>
             </div>
         </div>

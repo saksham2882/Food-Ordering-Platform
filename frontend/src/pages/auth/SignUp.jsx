@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { FaRegEye, FaRegEyeSlash, FaUser, FaStore, FaBicycle } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -22,7 +22,7 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [mobile, setMobile] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role] = useState("user");
+  const [role, setRole] = useState("user");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -47,7 +47,6 @@ const SignUp = () => {
 
   const handleGoogleAuth = async () => {
     const provider = new GoogleAuthProvider();
-    setLoading(true);
     try {
       const res = await signInWithPopup(auth, provider);
       const data = await authApi.googleAuth({
@@ -57,12 +56,10 @@ const SignUp = () => {
         mobile: mobile || "",
       });
       dispatch(setUserData(data.user || data));
-      toast.success("User Registered Successfully");
+      toast.success(data.message || "User Registered Successfully");
       navigate("/home");
     } catch (error) {
       toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -78,7 +75,38 @@ const SignUp = () => {
         </TabsList>
       </Tabs>
 
-      <div className="grid gap-6">
+      <div className="grid gap-5">
+        {/* ----------- Role Selection -----------*/}
+        <div className="grid gap-3">
+          <Label>I want to join as</Label>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div
+              className={`flex flex-col items-center justify-center gap-1 p-2 border rounded-xl cursor-pointer transition-all hover:bg-accent ${role === "user" ? "border-primary bg-primary/5 ring-1 ring-primary" : ""}`}
+              onClick={() => setRole("user")}
+            >
+              <FaUser className={`h-4 w-4 ${role === "user" ? "text-primary" : "text-muted-foreground"}`} />
+              <span className={`text-xs font-medium ${role === "user" ? "text-primary" : "text-muted-foreground"}`}>User</span>
+            </div>
+
+            <div
+              className={`flex flex-col items-center justify-center gap-1 p-2 border rounded-xl cursor-pointer transition-all hover:bg-accent ${role === "owner" ? "border-primary bg-primary/5 ring-1 ring-primary" : ""}`}
+              onClick={() => setRole("owner")}
+            >
+              <FaStore className={`h-4 w-4 ${role === "owner" ? "text-primary" : "text-muted-foreground"}`} />
+              <span className={`text-xs font-medium ${role === "owner" ? "text-primary" : "text-muted-foreground"}`}>Restaurant</span>
+            </div>
+
+            <div
+              className={`flex flex-col items-center justify-center gap-1 p-2 border rounded-xl cursor-pointer transition-all hover:bg-accent ${role === "deliveryBoy" ? "border-primary bg-primary/5 ring-1 ring-primary" : ""}`}
+              onClick={() => setRole("deliveryBoy")}
+            >
+              <FaBicycle className={`h-5 w-5 ${role === "deliveryBoy" ? "text-primary" : "text-muted-foreground"}`} />
+              <span className={`text-xs font-medium ${role === "deliveryBoy" ? "text-primary" : "text-muted-foreground"}`}>Delivery</span>
+            </div>
+          </div>
+        </div>
+
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="fullName">Full Name</Label>
@@ -114,7 +142,7 @@ const SignUp = () => {
             />
           </div>
 
-          <div className="grid gap-2">
+          <div className="grid gap-1.5">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
               <Input
@@ -153,7 +181,7 @@ const SignUp = () => {
         </div>
 
         <Button variant="outline" type="button" disabled={loading} onClick={handleGoogleAuth} className="w-full">
-          <FcGoogle className="mr-2 h-4 w-4" />
+          <FcGoogle className="mr-1 h-4 w-4" />
           Google
         </Button>
       </div>
