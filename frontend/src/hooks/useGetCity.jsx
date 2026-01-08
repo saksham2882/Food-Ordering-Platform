@@ -36,15 +36,16 @@ const useGetCity = () => {
         console.error("Error fetching city data:", error);
       }
     },
-    // if geolocation is not available
-    (error) => {
-      console.error("Geolocation error", error);
-      dispatch(setCurrentCity("Greater Noida"));
-      dispatch(setCurrentState("Uttar Pradesh"));
-      dispatch(setCurrentAddress("Greater Noida"));
-      dispatch(setAddress("Greater Noida"));
-    }
-  );
+      // if geolocation is not available
+      (error) => {
+        console.error("Geolocation error", error);
+        dispatch(setLocation({ lat: 28.4744, lon: 77.5040 }));
+        dispatch(setCurrentCity("Greater Noida"));
+        dispatch(setCurrentState("Uttar Pradesh"));
+        dispatch(setCurrentAddress("Greater Noida"));
+        dispatch(setAddress("Greater Noida"));
+      }
+    );
   }, [userData, currentCity]);
 };
 

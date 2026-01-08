@@ -15,6 +15,7 @@ import useGetItemsByCity from "../hooks/useGetItemsByCity";
 import useUpdateLocation from "../hooks/useUpdateLocation";
 import UserLayout from "./layouts/UserLayout";
 import { setCurrentCity } from "../redux/userSlice";
+import { setLocation } from "../redux/mapSlice";
 import { FaStore } from "react-icons/fa";
 
 
@@ -202,7 +203,10 @@ const UserDashboard = () => {
               </DialogHeader>
               <div className="flex flex-col gap-3 mt-4">
                 <Button
-                  onClick={() => dispatch(setCurrentCity("Greater Noida"))}
+                  onClick={() => {
+                    dispatch(setLocation({ lat: 28.4744, lon: 77.5040 }));
+                    dispatch(setCurrentCity("Greater Noida"));
+                  }}
                   className="w-full rounded-full font-bold shadow-lg shadow-primary/20"
                 >
                   View Demo Location (Greater Noida)

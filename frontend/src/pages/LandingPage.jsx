@@ -239,7 +239,7 @@ const LandingPage = () => {
                                     </Button>
 
                                     <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0 hidden md:block">
-                                        <Button className="w-full rounded-full bg-white text-gray-900 hover:bg-primary hover:text-white shadow-lg font-semibold" onClick={() => navigate("/signup")}>
+                                        <Button className="w-full rounded-full bg-white text-gray-900 hover:bg-primary hover:text-white shadow-lg font-semibold" onClick={() => navigate("/home")}>
                                             Order Now
                                         </Button>
                                     </div>
