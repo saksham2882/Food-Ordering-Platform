@@ -20,6 +20,9 @@ import { io } from "socket.io-client"
 import { setSocket } from "./redux/userSlice"
 import LandingPage from "./pages/LandingPage"
 import ProtectedLayout from "./components/layouts/ProtectedLayout"
+import GuestFriendlyLayout from "./components/layouts/GuestFriendlyLayout"
+import Profile from "./pages/Profile"
+import ScrollToTop from "./components/ScrollToTop"
 
 // Server URL
 if (!import.meta.env.VITE_SERVER_URL) {
@@ -46,16 +49,10 @@ const App = () => {
     }
   }, [userData?._id])
 
-  if (isCheckingAuth) {
-    return (
-      <div className="w-full h-screen flex justify-center items-center bg-bg">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
     <>
+      <ScrollToTop />
       <Toaster position="top-center" />
       <Routes>
         {/* ----------- Public Routes ----------- */}
@@ -73,9 +70,15 @@ const App = () => {
           element={!userData ? <ForgotPassword /> : <Navigate to={"/home"} />}
         />
 
+        {/* ----------- Guest Friendly Routes ----------- */}
+        <Route element={<GuestFriendlyLayout />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/shop/:shopId" element={<Shop />} />
+        </Route>
+
         {/* ----------- Protected Routes ----------- */}
         <Route element={<ProtectedLayout />}>
-          <Route path="/home" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/create-edit-shop" element={<CreateEditShop />} />
           <Route path="/add-item" element={<AddItem />} />
           <Route path="/edit-item/:itemId" element={<EditItem />} />
@@ -84,7 +87,6 @@ const App = () => {
           <Route path="/order-placed" element={<OrderPlaced />} />
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/track-order/:orderId" element={<TrackOrderPage />} />
-          <Route path="/shop/:shopId" element={<Shop />} />
         </Route>
       </Routes>
     </>

@@ -2,9 +2,9 @@ import { z } from "zod";
 
 // User Schemas
 export const signUpSchema = z.object({
-    fullName: z.string().min(2, "FullName must be at least 2 characters"),
+    fullName: z.string().min(2, "FullName must be at least 2 characters").max(100, "Full name too long"),
     email: z.string().email("Invalid email format"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z.string().min(8, "Password must be at least 8 characters").max(72, "Password too long"),
     mobile: z.string().regex(/^[0-9]{10}$/, "Mobile number must be 10 digits"),
     role: z.enum(["user", "owner", "deliveryBoy"])
 });
@@ -16,7 +16,17 @@ export const signInSchema = z.object({
 
 export const resetPasswordSchema = z.object({
     email: z.string().email("Invalid email format"),
-    newPassword: z.string().min(8, "Password must be at least 8 characters")
+    newPassword: z.string().min(8, "Password must be at least 8 characters").max(72, "Password too long")
+});
+
+export const changePasswordSchema = z.object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z.string().min(8, "New password must be at least 8 characters").max(72, "Password too long")
+});
+
+export const updateProfileSchema = z.object({
+    fullName: z.string().min(2, "Full name must be at least 2 characters").max(100, "Full name too long"),
+    mobile: z.string().regex(/^[0-9]{10}$/, "Mobile number must be exactly 10 digits")
 });
 
 

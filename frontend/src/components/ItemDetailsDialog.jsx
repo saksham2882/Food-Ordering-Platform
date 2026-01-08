@@ -4,16 +4,20 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FaLeaf, FaDrumstickBite, FaStar, FaMinus, FaPlus, FaClock, FaFire, FaStore } from "react-icons/fa6";
+import { FaLeaf, FaDrumstickBite, FaStar, FaMinus, FaPlus, FaClock, FaFire, FaStore, FaLock, FaArrowRightToBracket } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/userSlice";
+import { useNavigate } from "react-router-dom";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 
 const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
     const dispatch = useDispatch();
-    const { shopsInMyCity } = useSelector((state) => state.user);
+    const navigate = useNavigate();
+    const { shopsInMyCity, userData } = useSelector((state) => state.user);
     const [quantity, setQuantity] = useState(1);
+    const [showLoginDialog, setShowLoginDialog] = useState(false);
 
     const shopDetails = shopsInMyCity?.find((s) => s._id === data?.shop);
     const shopName = shopDetails?.name || "FoodXpress Partner";
@@ -25,6 +29,11 @@ const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
     }, [cartItem?.quantity, data?._id]);
 
     const handleAddToCart = () => {
+        if (!userData) {
+            setShowLoginDialog(true);
+            return;
+        }
+
         dispatch(
             addToCart({
                 id: data._id,
@@ -280,6 +289,41 @@ const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
                     </div>
                 </div>
             </DialogContent>
+
+            {/* ------------- Login Dialog------------- */}
+            <AlertDialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+                <AlertDialogContent className="rounded-3xl border-none shadow-2xl max-w-sm bg-white p-8">
+                    <AlertDialogHeader className="flex flex-col items-center text-center space-y-4">
+                        <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center shadow-inner group mb-2">
+                            <FaLock className="size-7 text-primary group-hover:scale-110 transition-transform duration-300" />
+                        </div>
+
+                        <div className="space-y-2">
+                            <AlertDialogTitle className="text-2xl font-bold text-gray-900 tracking-tight">
+                                Login Required
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="text-gray-500 font-medium text-base leading-relaxed">
+                                Hey foodie! You need to be logged in to add tasty items to your cart.
+                            </AlertDialogDescription>
+                        </div>
+                    </AlertDialogHeader>
+
+                    <AlertDialogFooter className="flex flex-col sm:flex-col gap-3 w-full mt-6">
+                        <AlertDialogAction
+                            onClick={() => {
+                                setShowLoginDialog(false);
+                                navigate("/signin");
+                            }}
+                            className="w-full rounded-xl bg-primary hover:bg-orange-600 text-white font-bold h-12 text-base shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                        >
+                            Login to Order <FaArrowRightToBracket className="size-4" />
+                        </AlertDialogAction>
+                        <AlertDialogCancel className="w-full rounded-xl border-gray-200 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold h-12 m-0 border-0">
+                            Maybe Later
+                        </AlertDialogCancel>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </Dialog>
     );
 };

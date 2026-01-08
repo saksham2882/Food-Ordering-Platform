@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaLeaf, FaDrumstickBite, FaStar, FaPlus, FaMinus, FaHeart, FaRegHeart, FaClock, FaStore } from "react-icons/fa6";
+import { FaLeaf, FaDrumstickBite, FaStar, FaPlus, FaMinus, FaHeart, FaRegHeart, FaClock, FaStore, FaLock, FaArrowRightToBracket } from "react-icons/fa6";
 import { addToCart, removeCartItem, updateQuantity } from "../redux/userSlice";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,14 +8,18 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import ItemDetailsDialog from "./ItemDetailsDialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const FoodCard = ({ data }) => {
   const dispatch = useDispatch();
-  const { cartItems, shopsInMyCity } = useSelector((state) => state.user);
+  const { cartItems, shopsInMyCity, userData } = useSelector((state) => state.user);
   const [showDetails, setShowDetails] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const navigate = useNavigate();
 
   const cartItem = cartItems.find((item) => item.id === data._id);
   const isInCart = !!cartItem;
@@ -26,6 +30,10 @@ const FoodCard = ({ data }) => {
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
+    if (!userData) {
+      setShowLoginDialog(true);
+      return;
+    }
     dispatch(
       addToCart({
         id: data._id,
@@ -232,6 +240,38 @@ const FoodCard = ({ data }) => {
         data={data}
         cartItem={cartItem}
       />
+
+      {/* ------------- Login Dialog------------- */}
+      <AlertDialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <AlertDialogContent className="rounded-3xl border-none shadow-2xl max-w-sm bg-white p-8">
+          <AlertDialogHeader className="flex flex-col items-center text-center space-y-4">
+            <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center shadow-inner group mb-2">
+              <FaLock className="size-7 text-primary group-hover:scale-110 transition-transform duration-300" />
+            </div>
+
+            <div className="space-y-2">
+              <AlertDialogTitle className="text-2xl font-bold text-gray-900 tracking-tight">
+                Login Required
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-500 font-medium text-base leading-relaxed">
+                Hey foodie! You need to be logged in to add tasty items to your cart.
+              </AlertDialogDescription>
+            </div>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter className="flex flex-col sm:flex-col gap-3 w-full mt-4">
+            <AlertDialogAction
+              onClick={() => navigate("/signin")}
+              className="w-full rounded-xl bg-primary hover:bg-orange-600 text-white font-bold h-12 text-base shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-98 flex items-center justify-center gap-2"
+            >
+              Login to Order <FaArrowRightToBracket className="size-4" />
+            </AlertDialogAction>
+            <AlertDialogCancel className="w-full rounded-xl border-gray-200 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold h-12 m-0 border-0">
+              Maybe Later
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

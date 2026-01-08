@@ -143,6 +143,21 @@ const SignIn = () => {
           <FcGoogle className="mr-1 h-4 w-4" />
           Google
         </Button>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <Separator />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or
+            </span>
+          </div>
+        </div>
+
+        <Button variant="ghost" onClick={() => navigate("/home")} className="w-full font-semibold border-2 border-gray-100 text-gray-700 bg-primary/5 hover:bg-primary/10 mb-2">
+          Continue as Guest
+        </Button>
       </div>
     </AuthLayout>
   );

@@ -10,6 +10,24 @@ const userApi = {
         );
         return res.data;
     },
+
+    updateProfile: async (data) => {
+        const res = await axios.put(
+            `${SERVER_URL}/api/user/update-profile`,
+            data,
+            { withCredentials: true }
+        );
+        return res.data;
+    },
+
+    changePassword: async (data) => {
+        const res = await axios.put(
+            `${SERVER_URL}/api/user/change-password`,
+            data,
+            { withCredentials: true }
+        );
+        return res.data;
+    },
 };
 
 export default userApi;

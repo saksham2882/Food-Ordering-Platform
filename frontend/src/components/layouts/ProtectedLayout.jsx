@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
-import { Spinner } from "../ui/spinner";
 
 const ProtectedLayout = () => {
   const { userData, isCheckingAuth } = useSelector((state) => state.user);
@@ -8,7 +7,7 @@ const ProtectedLayout = () => {
   if (isCheckingAuth) {
     return (
       <div className="w-full h-screen flex justify-center items-center bg-bg">
-        <Spinner className="w-10 h-10 text-primary" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }

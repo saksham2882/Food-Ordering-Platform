@@ -6,9 +6,11 @@ import cityApi from "../api/cityApi";
 
 const useGetCity = () => {
   const dispatch = useDispatch();
-  const { userData } = useSelector((state) => state.user);
+  const { userData, currentCity } = useSelector((state) => state.user);
 
   useEffect(() => {
+    if (currentCity) return;
+
     navigator.geolocation.getCurrentPosition(async (position) => {
       // console.log(position)
 
@@ -33,8 +35,18 @@ const useGetCity = () => {
       } catch (error) {
         console.error("Error fetching city data:", error);
       }
-    });
-  }, [userData]);
+    },
+      // if geolocation is not available
+      (error) => {
+        console.error("Geolocation error", error);
+        dispatch(setLocation({ lat: 28.4744, lon: 77.5040 }));
+        dispatch(setCurrentCity("Greater Noida"));
+        dispatch(setCurrentState("Uttar Pradesh"));
+        dispatch(setCurrentAddress("Greater Noida"));
+        dispatch(setAddress("Greater Noida"));
+      }
+    );
+  }, [userData, currentCity]);
 };
 
 export default useGetCity;

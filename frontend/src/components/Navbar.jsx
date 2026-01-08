@@ -98,7 +98,6 @@ const Navbar = () => {
                     {userData && (
                       <div className="flex items-center gap-3 px-2 py-4 bg-gray-50 rounded-xl mb-2">
                         <Avatar className="size-10 border-2 border-white shadow-sm">
-                          <AvatarImage src={userData?.profileImage} />
                           <AvatarFallback className="bg-primary text-white font-bold">
                             {userData?.fullName?.charAt(0).toUpperCase()}
                           </AvatarFallback>
@@ -121,32 +120,44 @@ const Navbar = () => {
                     >
                       <FaLocationDot className="text-gray-400" /> Home
                     </Button>
-                    <Button
-                      variant="ghost"
-                      className="justify-start gap-3 h-12 text-base font-medium"
-                      onClick={() => navigate("/profile")}
-                    >
-                      <FaUser className="text-gray-400" /> Profile
-                    </Button>
-                    {userData?.role !== "deliveryBoy" && (
+
+                    {userData ? (
+                      <>
+                        <Button
+                          variant="ghost"
+                          className="justify-start gap-3 h-12 text-base font-medium"
+                          onClick={() => navigate("/profile")}
+                        >
+                          <FaUser className="text-gray-400" /> Profile
+                        </Button>
+                        {userData?.role !== "deliveryBoy" && (
+                          <Button
+                            variant="ghost"
+                            className="justify-start gap-3 h-12 text-base font-medium"
+                            onClick={() => navigate("/my-orders")}
+                          >
+                            <FaReceipt className="text-gray-400" /> My Orders
+                          </Button>
+                        )}
+
+                        <div className="h-px bg-gray-100 my-2" />
+
+                        <Button
+                          variant="ghost"
+                          className="justify-start gap-3 h-12 text-base font-medium text-red-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => setShowLogoutConfirm(true)}
+                        >
+                          Log out
+                        </Button>
+                      </>
+                    ) : (
                       <Button
-                        variant="ghost"
-                        className="justify-start gap-3 h-12 text-base font-medium"
-                        onClick={() => navigate("/my-orders")}
+                        onClick={() => navigate("/signin")}
+                        className="rounded-full w-full font-bold shadow-lg shadow-primary/20 mt-4"
                       >
-                        <FaReceipt className="text-gray-400" /> My Orders
+                        Sign In
                       </Button>
                     )}
-
-                    <div className="h-px bg-gray-100 my-2" />
-
-                    <Button
-                      variant="ghost"
-                      className="justify-start gap-3 h-12 text-base font-medium text-red-500 hover:text-red-600 hover:bg-red-50"
-                      onClick={() => setShowLogoutConfirm(true)}
-                    >
-                      Log out
-                    </Button>
                   </div>
                 </div>
               </SheetContent>
@@ -154,7 +165,7 @@ const Navbar = () => {
 
             <div
               className="text-2xl font-black tracking-tighter text-primary cursor-pointer select-none"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/home")}
             >
               <img src="/logo.svg" alt="FoodXpress" width={160} height={160} />
             </div>
@@ -162,7 +173,7 @@ const Navbar = () => {
 
 
           {/* -------------- Search Bar - Desktop --------------  */}
-          {userData?.role === "user" && location.pathname !== "/checkout" && location.pathname !== "/my-orders" && (
+          {userData?.role === "user" && location.pathname === "/home" && (
             <div className="hidden md:flex flex-1 max-w-2xl mx-8 items-center relative group">
               <div className="absolute inset-0 bg-gray-100 rounded-full transition-colors group-hover:bg-gray-100/80" />
               <div className="relative flex items-center w-full h-11 px-1">
@@ -229,7 +240,7 @@ const Navbar = () => {
 
 
             {/* ------------ Mobile Search Toggle ------------ */}
-            {userData?.role === "user" && location.pathname !== "/checkout" && location.pathname !== "/my-orders" && (
+            {userData?.role === "user" && location.pathname === "/home" && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -304,7 +315,7 @@ const Navbar = () => {
               </DropdownMenu>
             ) : (
               <Button
-                onClick={() => navigate("/login")}
+                onClick={() => navigate("/signin")}
                 className="rounded-full px-6 font-bold shadow-primary/30 shadow-lg"
               >
                 Sign In
@@ -314,7 +325,7 @@ const Navbar = () => {
         </div>
 
         {/* ------------ Mobile Search Bar ------------ */}
-        {showMobileSearch && userData?.role === "user" && location.pathname !== "/checkout" && location.pathname !== "/my-orders" && (
+        {showMobileSearch && userData?.role === "user" && location.pathname === "/home" && (
           <div className="md:hidden w-full px-4 pb-4 animate-in slide-in-from-top-2">
             <div className="relative flex items-center w-full h-12 px-1 bg-gray-100 rounded-full">
               <FaMagnifyingGlass className="ml-4 text-gray-400 text-sm" />

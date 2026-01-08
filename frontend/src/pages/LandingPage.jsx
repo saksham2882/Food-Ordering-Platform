@@ -84,10 +84,10 @@ const LandingPage = () => {
                             Order from the best local restaurants with easy, on-demand delivery. Freshness guaranteed.
                         </p>
                         <div className="flex flex-wrap gap-4">
-                            <Button size="lg" className="rounded-full h-14 px-8 text-lg shadow-lg shadow-primary/25 hover:shadow-primary/50 transition-shadow" onClick={() => navigate("/signup")}>
+                            <Button size="lg" className="rounded-full h-14 px-8 text-lg shadow-lg shadow-primary/25 hover:shadow-primary/50 transition-shadow" onClick={() => navigate("/home")}>
                                 Order Now <ArrowRight className="ml-2 h-5 w-5" />
                             </Button>
-                            <Button size="lg" variant="outline" className="rounded-full h-14 px-8 text-lg border-2 hover:border-primary transition-colors" onClick={() => navigate("/signup")}>
+                            <Button size="lg" variant="outline" className="rounded-full h-14 px-8 text-lg border-2 hover:border-primary transition-colors" onClick={() => navigate("/home")}>
                                 View Menu
                             </Button>
                         </div>
@@ -239,7 +239,7 @@ const LandingPage = () => {
                                     </Button>
 
                                     <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0 hidden md:block">
-                                        <Button className="w-full rounded-full bg-white text-gray-900 hover:bg-primary hover:text-white shadow-lg font-semibold" onClick={() => navigate("/signup")}>
+                                        <Button className="w-full rounded-full bg-white text-gray-900 hover:bg-primary hover:text-white shadow-lg font-semibold" onClick={() => navigate("/home")}>
                                             Order Now
                                         </Button>
                                     </div>
@@ -251,10 +251,10 @@ const LandingPage = () => {
                                     <p className="text-sm text-gray-500 mb-4 line-clamp-2">Delicious Indian cuisine prepared with authentic spices and fresh ingredients.</p>
                                     <div className="flex justify-between items-center pt-2 border-t border-gray-50">
                                         <span className="text-2xl font-black text-gray-900">{dish.price}</span>
-                                        <Button size="sm" className="rounded-full px-5 bg-orange-100 text-primary hover:bg-primary hover:text-white font-bold md:hidden" onClick={() => navigate("/signup")}>
+                                        <Button size="sm" className="rounded-full px-5 bg-orange-100 text-primary hover:bg-primary hover:text-white font-bold md:hidden" onClick={() => navigate("/home")}>
                                             <ShoppingBag size={16} className="mr-2" /> Add
                                         </Button>
-                                        <Button size="icon" className="rounded-full bg-gray-900 text-white hover:bg-primary shadow-md w-10 h-10 hidden md:flex" onClick={() => navigate("/signup")}>
+                                        <Button size="icon" className="rounded-full bg-gray-900 text-white hover:bg-primary shadow-md w-10 h-10 hidden md:flex" onClick={() => navigate("/home")}>
                                             <ShoppingBag size={18} />
                                         </Button>
                                     </div>
@@ -264,7 +264,7 @@ const LandingPage = () => {
                     </div>
 
                     <div className="text-center mt-16">
-                        <Button variant="outline" size="lg" className="rounded-full px-10 h-14 text-lg border-2 hover:bg-gray-50 hover:border-gray-900 hover:text-gray-900 transition-all" onClick={() => navigate("/signup")}>
+                        <Button variant="outline" size="lg" className="rounded-full px-10 h-14 text-lg border-2 hover:bg-gray-50 hover:border-gray-900 hover:text-gray-900 transition-all" onClick={() => navigate("/home")}>
                             View Full Menu <ArrowRight className="ml-2 w-5 h-5" />
                         </Button>
                     </div>
