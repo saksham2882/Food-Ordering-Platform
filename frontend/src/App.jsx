@@ -20,6 +20,7 @@ import { io } from "socket.io-client"
 import { setSocket } from "./redux/userSlice"
 import LandingPage from "./pages/LandingPage"
 import ProtectedLayout from "./components/layouts/ProtectedLayout"
+import Profile from "./pages/Profile"
 
 // Server URL
 if (!import.meta.env.VITE_SERVER_URL) {
@@ -76,6 +77,7 @@ const App = () => {
         {/* ----------- Protected Routes ----------- */}
         <Route element={<ProtectedLayout />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/create-edit-shop" element={<CreateEditShop />} />
           <Route path="/add-item" element={<AddItem />} />
           <Route path="/edit-item/:itemId" element={<EditItem />} />
