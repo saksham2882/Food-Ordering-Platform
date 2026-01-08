@@ -30,7 +30,7 @@ const OwnerLayout = ({ children }) => {
         dispatch(setUserData(null));
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        navigate("/login");
+        navigate("/signin");
         setShowLogoutAlert(false);
     };
 
