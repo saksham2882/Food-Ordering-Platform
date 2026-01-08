@@ -85,7 +85,7 @@ export const getShopByCity = async (req, res) => {
 
         if (shops.length === 0) {
             logger.info(`Get Shop By City: No shops found in ${city}`);
-            return res.status(404).json({ message: "No restaurants found in this city" })
+            return res.status(200).json([])
         }
 
         logger.info(`Get Shop By City: Found ${shops.length} shops in ${city}`);

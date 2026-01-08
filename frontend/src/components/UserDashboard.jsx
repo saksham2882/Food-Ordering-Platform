@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import CategoryCard from "./CategoryCard";
 import FoodCard from "./FoodCard";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { categories } from "../assets/category";
 import { FaMagnifyingGlass, FaArrowRightLong, FaX } from "react-icons/fa6";
 import useGetCity from "../hooks/useGetCity";
@@ -13,6 +14,8 @@ import useGetShopByCity from "../hooks/useGetShopByCity";
 import useGetItemsByCity from "../hooks/useGetItemsByCity";
 import useUpdateLocation from "../hooks/useUpdateLocation";
 import UserLayout from "./layouts/UserLayout";
+import { setCurrentCity } from "../redux/userSlice";
+import { FaStore } from "react-icons/fa";
 
 
 const UserDashboard = () => {
@@ -23,6 +26,7 @@ const UserDashboard = () => {
 
   const { currentCity, shopsInMyCity, itemsInMyCity, searchItems } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [filteredItemsList, setFilteredItemsList] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -151,6 +155,18 @@ const UserDashboard = () => {
                 <Skeleton key={i} className="w-[180px] h-[120px] md:w-[200px] md:h-[150px] rounded-xl shrink-0" />
               ))}
             </div>
+          ) : shopsInMyCity.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center space-y-4">
+              <div className="bg-orange-100 p-4 rounded-full">
+                <FaStore className="w-8 h-8 text-orange-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">No restaurants found in {currentCity}</h3>
+                <p className="text-gray-500 max-w-md mx-auto mt-2">
+                  We haven't expanded to your area yet.
+                </p>
+              </div>
+            </div>
           ) : (
             <Carousel opts={{ align: "start" }} className="w-full px-2 md:px-0">
               <CarouselContent className="-ml-4 pb-4">
@@ -170,6 +186,30 @@ const UserDashboard = () => {
               <CarouselNext className="flex -right-2 lg:-right-4 bg-white shadow-md text-gray-800 hover:bg-primary hover:text-white border-0 h-8 w-8 lg:h-10 lg:w-10" />
             </Carousel>
           )}
+
+          {/* --------- No Shops Dialog ------------- */}
+          <Dialog open={shopsInMyCity?.length === 0}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <div className="mx-auto bg-orange-100 p-3 rounded-full mb-2">
+                  <FaStore className="w-6 h-6 text-orange-500" />
+                </div>
+                <DialogTitle className="text-center text-xl">No Restaurants Found</DialogTitle>
+                <DialogDescription className="text-center">
+                  We haven't expanded to <strong>{currentCity}</strong> yet. <br />
+                  Would you like to visit our demo location?
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex flex-col gap-3 mt-4">
+                <Button
+                  onClick={() => dispatch(setCurrentCity("Greater Noida"))}
+                  className="w-full rounded-full font-bold shadow-lg shadow-primary/20"
+                >
+                  View Demo Location (Greater Noida)
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </section>
 
 

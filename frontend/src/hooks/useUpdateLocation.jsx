@@ -9,7 +9,7 @@ const useUpdateLocation = () => {
     const updateLocation = async (lat, lon) => {
       try {
         const data = await userApi.updateLocation(lat, lon);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.error("Failed to update location", error)
       }
@@ -17,9 +17,10 @@ const useUpdateLocation = () => {
 
     // Update user location whenever browser geolocation detects a change
     // navigator.geolocation.watchPosition() continuously watches for location updates
+    // navigator.geolocation.getCurrentPosition() gets the current location
 
     if (userData) {
-      const watchId = navigator.geolocation.watchPosition(
+      navigator.geolocation.getCurrentPosition(
         (pos) => {
           updateLocation(pos.coords.latitude, pos.coords.longitude);
         },
@@ -27,9 +28,6 @@ const useUpdateLocation = () => {
           console.error("Geolocation error", error);
         }
       );
-      return () => {
-        navigator.geolocation.clearWatch(watchId);
-      };
     }
 
   }, [userData]);

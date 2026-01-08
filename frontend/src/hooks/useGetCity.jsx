@@ -6,9 +6,11 @@ import cityApi from "../api/cityApi";
 
 const useGetCity = () => {
   const dispatch = useDispatch();
-  const { userData } = useSelector((state) => state.user);
+  const { userData, currentCity } = useSelector((state) => state.user);
 
   useEffect(() => {
+    if (currentCity) return;
+
     navigator.geolocation.getCurrentPosition(async (position) => {
       // console.log(position)
 
@@ -34,7 +36,7 @@ const useGetCity = () => {
         console.error("Error fetching city data:", error);
       }
     });
-  }, [userData]);
+  }, [userData, currentCity]);
 };
 
 export default useGetCity;
