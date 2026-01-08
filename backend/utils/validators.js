@@ -24,6 +24,11 @@ export const changePasswordSchema = z.object({
     newPassword: z.string().min(8, "New password must be at least 8 characters")
 });
 
+export const updateProfileSchema = z.object({
+    fullName: z.string().min(2, "Full name must be at least 2 characters").max(100, "Full name too long"),
+    mobile: z.string().regex(/^[0-9]{10}$/, "Mobile number must be exactly 10 digits")
+});
+
 
 // Shop Schemas
 export const createShopSchema = z.object({

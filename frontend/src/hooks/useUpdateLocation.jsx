@@ -15,8 +15,7 @@ const useUpdateLocation = () => {
       }
     };
 
-    // Update user location whenever browser geolocation detects a change
-    // navigator.geolocation.watchPosition() continuously watches for location updates
+    // Update user location once when userData changes
     // navigator.geolocation.getCurrentPosition() gets the current location
 
     if (userData) {

@@ -251,10 +251,10 @@ const LandingPage = () => {
                                     <p className="text-sm text-gray-500 mb-4 line-clamp-2">Delicious Indian cuisine prepared with authentic spices and fresh ingredients.</p>
                                     <div className="flex justify-between items-center pt-2 border-t border-gray-50">
                                         <span className="text-2xl font-black text-gray-900">{dish.price}</span>
-                                        <Button size="sm" className="rounded-full px-5 bg-orange-100 text-primary hover:bg-primary hover:text-white font-bold md:hidden" onClick={() => navigate("/signup")}>
+                                        <Button size="sm" className="rounded-full px-5 bg-orange-100 text-primary hover:bg-primary hover:text-white font-bold md:hidden" onClick={() => navigate("/home")}>
                                             <ShoppingBag size={16} className="mr-2" /> Add
                                         </Button>
-                                        <Button size="icon" className="rounded-full bg-gray-900 text-white hover:bg-primary shadow-md w-10 h-10 hidden md:flex" onClick={() => navigate("/signup")}>
+                                        <Button size="icon" className="rounded-full bg-gray-900 text-white hover:bg-primary shadow-md w-10 h-10 hidden md:flex" onClick={() => navigate("/home")}>
                                             <ShoppingBag size={18} />
                                         </Button>
                                     </div>

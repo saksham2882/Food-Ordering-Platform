@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import logger from "../utils/logger.js";
 import bcrypt from "bcryptjs";
-import { changePasswordSchema } from "../utils/validators.js";
+import { changePasswordSchema, updateProfileSchema } from "../utils/validators.js";
 
 // get current user
 export const getCurrentUser = async (req, res) => {
@@ -27,6 +27,11 @@ export const getCurrentUser = async (req, res) => {
 // Update User Profile
 export const updateProfile = async (req, res) => {
     try {
+        const validation = updateProfileSchema.safeParse(req.body);
+        if (!validation.success) {
+            return res.status(400).json({ message: validation.error.issues[0].message });
+        }
+
         const { fullName, mobile } = req.body;
         const userId = req.userId;
 
@@ -87,7 +92,7 @@ export const changePassword = async (req, res) => {
 export const updateUserLocation = async (req, res) => {
     try {
         const { lat, lon } = req.body
-        
+
         if (lat === undefined || lat === null || lon === undefined || lon === null) {
             return res.status(400).json({ message: "Latitude and Longitude are required" })
         }
