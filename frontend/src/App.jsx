@@ -21,6 +21,7 @@ import { setSocket } from "./redux/userSlice"
 import LandingPage from "./pages/LandingPage"
 import ProtectedLayout from "./components/layouts/ProtectedLayout"
 import Profile from "./pages/Profile"
+import ScrollToTop from "./components/ScrollToTop"
 
 // Server URL
 if (!import.meta.env.VITE_SERVER_URL) {
@@ -57,6 +58,7 @@ const App = () => {
 
   return (
     <>
+      <ScrollToTop />
       <Toaster position="top-center" />
       <Routes>
         {/* ----------- Public Routes ----------- */}
