@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserData } from "../redux/userSlice";
 import userApi from "../api/userApi";
@@ -15,6 +15,7 @@ import { FaUser, FaEnvelope, FaPhone, FaIdBadge, FaMapMarkerAlt, FaMotorcycle, F
 import { FaLocationDot } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 const Profile = () => {
@@ -23,6 +24,14 @@ const Profile = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [isPageLoading, setIsPageLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsPageLoading(false);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Profile Form State
     const [formData, setFormData] = useState({
@@ -136,6 +145,65 @@ const Profile = () => {
         }
     };
 
+    if (!userData || isPageLoading) {
+        return (
+            <div className="container mx-auto max-w-5xl py-8 px-4 sm:px-6 lg:px-8 mb-20 lg:mb-0">
+                {/* Back Button Skeleton */}
+                <div className="mb-4 flex justify-start gap-4">
+                    <Skeleton className="h-10 w-24 rounded-full" />
+                    <Skeleton className="h-10 w-24 rounded-full" />
+                </div>
+                <Separator className="my-6 opacity-50" />
+                <div className="flex flex-col md:flex-row gap-8">
+                    {/* Sidebar Skeleton */}
+                    <div className="w-full md:w-1/3 space-y-6">
+                        <Card className="overflow-hidden border-2 border-gray-200/50 shadow-lg bg-white/50">
+                            <div className="h-32 bg-gray-100 relative">
+                                <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
+                                    <Skeleton className="w-32 h-32 rounded-full border-4 border-white" />
+                                </div>
+                            </div>
+                            <CardContent className="pt-16 pb-8 text-center space-y-4">
+                                <div className="space-y-2 flex flex-col items-center">
+                                    <Skeleton className="h-8 w-3/4" />
+                                    <Skeleton className="h-4 w-1/2" />
+                                </div>
+                                <div className="flex justify-center mt-4">
+                                    <Skeleton className="h-6 w-24 rounded-full" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                    {/* Main Content Skeleton */}
+                    <div className="w-full md:w-2/3">
+                        <div className="w-full space-y-6">
+                            <Skeleton className="h-12 w-full rounded-xl" />
+                            <Card className="border-2 border-gray-200/50 shadow-lg bg-white/80">
+                                <CardHeader className="space-y-2">
+                                    <Skeleton className="h-8 w-48" />
+                                    <Skeleton className="h-4 w-64" />
+                                </CardHeader>
+                                <Separator />
+                                <CardContent className="space-y-6 pt-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {[1, 2, 3, 4].map((i) => (
+                                            <div key={i} className="space-y-2">
+                                                <Skeleton className="h-4 w-20" />
+                                                <Skeleton className="h-10 w-full" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="flex justify-end pt-6">
+                                        <Skeleton className="h-10 w-32" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto max-w-5xl py-8 px-4 sm:px-6 lg:px-8 mb-20 lg:mb-0">
