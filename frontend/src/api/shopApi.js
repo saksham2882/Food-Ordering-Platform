@@ -59,7 +59,7 @@ const shopApi = {
     },
 
     deleteItem: async (itemId) => {
-        const res = await axios.delete(`${SERVER_URL}/api/item/delete/${itemId}`, {
+        const res = await axios.get(`${SERVER_URL}/api/item/delete/${itemId}`, {
             withCredentials: true,
         });
         return res.data;
