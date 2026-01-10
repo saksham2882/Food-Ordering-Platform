@@ -8,10 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Input } from "../components/ui/input";
 import Footer from "../components/common/Footer";
 import Appetizers from "../assets/Appetizers.jpg";
-import Biryani from "../assets/Biryani.jpg";
-import Noodles from "../assets/Noodles.webp";
-import Desserts from "../assets/Dessert.jpeg";
-import Indian_food from "../assets/Indian_food.jpg";
+import Biryani from "../assets/categories/biryani.png";
+import Noodles from "../assets/categories/chinese.png";
+import Desserts from "../assets/categories/dessert.jpeg";
+import Indian_food from "../assets/categories/north_indian.png";
 
 const LandingPage = () => {
     const navigate = useNavigate();

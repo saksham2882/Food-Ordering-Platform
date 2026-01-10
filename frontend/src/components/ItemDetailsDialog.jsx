@@ -55,7 +55,7 @@ const ItemDetailsDialog = ({ open, onOpenChange, data, cartItem }) => {
             <DialogContent className="sm:max-w-[900px] p-0 overflow-hidden gap-0 border-none shadow-2xl rounded-3xl grid grid-cols-1 md:grid-cols-2 h-[90vh] md:h-auto max-h-[600px]">
 
                 {/* ---------- Left Side - Image ---------- */}
-                <div className="relative h-[250px] md:h-full w-full group overflow-hidden bg-gray-100">
+                <div className="relative h-[250px] md:h-[500px] w-full group overflow-hidden bg-gray-100">
                     <img
                         src={data.image}
                         alt={data.name}
