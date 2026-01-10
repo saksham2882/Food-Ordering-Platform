@@ -89,7 +89,6 @@ const AddItem = () => {
     setLoading(true);
     try {
       const data = await shopApi.addItem(formData);
-      console.log(data);
       dispatch(setMyShopData(data))
       toast.success("Item added successfully");
       navigate("/home");

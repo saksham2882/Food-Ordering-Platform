@@ -152,7 +152,7 @@ const UserDashboard = () => {
 
           {!shopsInMyCity ? (
             <div className="flex gap-4 overflow-hidden px-2 md:px-0">
-              {[...Array(4)].map((_, i) => (
+              {[...Array(6)].map((_, i) => (
                 <Skeleton key={i} className="w-[180px] h-[120px] md:w-[200px] md:h-[150px] rounded-xl shrink-0" />
               ))}
             </div>
