@@ -21,6 +21,7 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isVegOnly, setIsVegOnly] = useState(false);
+  const [itemsToShow, setItemsToShow] = useState(8);
   const navigate = useNavigate();
 
   const handleShop = async () => {
@@ -38,7 +39,16 @@ const Shop = () => {
 
   useEffect(() => {
     handleShop();
+    setItemsToShow(8);
   }, [shopId]);
+
+  useEffect(() => {
+    setItemsToShow(8);
+  }, [searchQuery, isVegOnly]);
+
+  const handleLoadMore = () => {
+    setItemsToShow((prev) => prev + 8);
+  };
 
   // ------ Filter -------
   const filteredItems = useMemo(() => {
@@ -176,7 +186,7 @@ const Shop = () => {
                     Veg Only
                   </span>
                   <FaLeaf
-                    className={`text-xs ${isVegOnly ? "text-green-600" : "text-gray-400" }`}
+                    className={`text-xs ${isVegOnly ? "text-green-600" : "text-gray-400"}`}
                   />
                 </Label>
                 <Switch
@@ -194,17 +204,31 @@ const Shop = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[500px]">
         {/* ------------- Items Grid ------------- */}
         {filteredItems?.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-            {filteredItems.map((item, index) => (
-              <div
-                key={item._id || index}
-                className={`animate-in fade-in zoom-in-95 duration-500 fill-mode-forwards`}
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <FoodCard data={item} />
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+              {filteredItems.slice(0, itemsToShow).map((item, index) => (
+                <div
+                  key={item._id || index}
+                  className={`animate-in fade-in zoom-in-95 duration-500 fill-mode-forwards`}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <FoodCard data={item} />
+                </div>
+              ))}
+            </div>
+
+            {itemsToShow < filteredItems?.length && (
+              <div className="flex justify-center mt-14">
+                <Button
+                  onClick={handleLoadMore}
+                  variant="outline"
+                  className="rounded-full px-10 py-5 font-bold text-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 shadow-lg shadow-primary/10 hover:shadow-primary/30"
+                >
+                  Load More
+                </Button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400 text-center">
             <div className="bg-gray-100 p-8 rounded-full mb-6">

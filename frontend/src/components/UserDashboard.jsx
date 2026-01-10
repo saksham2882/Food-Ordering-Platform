@@ -30,9 +30,11 @@ const UserDashboard = () => {
   const dispatch = useDispatch();
   const [filteredItemsList, setFilteredItemsList] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [itemsToShow, setItemsToShow] = useState(12);
 
   const handleFilterByCategory = (category) => {
     setActiveCategory(category);
+    setItemsToShow(12);
     if (category === "All") {
       setFilteredItemsList(itemsInMyCity);
     } else {
@@ -41,8 +43,13 @@ const UserDashboard = () => {
     }
   };
 
+  const handleLoadMore = () => {
+    setItemsToShow((prev) => prev + 12);
+  };
+
   useEffect(() => {
     setFilteredItemsList(itemsInMyCity);
+    setItemsToShow(12);
   }, [itemsInMyCity]);
 
   return (
@@ -256,11 +263,25 @@ const UserDashboard = () => {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gap-y-10 justify-items-center sm:justify-items-stretch">
-              {filteredItemsList?.map((item) => (
-                <FoodCard key={item._id} data={item} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gap-y-10 justify-items-center sm:justify-items-stretch">
+                {filteredItemsList?.slice(0, itemsToShow).map((item) => (
+                  <FoodCard key={item._id} data={item} />
+                ))}
+              </div>
+
+              {itemsToShow < filteredItemsList?.length && (
+                <div className="flex justify-center mt-14">
+                  <Button
+                    onClick={handleLoadMore}
+                    variant="outline"
+                    className="rounded-full px-10 py-5 font-bold text-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 shadow-lg shadow-primary/10 hover:shadow-primary/30"
+                  >
+                    Load More
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </section>
 
