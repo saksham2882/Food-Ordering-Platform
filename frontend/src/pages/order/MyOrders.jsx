@@ -17,11 +17,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { ArrowLeft } from "lucide-react";
 import UserLayout from "@/components/layouts/UserLayout";
+import { useSocket } from "../../context/SocketContext";
 
 
 const MyOrders = () => {
   useGetMyOrders();
-  const { userData, myOrders, socket } = useSelector((state) => state.user);
+  const { userData, myOrders } = useSelector((state) => state.user);
+  const { socket } = useSocket();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");

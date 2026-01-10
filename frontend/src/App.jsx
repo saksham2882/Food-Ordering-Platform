@@ -4,7 +4,7 @@ import SignIn from "./pages/auth/SignIn"
 import ForgotPassword from "./pages/auth/ForgotPassword"
 import { Toaster } from "sonner"
 import useGetCurrentUser from "./hooks/useGetCurrentUser"
-import { useDispatch, useSelector } from "react-redux"
+import { useSelector } from "react-redux"
 import Home from "./pages/Home"
 import CreateEditShop from "./pages/shop/CreateEditShop"
 import AddItem from "./pages/shop/AddItem"
@@ -15,9 +15,6 @@ import OrderPlaced from "./pages/order/OrderPlaced"
 import MyOrders from "./pages/order/MyOrders"
 import TrackOrderPage from "./pages/order/TrackOrderPage"
 import Shop from "./pages/shop/Shop"
-import { useEffect } from "react"
-import { io } from "socket.io-client"
-import { setSocket } from "./redux/userSlice"
 import LandingPage from "./pages/LandingPage"
 import ProtectedLayout from "./components/layouts/ProtectedLayout"
 import GuestFriendlyLayout from "./components/layouts/GuestFriendlyLayout"
@@ -30,25 +27,10 @@ if (!import.meta.env.VITE_SERVER_URL) {
 }
 export const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
+
 const App = () => {
   useGetCurrentUser()
-  const { userData, isCheckingAuth } = useSelector((state) => state.user);
-  const dispatch = useDispatch()
-
-  useEffect(() => {
-    const socketInstance = io(SERVER_URL, { withCredentials: true })
-    dispatch(setSocket(socketInstance))
-    socketInstance.on("connect", () => {
-      if (userData) {
-        socketInstance.emit('identity', { userId: userData._id })
-      }
-    })
-
-    return () => {
-      socketInstance.disconnect()
-    }
-  }, [userData?._id])
-
+  const { userData } = useSelector((state) => state.user);
 
   return (
     <>

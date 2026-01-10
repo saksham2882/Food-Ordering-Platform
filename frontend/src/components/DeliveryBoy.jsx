@@ -16,6 +16,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { MapPin, Navigation, Phone, Package, TrendingUp, Clock, CheckCircle2, AlertCircle, Banknote, Bike, User, ChevronRight } from "lucide-react";
 import { Spinner } from "./ui/spinner";
+import { useSocket } from "../context/SocketContext";
 
 
 const chartConfig = {
@@ -42,7 +43,8 @@ const StatsCard = ({ title, value, icon: Icon, colorClass }) => (
 
 
 const DeliveryBoy = () => {
-  const { userData, socket } = useSelector((state) => state.user);
+  const { userData } = useSelector((state) => state.user);
+  const { socket } = useSocket();
   const [availableAssignments, setAvailableAssignments] = useState([]);
   const [currentOrder, setCurrentOrder] = useState(null);
   const [showOtpBox, setShowOtpBox] = useState(false);

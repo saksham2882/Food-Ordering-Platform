@@ -3,7 +3,6 @@ import orderApi from "../../api/orderApi";
 import { useEffect, useState } from "react";
 import { FaArrowLeft, FaPhone, FaCheckCircle, FaMotorcycle, FaBox } from "react-icons/fa";
 import DeliveryBoyTracking from "../../components/DeliveryBoyTracking";
-import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -12,13 +11,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Terminal } from "lucide-react";
 import { toast } from "sonner";
+import { useSocket } from "../../context/SocketContext";
 
 
 const TrackOrderPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const [currentOrder, setCurrentOrder] = useState();
-  const { socket } = useSelector((state) => state.user);
+  const { socket } = useSocket();
   const [liveLocation, setLiveLocation] = useState({});
 
   const handleGetOrder = async () => {
