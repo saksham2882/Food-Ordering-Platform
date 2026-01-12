@@ -26,7 +26,7 @@ The main goal of this project is to provide a robust and reliable backend for a 
 | **JWT (JSON Web Tokens)** | A compact, URL-safe means of representing claims to be transferred between two parties. It is used for authentication and authorization.        |
 | **Cloudinary**            | A cloud-based image and video management service. It is used to store and serve all the images for the platform.                                |
 | **Razorpay**              | A payment gateway that allows for online payment processing.                                                                                    |
-| **Nodemailer**            | A module for Node.js applications to allow easy as cake email sending.                                                                          |
+| **Nodemailer**            | A module for Node.js applications that simplifies email sending.                                                                          |
 | **Winston**               | A logger for just about everything.                                                                                                             |
 | **Zod**                   | TypeScript-first schema declaration and validation library.                                                                                     |
 | **Helmet**                | Helps secure Express apps by setting various HTTP headers.                                                                                      |
