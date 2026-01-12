@@ -717,9 +717,8 @@ A delivery person who is responsible for delivering the orders to the users. A d
 
 #### `POST /api/order/send-delivery-otp`
 
-- **Working**: Sends a delivery OTP to the user. It takes the order ID and the shop order ID as input. It generates a 6-digit OTP and saves it in the shop order document in the database. It then sends the OTP to the user's email.
+- **Working**: Sends a delivery OTP to the user. Takes the order ID and shop order ID as input, generates a 6-digit OTP, and saves it in the shop order document in the database. The OTP is then sent to the user's email.
 - **Request Body**:
-  ```json
   {
     "orderId": "...",
     "shopOrderId": "..."
